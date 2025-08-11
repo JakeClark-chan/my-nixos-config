@@ -65,7 +65,7 @@ A modular NixOS configuration setup with flakes support for easy maintenance and
 
 1. **Clone this repository:**
    ```bash
-   git clone https://github.com/username/my-nixos-config.git
+   git clone https://github.com/JakeClark38a/my-nixos-config.git
    cd my-nixos-config
    ```
 
