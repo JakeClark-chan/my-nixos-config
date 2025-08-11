@@ -1,0 +1,18 @@
+{ config, pkgs, ... }:
+
+{
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  
+  # Perform garbage collection weekly
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 1w";
+  };
+  
+  # Optimize storage
+  nix.settings.auto-optimise-store = true;
+  
+  # Allow unfree packages
+  nixpkgs.config.allowUnfree = true;
+}
