@@ -8,4 +8,15 @@
   
   # Disable printing service (CUPS)
   services.printing.enable = false;
+
+  # Open ports in the firewall.
+  # networking.firewall.allowedTCPPorts = [ ... ];
+  # networking.firewall.allowedUDPPorts = [ ... ];
+  # Or disable the firewall altogether.
+  # networking.firewall.enable = false;
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [ 80 443 ]; # HTTP, HTTPS
+    allowedUDPPorts = [ 53 ]; # DNS
+  };
 }
