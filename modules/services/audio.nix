@@ -1,6 +1,7 @@
 { config, pkgs, ... }:
 
 {
+  # Enable sound with PipeWire (disable PulseAudio daemon)
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {

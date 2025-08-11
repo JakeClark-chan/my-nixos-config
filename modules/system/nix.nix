@@ -1,6 +1,7 @@
 { config, pkgs, ... }:
 
 {
+  # Enable experimental features.
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   
   # Perform garbage collection weekly

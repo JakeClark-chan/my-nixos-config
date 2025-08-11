@@ -1,8 +1,10 @@
 { config, pkgs, ... }:
 
 {
+  # Set your time zone.
   time.timeZone = "Asia/Ho_Chi_Minh";
   
+  # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
   i18n.extraLocaleSettings = {
     LC_ADDRESS = "vi_VN";

@@ -2,13 +2,16 @@
 
 {
   # Hardware-specific configurations
+  # Enable non-redistributable and all firmware bundles
   hardware.enableRedistributableFirmware = true;
   hardware.enableAllFirmware = true;
   hardware.firmware = [ pkgs.linux-firmware ];
   
+  # Use latest kernel and load Realtek USB Wi-Fi driver
   boot.kernelModules = [ "rtl8xxxu" ];
   boot.kernelPackages = pkgs.linuxPackages_latest;
   
+  # USB mode switching and battery threshold rules
   services.udev.packages = [ pkgs.usb-modeswitch ];
   services.udev.extraRules = ''
     # Realtek USB device mode switch
