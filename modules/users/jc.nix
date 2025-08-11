@@ -8,7 +8,7 @@
     extraGroups = [ "networkmanager" "wheel" "docker" ];
     packages = with pkgs; [
       onlyoffice-desktopeditors # for office work
-      openvpn
+      vlc
       nodejs # for gemini cli and more
       vscode
       docker

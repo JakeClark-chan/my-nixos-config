@@ -2,6 +2,12 @@
 
 {
   # Hardware-specific configurations
+  # Disable Bluetooth
+  hardware.bluetooth = {
+    enable = false;
+    powerOnBoot = false;
+  };
+
   # Enable non-redistributable and all firmware bundles
   hardware.enableRedistributableFirmware = true;
   hardware.enableAllFirmware = true;

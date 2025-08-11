@@ -18,5 +18,8 @@
     zsh
     python313
     git
+    openvpn
+    fastfetch
+    htop
   ];
 }
