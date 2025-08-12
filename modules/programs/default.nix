@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   # Install Firefox browser
@@ -7,6 +7,24 @@
   # Enable SSH agent for convenience
   programs.ssh = {
     startAgent = true;
+  };
+
+  # Enable auto-cpufreq for CPU frequency scaling
+  programs.auto-cpufreq.enable = true;
+  # optionally, you can configure your auto-cpufreq settings, if you have any
+  programs.auto-cpufreq.settings = {
+    charger = {
+      governor = "performance";
+      turbo = "auto";
+      energy_performance_preference = "performance";
+    };
+
+    battery = {
+      governor = "powersave";
+      turbo = "never";
+      energy_performance_preference = "power";
+
+    };
   };
   
   # Common CLI tools and languages
