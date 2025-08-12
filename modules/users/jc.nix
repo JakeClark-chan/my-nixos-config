@@ -5,7 +5,7 @@
     isNormalUser = true;
     description = "JakeClark";
     # Add common groups: network, sudo, docker
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "lxd" ];
     packages = with pkgs; [
       vlc
       gthumb
@@ -17,6 +17,9 @@
 
       ani-cli # for anime streaming
       python313Packages.yt-dlp
+
+      lmstudio
+      lxc
     ];
   };
 }
