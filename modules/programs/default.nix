@@ -17,13 +17,16 @@
       governor = "performance";
       turbo = "auto";
       energy_performance_preference = "performance";
+      energy_perf_bias = "balance_performance";
+      platform_profile = "performance";
     };
 
     battery = {
       governor = "powersave";
       turbo = "never";
       energy_performance_preference = "power";
-
+      energy_perf_bias = "power";
+      platform_profile = "quiet";
     };
   };
   
