@@ -10,10 +10,7 @@
       vlc
       gthumb
       onlyoffice-desktopeditors # for office work
-      nodejs # for gemini cli and more
-      vscode
-      docker
-      docker-compose
+      
       distrobox # for sandboxing applications
       python313Packages.uv # for virtual environments
       flameshot # for screenshot
