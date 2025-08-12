@@ -42,7 +42,9 @@
     openvpn
     fastfetch
     htop
-    
+    ncdu
+    jq
+
     nodejs # for gemini cli and more
     vscode
     docker

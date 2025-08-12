@@ -15,7 +15,8 @@
   
   # Use latest kernel and load Realtek USB Wi-Fi driver
   boot.kernelModules = [ "rtl8xxxu" ];
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_15;
   
   # USB mode switching and battery threshold rules
   services.udev.packages = [ pkgs.usb-modeswitch ];
@@ -28,4 +29,21 @@
     ACTION=="add", KERNEL=="asus-nb-wmi", \
       RUN+="${pkgs.bash}/bin/bash -c 'echo 80 > /sys/class/power_supply/BAT1/charge_control_end_threshold'"
   '';
+
+  # Enable NVIDIA PRIME for hybrid graphics
+  services.xserver.videoDrivers = [ "nvidia" ];
+
+  hardware.nvidia = {
+    open = false; # open source drivers
+    modesetting.enable = true;
+    nvidiaSettings = true;              # installs nvidia-settings
+    powerManagement.enable = true;      # optional: saves power on laptops
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+  };
+  hardware.nvidia.prime = {
+    offload.enable = true;
+    offload.enableOffloadCmd = true; # enables offload command
+    intelBusId = "PCI:0@0:2:0";   # replace with your iGPU
+    nvidiaBusId = "PCI:1@0:0:0";  # replace with your dGPU
+  };
 }
