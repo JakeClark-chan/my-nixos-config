@@ -31,10 +31,12 @@
               let
                 pkgsUnstable = import nixpkgs-unstable {
                   system = final.stdenv.hostPlatform.system;
-                  config = prev.config; # respects allowUnfree, etc.
+                  config = final.config; # respects allowUnfree, etc.
                 };
               in {
                 lmstudio = pkgsUnstable.lmstudio;
+                # If you use vscode-with-extensions, you can also map it here.
+                # vscode-with-extensions = pkgsUnstable.vscode-with-extensions;
               })
           ];
         })
