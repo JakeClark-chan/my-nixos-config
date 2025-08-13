@@ -47,6 +47,7 @@
 
     nodejs # for gemini cli and more
     vscode_unstable
+    nerd-fonts.fira-code
     #docker-compose
   ];
 }

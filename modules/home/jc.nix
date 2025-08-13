@@ -1,5 +1,11 @@
 { config, pkgs, ... }:
 
+let
+  # Wrapper that runs the repo script with Python
+  lxcGui = pkgs.writeShellScriptBin "lxc-gui" ''
+    exec ${pkgs.python313Full}/bin/python ${./scripts/lxc_gui_standalone.py} "$@"
+  '';
+in
 {
   home.username = "jc";
   home.homeDirectory = "/home/jc";
@@ -16,7 +22,17 @@
 
     ani-cli # for anime streaming
     python313Packages.yt-dlp
+    lxcGui
   ];
+
+  # Desktop launcher for the script (appears in your app menu)
+  xdg.desktopEntries.lxc-gui = {
+    name = "LXC GUI Standalone";
+    comment = "Manage LXD containers";
+    exec = "lxc-gui";
+    terminal = false;
+    categories = [ "Utility" "System" ];
+  };
 
   # Git
   programs.git = {

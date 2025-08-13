@@ -94,3 +94,24 @@ EOF
 # Inside the container
 netplan apply
 ```
+
+## Resize storage pool
+https://documentation.ubuntu.com/lxd/latest/howto/storage_pools/
+### View Storage Pools
+```bash
+lxc storage list
+```
+### Resize Storage Pool
+```bash
+lxc storage set <pool_name> size=<new_size>
+# Example:
+lxc storage set default size=50GB
+```
+### Usage Information
+```bash
+lxc storage info <pool_name>
+lxc storage show <pool_name>
+# Example:
+lxc storage info default
+lxc storage show default
+```
