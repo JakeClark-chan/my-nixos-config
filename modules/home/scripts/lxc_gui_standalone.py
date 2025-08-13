@@ -11,6 +11,7 @@ import json
 import threading
 import time
 import os
+import shlex
 from pathlib import Path
 from typing import List, Optional
 import re
@@ -180,6 +181,155 @@ class LXCManager:
     def list_users(self, container_name: str) -> List[str]:
         """Alias for list_users_in_container for compatibility"""
         return self.list_users_in_container(container_name)
+    
+    def get_detailed_users_in_container(self, container_name: str) -> List[tuple]:
+        """Get detailed information about users in the container"""
+        try:
+            # Get user info from /etc/passwd
+            result = self.run_command(['lxc', 'exec', container_name, '--', 'cat', '/etc/passwd'])
+            if result.returncode != 0:
+                return []
+            
+            users_info = []
+            for line in result.stdout.strip().split('\n'):
+                if not line.strip():
+                    continue
+                
+                parts = line.split(':')
+                if len(parts) >= 7:
+                    username, _, uid, gid, gecos, home, shell = parts[:7]
+                    
+                    # Filter to human users and root
+                    try:
+                        uid_int = int(uid)
+                        if uid_int >= 1000 or username == 'root':
+                            # Get user groups
+                            groups_result = self.run_command(['lxc', 'exec', container_name, '--', 'groups', username])
+                            groups = ""
+                            if groups_result.returncode == 0:
+                                groups_line = groups_result.stdout.strip()
+                                if ':' in groups_line:
+                                    groups = groups_line.split(':', 1)[1].strip()
+                                else:
+                                    groups = groups_line.replace(username, '').strip()
+                            
+                            users_info.append((username, uid, gid, home, shell, groups))
+                    except ValueError:
+                        continue
+            
+            return users_info
+        except Exception:
+            return []
+    
+    def delete_user_in_container(self, container_name: str, username: str) -> bool:
+        """Delete a user from the container"""
+        try:
+            # Use userdel with -r to remove home directory
+            cmd = ['lxc', 'exec', container_name, '--', 'userdel', '-r', username]
+            result = self.run_command(cmd)
+            return result.returncode == 0
+        except Exception:
+            return False
+    
+    def change_user_password_in_container(self, container_name: str, username: str, new_password: str) -> bool:
+        """Change user password in the container"""
+        try:
+            # Use chpasswd for secure password change
+            cmd = ['lxc', 'exec', container_name, '--', 'bash', '-c', 
+                  f'echo "{shlex.quote(username)}:{shlex.quote(new_password)}" | chpasswd']
+            result = self.run_command(cmd)
+            return result.returncode == 0
+        except Exception:
+            return False
+    
+    def check_user_sudo_status(self, container_name: str, username: str) -> bool:
+        """Check if user has sudo privileges"""
+        try:
+            # Check if user is in sudo group
+            result = self.run_command(['lxc', 'exec', container_name, '--', 'groups', username])
+            if result.returncode == 0:
+                groups = result.stdout.strip()
+                return 'sudo' in groups.split()
+            return False
+        except Exception:
+            return False
+    
+    def update_user_sudo_in_container(self, container_name: str, username: str, grant_sudo: bool) -> bool:
+        """Update user sudo privileges in the container"""
+        try:
+            if grant_sudo:
+                # Add user to sudo group
+                cmd = ['lxc', 'exec', container_name, '--', 'usermod', '-aG', 'sudo', username]
+            else:
+                # Remove user from sudo group
+                cmd = ['lxc', 'exec', container_name, '--', 'gpasswd', '-d', username, 'sudo']
+            
+            result = self.run_command(cmd)
+            return result.returncode == 0
+        except Exception:
+            return False
+    
+    def get_user_details_in_container(self, container_name: str, username: str) -> str:
+        """Get detailed information about a specific user"""
+        try:
+            details = []
+            
+            # Get basic user info from passwd
+            passwd_result = self.run_command(['lxc', 'exec', container_name, '--', 'getent', 'passwd', username])
+            if passwd_result.returncode == 0:
+                passwd_info = passwd_result.stdout.strip().split(':')
+                if len(passwd_info) >= 7:
+                    details.append(f"Username: {passwd_info[0]}")
+                    details.append(f"User ID (UID): {passwd_info[2]}")
+                    details.append(f"Group ID (GID): {passwd_info[3]}")
+                    details.append(f"Full Name: {passwd_info[4]}")
+                    details.append(f"Home Directory: {passwd_info[5]}")
+                    details.append(f"Shell: {passwd_info[6]}")
+                    details.append("")
+            
+            # Get groups
+            groups_result = self.run_command(['lxc', 'exec', container_name, '--', 'groups', username])
+            if groups_result.returncode == 0:
+                groups_line = groups_result.stdout.strip()
+                if ':' in groups_line:
+                    groups = groups_line.split(':', 1)[1].strip()
+                else:
+                    groups = groups_line.replace(username, '').strip()
+                details.append(f"Groups: {groups}")
+                details.append("")
+            
+            # Check sudo privileges
+            sudo_status = self.check_user_sudo_status(container_name, username)
+            details.append(f"Sudo Privileges: {'Yes' if sudo_status else 'No'}")
+            details.append("")
+            
+            # Get last login info
+            lastlog_result = self.run_command(['lxc', 'exec', container_name, '--', 'lastlog', '-u', username])
+            if lastlog_result.returncode == 0:
+                details.append("Last Login Information:")
+                details.append(lastlog_result.stdout.strip())
+                details.append("")
+            
+            # Get disk usage of home directory
+            du_result = self.run_command(['lxc', 'exec', container_name, '--', 'du', '-sh', f'/home/{username}'])
+            if du_result.returncode == 0:
+                details.append("Home Directory Size:")
+                details.append(du_result.stdout.strip())
+                details.append("")
+            
+            # Get running processes
+            ps_result = self.run_command(['lxc', 'exec', container_name, '--', 'ps', '-u', username])
+            if ps_result.returncode == 0:
+                processes = ps_result.stdout.strip()
+                if processes:
+                    details.append("Running Processes:")
+                    details.append(processes)
+                else:
+                    details.append("Running Processes: None")
+            
+            return '\n'.join(details)
+        except Exception as e:
+            return f"Error retrieving user details: {str(e)}"
     
     def attach_network_interface(self, container_name: str, network_name: str = "lxdbr0", 
                                 device_name: str = "eth0") -> bool:
@@ -1391,7 +1541,7 @@ class LXCGui:
         threading.Thread(target=run_test, daemon=True).start()
     
     def manage_users_dialog(self):
-        """Show dialog to manage users in the selected container"""
+        """Show dialog to manage users in the selected container with full CRUD operations"""
         container_name = self.get_selected_container()
         if not container_name:
             return
@@ -1404,32 +1554,111 @@ class LXCGui:
         
         dialog = tk.Toplevel(self.root)
         dialog.title(f"User Management - {container_name}")
-        dialog.geometry("500x400")
+        dialog.geometry("700x600")
         dialog.transient(self.root)
         dialog.grab_set()
         
         frame = ttk.Frame(dialog, padding="20")
         frame.pack(fill=tk.BOTH, expand=True)
         
-        # Current users
+        # Current users with detailed info
         ttk.Label(frame, text="Current Users:", font=("Arial", 12, "bold")).pack(anchor=tk.W)
         
         users_frame = ttk.Frame(frame)
         users_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 15))
         
-        users_listbox = tk.Listbox(users_frame, height=8)
-        users_scrollbar = ttk.Scrollbar(users_frame, orient=tk.VERTICAL, command=users_listbox.yview)
-        users_listbox.configure(yscrollcommand=users_scrollbar.set)
+        # Create Treeview for detailed user information
+        columns = ("Username", "UID", "GID", "Home", "Shell", "Groups")
+        users_tree = ttk.Treeview(users_frame, columns=columns, show="headings", height=8)
         
-        users_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        # Configure columns
+        for col in columns:
+            users_tree.heading(col, text=col)
+            users_tree.column(col, width=100, minwidth=80)
+        
+        users_scrollbar = ttk.Scrollbar(users_frame, orient=tk.VERTICAL, command=users_tree.yview)
+        users_tree.configure(yscrollcommand=users_scrollbar.set)
+        
+        users_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         users_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         
-        # Load users
+        # Load users with detailed information
         def refresh_users():
-            users_listbox.delete(0, tk.END)
-            users = self.lxc_manager.list_users_in_container(container_name)
-            for user in users:
-                users_listbox.insert(tk.END, user)
+            for item in users_tree.get_children():
+                users_tree.delete(item)
+            
+            user_details = self.lxc_manager.get_detailed_users_in_container(container_name)
+            for user_info in user_details:
+                users_tree.insert("", tk.END, values=user_info)
+        
+        # User operations frame
+        operations_frame = ttk.Frame(frame)
+        operations_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        def get_selected_user():
+            selection = users_tree.selection()
+            if not selection:
+                messagebox.showwarning("Warning", "Please select a user first")
+                return None
+            
+            item = users_tree.item(selection[0])
+            return item['values'][0]  # username is first column
+        
+        def delete_user():
+            username = get_selected_user()
+            if not username:
+                return
+            
+            # Prevent deletion of system users
+            if username in ['root', 'ubuntu', 'daemon', 'bin', 'sys', 'sync', 'games', 'man', 'lp', 'mail', 'news', 'uucp', 'proxy', 'www-data', 'backup', 'list', 'irc', 'gnats', 'nobody', 'systemd-network', 'systemd-resolve', 'syslog', 'messagebus', 'systemd-timesync', 'uuidd', 'tcpdump', 'sshd', 'landscape', 'pollinate', 'ec2-instance-connect', 'systemd-coredump', 'lxd']:
+                messagebox.showerror("Error", f"Cannot delete system user '{username}'")
+                return
+            
+            if messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete user '{username}'?\nThis action cannot be undone."):
+                try:
+                    self.status_var.set(f"Deleting user '{username}'...")
+                    self.root.update()
+                    
+                    success = self.lxc_manager.delete_user_in_container(container_name, username)
+                    
+                    if success:
+                        messagebox.showinfo("Success", f"User '{username}' deleted successfully!")
+                        refresh_users()
+                    else:
+                        messagebox.showerror("Error", f"Failed to delete user '{username}'")
+                    
+                    self.status_var.set("Ready")
+                    
+                except Exception as e:
+                    messagebox.showerror("Error", f"Failed to delete user: {str(e)}")
+                    self.status_var.set("Ready")
+        
+        def edit_user():
+            username = get_selected_user()
+            if not username:
+                return
+            
+            # Prevent editing system users
+            if username in ['root', 'ubuntu', 'daemon', 'bin', 'sys', 'sync', 'games', 'man', 'lp', 'mail', 'news', 'uucp', 'proxy', 'www-data', 'backup', 'list', 'irc', 'gnats', 'nobody']:
+                messagebox.showerror("Error", f"Cannot edit system user '{username}'")
+                return
+            
+            self.edit_user_dialog(container_name, username, refresh_users)
+        
+        def view_user_details():
+            username = get_selected_user()
+            if not username:
+                return
+            
+            self.user_details_dialog(container_name, username)
+        
+        # Operation buttons
+        operations_buttons_frame = ttk.Frame(operations_frame)
+        operations_buttons_frame.pack(anchor=tk.W)
+        
+        ttk.Button(operations_buttons_frame, text="View Details", command=view_user_details).pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Button(operations_buttons_frame, text="Edit User", command=edit_user).pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Button(operations_buttons_frame, text="Delete User", command=delete_user).pack(side=tk.LEFT, padx=(0, 5))
         
         refresh_users()
         
@@ -1437,17 +1666,21 @@ class LXCGui:
         add_user_frame = ttk.LabelFrame(frame, text="Add New User", padding="10")
         add_user_frame.pack(fill=tk.X, pady=(0, 10))
         
-        ttk.Label(add_user_frame, text="Username:").pack(anchor=tk.W)
-        new_username_var = tk.StringVar()
-        ttk.Entry(add_user_frame, textvariable=new_username_var, width=30).pack(anchor=tk.W, pady=(0, 5))
+        # Create grid layout for add user form
+        add_user_inner = ttk.Frame(add_user_frame)
+        add_user_inner.pack(fill=tk.X)
         
-        ttk.Label(add_user_frame, text="Password:").pack(anchor=tk.W)
+        ttk.Label(add_user_inner, text="Username:").grid(row=0, column=0, sticky=tk.W, padx=(0, 10))
+        new_username_var = tk.StringVar()
+        ttk.Entry(add_user_inner, textvariable=new_username_var, width=20).grid(row=0, column=1, sticky=tk.W, padx=(0, 20))
+        
+        ttk.Label(add_user_inner, text="Password:").grid(row=0, column=2, sticky=tk.W, padx=(0, 10))
         new_password_var = tk.StringVar()
-        ttk.Entry(add_user_frame, textvariable=new_password_var, width=30, show="*").pack(anchor=tk.W, pady=(0, 5))
+        ttk.Entry(add_user_inner, textvariable=new_password_var, width=20, show="*").grid(row=0, column=3, sticky=tk.W)
         
         new_sudo_var = tk.BooleanVar(value=True)
-        ttk.Checkbutton(add_user_frame, text="Grant sudo privileges", 
-                       variable=new_sudo_var).pack(anchor=tk.W, pady=(0, 10))
+        ttk.Checkbutton(add_user_inner, text="Grant sudo privileges", 
+                       variable=new_sudo_var).grid(row=1, column=0, columnspan=2, sticky=tk.W, pady=(10, 0))
         
         def add_user():
             username = new_username_var.get().strip()
@@ -1455,6 +1688,15 @@ class LXCGui:
             
             if not username or not password:
                 messagebox.showerror("Error", "Username and password are required")
+                return
+            
+            # Validate username
+            if not username.replace('_', '').replace('-', '').isalnum():
+                messagebox.showerror("Error", "Username can only contain letters, numbers, hyphens, and underscores")
+                return
+            
+            if len(username) > 32:
+                messagebox.showerror("Error", "Username cannot be longer than 32 characters")
                 return
             
             try:
@@ -1478,13 +1720,153 @@ class LXCGui:
                 messagebox.showerror("Error", f"Failed to create user: {str(e)}")
                 self.status_var.set("Ready")
         
-        ttk.Button(add_user_frame, text="Add User", command=add_user).pack(anchor=tk.W)
+        ttk.Button(add_user_inner, text="Add User", command=add_user).grid(row=1, column=2, columnspan=2, pady=(10, 0))
         
         # Buttons
         button_frame = ttk.Frame(frame)
         button_frame.pack(fill=tk.X)
         
         ttk.Button(button_frame, text="Refresh", command=refresh_users).pack(side=tk.LEFT)
+        ttk.Button(button_frame, text="Close", command=dialog.destroy).pack(side=tk.RIGHT)
+    
+    def edit_user_dialog(self, container_name, username, refresh_callback):
+        """Show dialog to edit user properties"""
+        dialog = tk.Toplevel(self.root)
+        dialog.title(f"Edit User - {username}")
+        dialog.geometry("400x300")
+        dialog.transient(self.root)
+        dialog.grab_set()
+        
+        frame = ttk.Frame(dialog, padding="20")
+        frame.pack(fill=tk.BOTH, expand=True)
+        
+        ttk.Label(frame, text=f"Editing user: {username}", font=("Arial", 12, "bold")).pack(anchor=tk.W, pady=(0, 20))
+        
+        # Change password section
+        password_frame = ttk.LabelFrame(frame, text="Change Password", padding="10")
+        password_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        ttk.Label(password_frame, text="New Password:").pack(anchor=tk.W)
+        new_password_var = tk.StringVar()
+        ttk.Entry(password_frame, textvariable=new_password_var, width=30, show="*").pack(anchor=tk.W, pady=(0, 5))
+        
+        ttk.Label(password_frame, text="Confirm Password:").pack(anchor=tk.W)
+        confirm_password_var = tk.StringVar()
+        ttk.Entry(password_frame, textvariable=confirm_password_var, width=30, show="*").pack(anchor=tk.W, pady=(0, 10))
+        
+        def change_password():
+            new_pass = new_password_var.get().strip()
+            confirm_pass = confirm_password_var.get().strip()
+            
+            if not new_pass:
+                messagebox.showerror("Error", "Password cannot be empty")
+                return
+            
+            if new_pass != confirm_pass:
+                messagebox.showerror("Error", "Passwords do not match")
+                return
+            
+            try:
+                self.status_var.set(f"Changing password for '{username}'...")
+                self.root.update()
+                
+                success = self.lxc_manager.change_user_password_in_container(container_name, username, new_pass)
+                
+                if success:
+                    messagebox.showinfo("Success", f"Password changed successfully for '{username}'!")
+                    new_password_var.set("")
+                    confirm_password_var.set("")
+                else:
+                    messagebox.showerror("Error", "Failed to change password")
+                
+                self.status_var.set("Ready")
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to change password: {str(e)}")
+                self.status_var.set("Ready")
+        
+        ttk.Button(password_frame, text="Change Password", command=change_password).pack(anchor=tk.W)
+        
+        # Sudo privileges section
+        sudo_frame = ttk.LabelFrame(frame, text="Sudo Privileges", padding="10")
+        sudo_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        # Check current sudo status
+        current_sudo = self.lxc_manager.check_user_sudo_status(container_name, username)
+        sudo_var = tk.BooleanVar(value=current_sudo)
+        
+        ttk.Checkbutton(sudo_frame, text="Grant sudo privileges", variable=sudo_var).pack(anchor=tk.W, pady=(0, 10))
+        
+        def update_sudo():
+            try:
+                self.status_var.set(f"Updating sudo privileges for '{username}'...")
+                self.root.update()
+                
+                success = self.lxc_manager.update_user_sudo_in_container(container_name, username, sudo_var.get())
+                
+                if success:
+                    status = "granted" if sudo_var.get() else "revoked"
+                    messagebox.showinfo("Success", f"Sudo privileges {status} for '{username}'!")
+                    refresh_callback()
+                else:
+                    messagebox.showerror("Error", "Failed to update sudo privileges")
+                
+                self.status_var.set("Ready")
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to update sudo privileges: {str(e)}")
+                self.status_var.set("Ready")
+        
+        ttk.Button(sudo_frame, text="Update Sudo", command=update_sudo).pack(anchor=tk.W)
+        
+        # Buttons
+        button_frame = ttk.Frame(frame)
+        button_frame.pack(fill=tk.X, pady=(15, 0))
+        
+        ttk.Button(button_frame, text="Close", command=dialog.destroy).pack(side=tk.RIGHT)
+    
+    def user_details_dialog(self, container_name, username):
+        """Show detailed information about a user"""
+        dialog = tk.Toplevel(self.root)
+        dialog.title(f"User Details - {username}")
+        dialog.geometry("500x400")
+        dialog.transient(self.root)
+        dialog.grab_set()
+        
+        frame = ttk.Frame(dialog, padding="20")
+        frame.pack(fill=tk.BOTH, expand=True)
+        
+        ttk.Label(frame, text=f"User Details: {username}", font=("Arial", 12, "bold")).pack(anchor=tk.W, pady=(0, 20))
+        
+        # Create text widget for details display
+        details_frame = ttk.Frame(frame)
+        details_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 15))
+        
+        details_text = tk.Text(details_frame, wrap=tk.WORD, height=15, width=60)
+        details_scrollbar = ttk.Scrollbar(details_frame, orient=tk.VERTICAL, command=details_text.yview)
+        details_text.configure(yscrollcommand=details_scrollbar.set)
+        
+        details_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        details_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        def load_user_details():
+            details_text.delete(1.0, tk.END)
+            
+            try:
+                user_info = self.lxc_manager.get_user_details_in_container(container_name, username)
+                details_text.insert(tk.END, user_info)
+                details_text.configure(state=tk.DISABLED)
+            except Exception as e:
+                details_text.insert(tk.END, f"Error loading user details: {str(e)}")
+                details_text.configure(state=tk.DISABLED)
+        
+        load_user_details()
+        
+        # Buttons
+        button_frame = ttk.Frame(frame)
+        button_frame.pack(fill=tk.X)
+        
+        ttk.Button(button_frame, text="Refresh", command=load_user_details).pack(side=tk.LEFT)
         ttk.Button(button_frame, text="Close", command=dialog.destroy).pack(side=tk.RIGHT)
     
     def network_config_dialog(self):
