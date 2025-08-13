@@ -37,7 +37,7 @@
     usbutils # for lsusb
     usb-modeswitch # for usb_modeswitch
     zsh
-    python313
+    python313Full
     git
     openvpn
     fastfetch
