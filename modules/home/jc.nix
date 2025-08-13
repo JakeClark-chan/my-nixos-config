@@ -3,7 +3,7 @@
 {
   home.username = "jc";
   home.homeDirectory = "/home/jc";
-  # home.stateVersion = "25.05";
+  home.stateVersion = "25.05";
 
   home.packages = with pkgs; [
     vlc

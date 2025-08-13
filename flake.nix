@@ -22,7 +22,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, auto-cpufreq, ... }@inputs: {
+  outputs = { self, nixpkgs, nixpkgs-unstable, auto-cpufreq, home-manager, ... }@inputs: {
     # The host with the hostname `JakeClark-Sep21st` will use this configuration
     nixosConfigurations."JakeClark-Sep21st" = nixpkgs.lib.nixosSystem {
       specialArgs = { inherit inputs; };
