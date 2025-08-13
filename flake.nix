@@ -39,6 +39,7 @@
                 };
               in {
                 lmstudio = pkgsUnstable.lmstudio;
+                vscode_unstable = pkgsUnstable.vscode;
                 # If you use vscode-with-extensions, you can also map it here.
                 # vscode-with-extensions = pkgsUnstable.vscode-with-extensions;
               })

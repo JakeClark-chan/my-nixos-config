@@ -46,7 +46,7 @@
     jq
 
     nodejs # for gemini cli and more
-    vscode
+    vscode_unstable
     #docker-compose
   ];
 }
