@@ -40,6 +40,4 @@ in
     userName = "JakeClark";
     userEmail = "jakeclark38b@gmail.com";
   };
-  # ZSH
-  # programs.zsh.enable = true;
 }

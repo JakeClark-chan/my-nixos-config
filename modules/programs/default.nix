@@ -47,7 +47,12 @@
 
     nodejs # for gemini cli and more
     vscode_unstable
-    nerd-fonts.fira-code
     #docker-compose
+  ];
+
+  fonts.packages = with pkgs; [
+    # Add your preferred fonts here
+    # e.g., noto-fonts, dejavu_fonts, etc.
+    nerd-fonts.fira-code 
   ];
 }
