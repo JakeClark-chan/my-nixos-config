@@ -40,4 +40,7 @@ in
     userName = "JakeClark";
     userEmail = "jakeclark38b@gmail.com";
   };
+
+  # Configuration
+  xdg.configFile."starship.toml".source = ./.config/starship.toml;
 }

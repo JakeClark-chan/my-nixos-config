@@ -44,6 +44,7 @@
     htop
     ncdu
     jq
+    starship
 
     nodejs # for gemini cli and more
     vscode_unstable
