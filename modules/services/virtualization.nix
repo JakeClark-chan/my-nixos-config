@@ -2,7 +2,7 @@
 
 {
   # Virtualization
-  virtualisation.docker.enable = true;
+  #virtualisation.docker.enable = true;
 
   virtualisation.lxd.enable = true;
   

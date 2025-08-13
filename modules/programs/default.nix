@@ -47,6 +47,6 @@
 
     nodejs # for gemini cli and more
     vscode
-    docker-compose
+    #docker-compose
   ];
 }

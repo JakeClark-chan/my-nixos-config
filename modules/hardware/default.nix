@@ -12,11 +12,13 @@
   hardware.enableRedistributableFirmware = true;
   hardware.enableAllFirmware = true;
   hardware.firmware = [ pkgs.linux-firmware ];
-  
-  # Use latest kernel and load Realtek USB Wi-Fi driver
+
+  # Load Realtek USB Wi-Fi driver
   boot.kernelModules = [ "rtl8xxxu" ];
+  # Use a specific kernel version
+  # Uncomment the line below to use the latest kernel version
   # boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_15;
+  boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_15; # Stable kernel version
   
   # USB mode switching and battery threshold rules
   services.udev.packages = [ pkgs.usb-modeswitch ];
@@ -31,19 +33,24 @@
   '';
 
   # Enable NVIDIA PRIME for hybrid graphics
-  services.xserver.videoDrivers = [ "nvidia" ];
+  # services.xserver.videoDrivers = [ "nvidia" ];
 
-  hardware.nvidia = {
-    open = false; # open source drivers
-    modesetting.enable = true;
-    nvidiaSettings = true;              # installs nvidia-settings
-    powerManagement.enable = true;      # optional: saves power on laptops
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
-  };
-  hardware.nvidia.prime = {
-    offload.enable = true;
-    offload.enableOffloadCmd = true; # enables offload command
-    intelBusId = "PCI:0@0:2:0";   # replace with your iGPU
-    nvidiaBusId = "PCI:1@0:0:0";  # replace with your dGPU
-  };
+  # hardware.nvidia = {
+  #   open = false; # open source drivers
+  #   modesetting.enable = true;
+  #   nvidiaSettings = true;              # installs nvidia-settings
+  #   powerManagement.enable = true;      # optional: saves power on laptops
+  #   package = config.boot.kernelPackages.nvidiaPackages.stable;
+  # };
+  # hardware.nvidia.prime = {
+  #   offload.enable = true;
+  #   offload.enableOffloadCmd = true; # enables offload command
+  #   offload.offloadCmdMainProgram = "prime-run"; # command to run with offload
+  #   intelBusId = "PCI:0@0:2:0";   # replace with your iGPU
+  #   nvidiaBusId = "PCI:1@0:0:0";  # replace with your dGPU
+  # };
+
+  # Instruction for NVIDIA Optimus users:
+  # To use NVIDIA GPU, run `prime-run` command
+  # don't set hardware.nvidiaOptimus.disable because error will occur
 }
