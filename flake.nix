@@ -10,12 +10,16 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     # Unstable for selected packages
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
-    # ---Snip---
+    # Auto-cpufreq for CPU frequency scaling
     auto-cpufreq = {
         url = "github:AdnanHodzic/auto-cpufreq";
         inputs.nixpkgs.follows = "nixpkgs";
     };
-    # ---Snip---
+    # Home Manager for user configuration
+    home-manager = {
+      url = "github:nix-community/home-manager/release-25.05";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, nixpkgs-unstable, auto-cpufreq, ... }@inputs: {
@@ -43,6 +47,17 @@
 
         ./configuration.nix
         auto-cpufreq.nixosModules.default
+        # Home Manager module for user configuration
+        home-manager.nixosModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+
+          # Import user-specific home configuration
+          home-manager.users.jc = import ./modules/home/jc.nix;
+
+          # Optionally, use home-manager.extraSpecialArgs to pass arguments to home.nix
+        }
       ];
     };
   };
