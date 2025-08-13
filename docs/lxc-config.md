@@ -36,13 +36,14 @@ lxc delete pristine
 lxc exec pristine -- /bin/bash
 ```
 ### Create a New User in the Container with Sudo Access
+Assuming you want to create a user named `srid` with sudo privileges:
 ```bash
-lxc exec pristine -- adduser --shell /bin/bash --ingroup sudo <username>
+lxc exec pristine -- adduser --shell /bin/bash --ingroup sudo srid
 ```
 Ensure to set a password when prompted. This user will have sudo privileges.
 ### Directly Login as the New User
 ```bash
-lxc exec pristine -- su - <username> # -c 'tmux new-session -A -s main'
+lxc exec pristine -- su - srid # -c 'tmux new-session -A -s main'
 ```
 tmux is a terminal multiplexer that allows you to create and manage multiple terminal sessions from a single window.
 
