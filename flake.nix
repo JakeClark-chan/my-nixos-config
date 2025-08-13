@@ -38,7 +38,7 @@
                   config = final.config; # respects allowUnfree, etc.
                 };
               in {
-                lmstudio = pkgsUnstable.lmstudio;
+                lmstudio_unstable = pkgsUnstable.lmstudio;
                 vscode_unstable = pkgsUnstable.vscode;
                 # If you use vscode-with-extensions, you can also map it here.
                 # vscode-with-extensions = pkgsUnstable.vscode-with-extensions;
