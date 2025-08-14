@@ -15,6 +15,7 @@ in
     vlc
     gthumb
     onlyoffice-desktopeditors # for office work
+    jdk
     
     distrobox # for sandboxing applications
     python313Packages.uv # for virtual environments

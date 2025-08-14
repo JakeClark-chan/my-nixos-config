@@ -55,5 +55,6 @@
     # Add your preferred fonts here
     # e.g., noto-fonts, dejavu_fonts, etc.
     nerd-fonts.fira-code 
+    cascadia-code
   ];
 }
