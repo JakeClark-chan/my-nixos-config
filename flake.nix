@@ -40,6 +40,7 @@
               in {
                 lmstudio_unstable = pkgsUnstable.lmstudio;
                 vscode_unstable = pkgsUnstable.vscode;
+                mission_center_unstable = pkgsUnstable.mission-center;
                 # If you use vscode-with-extensions, you can also map it here.
                 # vscode-with-extensions = pkgsUnstable.vscode-with-extensions;
               })

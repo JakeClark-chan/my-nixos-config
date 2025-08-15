@@ -64,11 +64,15 @@ class LXCManager:
             command.extend(['-c', 'security.nesting=true'])
         
         result = self.run_command(command)
-        if result.returncode == 0:
-            return True
-        else:
+        if result.returncode != 0:
             raise Exception(f"Failed to create container: {result.stderr}")
-    
+
+        # Disable autostart for the container
+        result = self.run_command(['lxc', 'config', 'set', name, 'boot.autostart', 'false'])
+        if result.returncode != 0:
+            raise Exception(f"Failed to disable autostart for container: {result.stderr}")
+        return True
+
     def start_container(self, name: str) -> bool:
         """Start a container"""
         result = self.run_command(['lxc', 'start', name])

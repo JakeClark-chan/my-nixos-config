@@ -17,9 +17,11 @@ in
     onlyoffice-desktopeditors # for office work
     jdk
     
-    distrobox # for sandboxing applications
+    #distrobox # for sandboxing applications - open when docker or podman is installed
     python313Packages.uv # for virtual environments
     flameshot # for screenshot
+    # mission_center_unstable
+    nvtopPackages.nvidia
 
     ani-cli # for anime streaming
     python313Packages.yt-dlp

@@ -14,11 +14,11 @@
   # optionally, you can configure your auto-cpufreq settings, if you have any
   programs.auto-cpufreq.settings = {
     charger = {
-      governor = "performance";
-      turbo = "auto";
-      energy_performance_preference = "performance";
-      energy_perf_bias = "balance_performance";
-      platform_profile = "performance";
+      governor = "performance"; # cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors
+      turbo = "auto"; # (always, auto, or never)
+      energy_performance_preference = "balance_performance"; # cat /sys/devices/system/cpu/cpu0/cpufreq/energy_performance_available_preferences
+      energy_perf_bias = "balance_performance"; # performance (0), balance_performance (4), default (6), balance_power (8), or power (15)
+      platform_profile = "balance"; # cat /sys/firmware/acpi/platform_profile_choices
     };
 
     battery = {
@@ -26,7 +26,7 @@
       turbo = "never";
       energy_performance_preference = "power";
       energy_perf_bias = "power";
-      platform_profile = "quiet";
+      platform_profile = "balance";
     };
   };
   
@@ -48,6 +48,7 @@
 
     nodejs # for gemini cli and more
     vscode_unstable
+    lmstudio_unstable
     #docker-compose
   ];
 
