@@ -57,5 +57,14 @@
     # e.g., noto-fonts, dejavu_fonts, etc.
     nerd-fonts.fira-code 
     cascadia-code
+
+    # Custom fonts
+    (pkgs.stdenv.mkDerivation {
+      name = "my-custom-fonts";
+      src = ../fonts;  # put TTF files in modules/fonts/
+      installPhase = ''
+        install -Dm644 *.ttf -t $out/share/fonts/truetype/
+      '';
+    })
   ];
 }
