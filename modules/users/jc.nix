@@ -7,6 +7,10 @@
     # Add common groups: network, sudo, docker
     extraGroups = [ "networkmanager" "wheel" "docker" "lxd" ];
     shell = pkgs.zsh;
+    # Set empty password for auto-login
+    hashedPassword = "";
+    # Allow password-less sudo for convenience (optional)
+    # initialPassword = "";
   };
   # system.userActivationScripts.zshrc = "touch .zshrc";
   # ZSH

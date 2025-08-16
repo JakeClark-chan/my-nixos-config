@@ -18,6 +18,7 @@
     ./modules/system/memory.nix
     ./modules/system/locale.nix
     ./modules/system/journald.nix
+    ./modules/system/plymouth.nix
 
     # Desktop environment
     ./modules/desktop/deepin.nix
