@@ -13,6 +13,7 @@
   
   # Optimize storage
   nix.settings.auto-optimise-store = true;
+  nix.optimise.automatic = true;
   
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;

@@ -17,7 +17,8 @@
     ./modules/system/nix.nix
     ./modules/system/memory.nix
     ./modules/system/locale.nix
-    
+    ./modules/system/journald.nix
+
     # Desktop environment
     ./modules/desktop/deepin.nix
     

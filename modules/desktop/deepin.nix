@@ -25,5 +25,6 @@
       mkdir -p $out/share/backgrounds
       cp ${../../shiho.jpg} $out/share/backgrounds/
     '')
+    deepin.deepin-reader
   ];
 }
