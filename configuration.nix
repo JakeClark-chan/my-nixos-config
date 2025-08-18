@@ -9,30 +9,23 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     
-    # Hardware modules
-    ./modules/hardware
+    # Core system modules (essential: boot, nix, hardware)
+    ./modules/core
     
-    # System modules
-    ./modules/system/boot.nix
-    ./modules/system/nix.nix
-    ./modules/system/memory.nix
-    ./modules/system/locale.nix
-    ./modules/system/journald.nix
-    ./modules/system/plymouth.nix
-
-    # Desktop environment
-    ./modules/desktop/deepin.nix
+    # System settings (locale, memory, logging, etc.)
+    ./modules/settings
     
-    # Services
-    ./modules/services/audio.nix
-    ./modules/services/network.nix
-    ./modules/services/virtualization.nix
+    # Desktop environment (auto-imports selected desktop)
+    ./modules/desktop
+    
+    # Services (auto-imports all services/*.nix)
+    ./modules/services
+    
+    # Programs (auto-imports CLI, development, fonts)
+    ./modules/programs
     
     # Users
     ./modules/users/jc.nix
-    
-    # Programs
-    ./modules/programs
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
