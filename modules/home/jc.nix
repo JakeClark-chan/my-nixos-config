@@ -62,4 +62,7 @@ in
 
   # Configuration
   xdg.configFile."starship.toml".source = ./.config/starship.toml;
+  
+  # Hyprland configuration
+  xdg.configFile."hypr/hyprland.conf".source = ./.config/hypr/hyprland.conf;
 }
