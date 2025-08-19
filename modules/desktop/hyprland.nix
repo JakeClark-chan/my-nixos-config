@@ -83,10 +83,10 @@
     kitty           # Terminal (you can change this)
     
     # Custom background (if you want to keep it)
-    (pkgs.runCommand "custom-background" { } ''
-      mkdir -p $out/share/backgrounds
-      cp ${../../shiho.jpg} $out/share/backgrounds/
-    '')
+    # (pkgs.runCommand "custom-background" { } ''
+    #   mkdir -p $out/share/backgrounds
+    #   cp ${../../shiho.jpg} $out/share/backgrounds/
+    # '')
   ];
 
   # Auto-login (optional, comment out if you prefer manual login)
@@ -102,7 +102,6 @@
     # Font configuration
     QT_FONT_DPI = "96";
     # Input method configuration (fcitx5 already configured in locale.nix)
-    GTK_IM_MODULE = "fcitx";
     QT_IM_MODULE = "fcitx";
     XMODIFIERS = "@im=fcitx";
     INPUT_METHOD = "fcitx";
