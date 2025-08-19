@@ -101,5 +101,10 @@
     QT_SCALE_FACTOR = "1";
     # Font configuration
     QT_FONT_DPI = "96";
+    # Input method configuration (fcitx5 already configured in locale.nix)
+    GTK_IM_MODULE = "fcitx";
+    QT_IM_MODULE = "fcitx";
+    XMODIFIERS = "@im=fcitx";
+    INPUT_METHOD = "fcitx";
   };
 }

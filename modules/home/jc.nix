@@ -117,6 +117,10 @@ in
   # Hyprland configuration
   xdg.configFile."hypr/hyprland.conf".source = ./.config/hypr/hyprland.conf;
 
+  # Waybar configuration
+  xdg.configFile."waybar/config".source = ./.config/waybar/config;
+  xdg.configFile."waybar/style.css".source = ./.config/waybar/style.css;
+
   # GTK theme configuration
   gtk = {
     enable = true;
