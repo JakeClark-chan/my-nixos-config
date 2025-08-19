@@ -46,7 +46,7 @@
     swayidle        # Idle management
     
     # File manager and utilities
-    nautilus        # File manager
+    thunar        # File manager
     networkmanagerapplet  # Network manager applet
     
     # Terminal emulator

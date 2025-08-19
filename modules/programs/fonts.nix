@@ -4,7 +4,7 @@
   # Font configurations
   fonts.packages = with pkgs; [
     # System fonts
-    nerd-fonts.fira-code 
+    # nerd-fonts.fira-code
     cascadia-code
 
     # Custom fonts from repo

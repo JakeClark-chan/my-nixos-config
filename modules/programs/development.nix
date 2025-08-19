@@ -11,7 +11,7 @@
     vscode_unstable
     
     # AI/ML Tools
-    lmstudio_unstable
+    # lmstudio_unstable
     
     # Container tools (commented - enable as needed)
     #docker-compose
