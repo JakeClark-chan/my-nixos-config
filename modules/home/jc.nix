@@ -26,6 +26,8 @@ in
     ani-cli # for anime streaming
     python313Packages.yt-dlp
     lxcGui
+
+    gemini-cli 
   ];
 
   # Desktop launcher for the script (appears in your app menu)
@@ -42,6 +44,20 @@ in
     enable = true;
     userName = "JakeClark";
     userEmail = "jakeclark38b@gmail.com";
+  };
+
+  # npm configuration
+  home.file.".npmrc".text = ''
+    prefix=~/.npm-global
+    cache=~/.npm-cache
+    init-author-name=JakeClark
+    init-author-email=jakeclark38b@gmail.com
+    init-license=MIT
+  '';
+
+  # Add npm global bin to PATH
+  home.sessionVariables = {
+    PATH = "$HOME/.npm-global/bin:$PATH";
   };
 
   # Configuration
