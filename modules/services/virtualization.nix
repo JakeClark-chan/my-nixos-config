@@ -16,6 +16,7 @@
           config = {
             "ipv4.address" = "10.0.0.1/24";
             "ipv4.nat" = "true";
+            "ipv4.dhcp" = "true";
           };
         }
       ];

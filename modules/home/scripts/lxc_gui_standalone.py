@@ -346,10 +346,24 @@ class LXCManager:
     
     def configure_static_ip(self, container_name: str, ip_address: str, gateway: str = "10.0.0.1",
                           dns_servers: List[str] = None, device_name: str = "eth0") -> bool:
-        """Configure static IP in container using netplan"""
+        """Configure static IP in container using netplan (with legacy fallback)"""
         if dns_servers is None:
             dns_servers = ["8.8.8.8", "8.8.4.4"]
         
+        # First, check if netplan is available
+        netplan_check = ['lxc', 'exec', container_name, '--', 'which', 'netplan']
+        check_result = self.run_command(netplan_check)
+        
+        if check_result.returncode == 0:
+            # Use netplan method
+            return self._configure_static_ip_netplan(container_name, ip_address, gateway, dns_servers, device_name)
+        else:
+            # Fall back to legacy method
+            return self._configure_static_ip_legacy(container_name, ip_address, gateway, dns_servers, device_name)
+    
+    def _configure_static_ip_netplan(self, container_name: str, ip_address: str, gateway: str,
+                                   dns_servers: List[str], device_name: str) -> bool:
+        """Configure static IP using netplan"""
         netplan_config = f"""network:
   version: 2
   ethernets:
@@ -382,8 +396,85 @@ class LXCManager:
         except Exception:
             return False
     
+    def _configure_static_ip_legacy(self, container_name: str, ip_address: str, gateway: str,
+                                  dns_servers: List[str], device_name: str) -> bool:
+        """Configure static IP using legacy /etc/network/interfaces method"""
+        # Parse IP address and subnet
+        if '/' not in ip_address:
+            ip_address += '/24'  # Default to /24 if no subnet specified
+        
+        ip, subnet = ip_address.split('/')
+        
+        # Create /etc/network/interfaces configuration
+        interfaces_config = f"""# Loopback interface
+auto lo
+iface lo inet loopback
+
+# Primary network interface
+auto {device_name}
+iface {device_name} inet static
+    address {ip}
+    netmask 255.255.255.0
+    gateway {gateway}
+"""
+        
+        # Create /etc/resolv.conf configuration
+        resolv_config = f"""# DNS configuration
+nameserver {dns_servers[0]}
+nameserver {dns_servers[1]}
+search local
+"""
+        
+        try:
+            # Backup existing files
+            backup_cmd = ['lxc', 'exec', container_name, '--', 'bash', '-c',
+                         'cp /etc/network/interfaces /etc/network/interfaces.backup 2>/dev/null || true']
+            self.run_command(backup_cmd)
+            
+            backup_resolv_cmd = ['lxc', 'exec', container_name, '--', 'bash', '-c',
+                               'cp /etc/resolv.conf /etc/resolv.conf.backup 2>/dev/null || true']
+            self.run_command(backup_resolv_cmd)
+            
+            # Write new network configuration
+            write_interfaces_cmd = ['lxc', 'exec', container_name, '--', 'bash', '-c',
+                                  f'cat > /etc/network/interfaces << \'EOF\'\n{interfaces_config}EOF']
+            result = self.run_command(write_interfaces_cmd)
+            if result.returncode != 0:
+                return False
+            
+            # Write DNS configuration
+            write_resolv_cmd = ['lxc', 'exec', container_name, '--', 'bash', '-c',
+                              f'cat > /etc/resolv.conf << \'EOF\'\n{resolv_config}EOF']
+            result = self.run_command(write_resolv_cmd)
+            if result.returncode != 0:
+                return False
+            
+            # Restart networking service
+            restart_cmd = ['lxc', 'exec', container_name, '--', 'bash', '-c',
+                         'systemctl restart networking 2>/dev/null || service networking restart 2>/dev/null || /etc/init.d/networking restart']
+            result = self.run_command(restart_cmd)
+            
+            return True
+        except Exception as e:
+            print(f"Legacy network configuration failed: {e}")
+            return False
+    
     def configure_dhcp(self, container_name: str, device_name: str = "eth0") -> bool:
-        """Configure DHCP in container using netplan"""
+        """Configure DHCP in container using netplan (with legacy fallback)"""
+        
+        # First, check if netplan is available
+        netplan_check = ['lxc', 'exec', container_name, '--', 'which', 'netplan']
+        check_result = self.run_command(netplan_check)
+        
+        if check_result.returncode == 0:
+            # Use netplan method
+            return self._configure_dhcp_netplan(container_name, device_name)
+        else:
+            # Fall back to legacy method
+            return self._configure_dhcp_legacy(container_name, device_name)
+    
+    def _configure_dhcp_netplan(self, container_name: str, device_name: str) -> bool:
+        """Configure DHCP using netplan"""
         netplan_config = f"""network:
   version: 2
   ethernets:
@@ -405,6 +496,47 @@ class LXCManager:
             result = self.run_command(apply_cmd)
             return result.returncode == 0
         except Exception:
+            return False
+    
+    def _configure_dhcp_legacy(self, container_name: str, device_name: str) -> bool:
+        """Configure DHCP using legacy /etc/network/interfaces method"""
+        
+        # Create /etc/network/interfaces configuration for DHCP
+        interfaces_config = f"""# Loopback interface
+auto lo
+iface lo inet loopback
+
+# Primary network interface (DHCP)
+auto {device_name}
+iface {device_name} inet dhcp
+"""
+        
+        try:
+            # Backup existing file
+            backup_cmd = ['lxc', 'exec', container_name, '--', 'bash', '-c',
+                         'cp /etc/network/interfaces /etc/network/interfaces.backup 2>/dev/null || true']
+            self.run_command(backup_cmd)
+            
+            # Write new network configuration
+            write_interfaces_cmd = ['lxc', 'exec', container_name, '--', 'bash', '-c',
+                                  f'cat > /etc/network/interfaces << \'EOF\'\n{interfaces_config}EOF']
+            result = self.run_command(write_interfaces_cmd)
+            if result.returncode != 0:
+                return False
+            
+            # Remove any static DNS configuration to let DHCP handle it
+            remove_resolv_cmd = ['lxc', 'exec', container_name, '--', 'bash', '-c',
+                               'rm -f /etc/resolv.conf.backup && mv /etc/resolv.conf /etc/resolv.conf.static 2>/dev/null || true']
+            self.run_command(remove_resolv_cmd)
+            
+            # Restart networking service
+            restart_cmd = ['lxc', 'exec', container_name, '--', 'bash', '-c',
+                         'systemctl restart networking 2>/dev/null || service networking restart 2>/dev/null || /etc/init.d/networking restart']
+            result = self.run_command(restart_cmd)
+            
+            return True
+        except Exception as e:
+            print(f"Legacy DHCP configuration failed: {e}")
             return False
     
     def list_networks(self) -> List[Dict]:
