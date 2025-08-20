@@ -73,6 +73,7 @@
     slurp           # Screen area selection
     swaynotificationcenter  # Notification daemon
     swaylock-effects        # Screen locker
+    hyprlock                # Hyprland-native screen locker
     swayidle        # Idle management
     swww            # Wallpaper daemon for Wayland
     hyprpaper       # Alternative wallpaper daemon for Hyprland

@@ -51,6 +51,51 @@ let
     
     ${pkgs.libnotify}/bin/notify-send -t 2000 -h string:x-canonical-private-synchronous:brightness "Brightness" "$PERCENTAGE%" -i display-brightness
   '';
+
+  # Beautiful lock screen script
+  lockScreenScript = pkgs.writeShellScriptBin "lock-screen" ''
+    #!/bin/bash
+    # Beautiful lock screen script with options
+
+    # Function to show menu
+    show_menu() {
+        choice=$(echo -e "Hyprlock (Recommended)\nSwaylock Effects\nCancel" | \
+            ${pkgs.wofi}/bin/wofi --dmenu \
+                 --prompt "Choose Lock Screen:" \
+                 --width 300 \
+                 --height 150 \
+                 --cache-file /dev/null)
+        
+        case "$choice" in
+            "Hyprlock (Recommended)")
+                ${pkgs.hyprlock}/bin/hyprlock
+                ;;
+            "Swaylock Effects")
+                ${pkgs.swaylock-effects}/bin/swaylock --config /home/jc/.config/swaylock/config
+                ;;
+            "Cancel"|"")
+                exit 0
+                ;;
+        esac
+    }
+
+    # If argument provided, use directly
+    case "$1" in
+        "hyprlock")
+            ${pkgs.hyprlock}/bin/hyprlock
+            ;;
+        "swaylock")
+            ${pkgs.swaylock-effects}/bin/swaylock --config /home/jc/.config/swaylock/config
+            ;;
+        "menu")
+            show_menu
+            ;;
+        *)
+            # Default to hyprlock (recommended for Hyprland)
+            ${pkgs.hyprlock}/bin/hyprlock
+            ;;
+    esac
+  '';
 in
 {
   home.username = "jc";
@@ -74,6 +119,7 @@ in
     lxcGui
     volumeScript
     brightnessScript
+    lockScreenScript
 
     gemini-cli 
   ];
@@ -116,6 +162,107 @@ in
   
   # Hyprland configuration
   xdg.configFile."hypr/hyprland.conf".source = ./.config/hypr/hyprland.conf;
+  
+  # Hyprlock configuration (using Home Manager)
+  programs.hyprlock = {
+    enable = true;
+    settings = {
+      general = {
+        disable_loading_bar = true;
+        grace = 2;
+        hide_cursor = true;
+        no_fade_in = false;
+        no_fade_out = false;
+        ignore_empty_input = false;
+        immediate_render = true;
+      };
+      
+      background = [
+        {
+          monitor = "";
+          path = "/home/jc/nixos-config/shiho.jpg";
+          blur_passes = 3;
+          blur_size = 8;
+          noise = 0.0117;
+          contrast = 0.8916;
+          brightness = 0.8172;
+          vibrancy = 0.1696;
+          vibrancy_darkness = 0.0;
+        }
+      ];
+      
+      label = [
+        # Date
+        {
+          monitor = "";
+          text = ''cmd[update:1000] echo "$(date +"%A, %B %d, %Y")"'';
+          color = "rgba(242, 243, 244, 0.75)";
+          font_size = 22;
+          font_family = "Cascadia Code NF2";
+          position = "0, 300";
+          halign = "center";
+          valign = "center";
+        }
+        # Time
+        {
+          monitor = "";
+          text = ''cmd[update:1000] echo "$(date +"%H:%M")"'';
+          color = "rgba(242, 243, 244, 0.75)";
+          font_size = 95;
+          font_family = "Cascadia Code NF2";
+          position = "0, 200";
+          halign = "center";
+          valign = "center";
+        }
+        # Instruction
+        {
+          monitor = "";
+          text = "Click or press Enter to unlock";
+          color = "rgba(242, 243, 244, 0.50)";
+          font_size = 16;
+          font_family = "Cascadia Code NF2";
+          position = "0, -250";
+          halign = "center";
+          valign = "center";
+        }
+      ];
+      
+      input-field = [
+        {
+          monitor = "";
+          size = "300, 60";
+          outline_thickness = 4;
+          dots_size = 0.2;
+          dots_spacing = 0.2;
+          dots_center = true;
+          dots_rounding = -1;
+          outer_color = "rgba(0, 0, 0, 0)";
+          inner_color = "rgba(0, 0, 0, 0.2)";
+          font_color = "rgba(200, 200, 200, 1.0)";
+          fade_on_empty = false;
+          fade_timeout = 1000;
+          placeholder_text = "<i><span foreground=\"##cdd6f4\">🔒 Enter Password</span></i>";
+          hide_input = false;
+          rounding = 15;
+          check_color = "rgba(204, 136, 34, 0)";
+          fail_color = "rgba(204, 34, 34, 0)";
+          fail_text = "<i>$FAIL <b>($ATTEMPTS)</b></i>";
+          fail_transition = 300;
+          capslock_color = -1;
+          numlock_color = -1;
+          bothlock_color = -1;
+          invert_numlock = false;
+          swap_font_color = false;
+          position = "0, -170";
+          halign = "center";
+          valign = "center";
+        }
+      ];
+    };
+  };
+
+  # Swaylock configuration
+  xdg.configFile."swaylock/config".source = ./.config/swaylock/config;
 
   # Waybar configuration
   xdg.configFile."waybar/config".source = ./.config/waybar/config;
