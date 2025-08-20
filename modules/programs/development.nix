@@ -8,10 +8,10 @@
     nodejs           # for gemini cli and more
     
     # Editors and IDEs
-    vscode_unstable
+    vscode
     
     # AI/ML Tools
-    # lmstudio_unstable
+    # lmstudio
     
     # Container tools (commented - enable as needed)
     #docker-compose
