@@ -133,6 +133,9 @@ in
       window_padding_width = 10;
       window_margin_width = 0;
       
+      # Disable close confirmation
+      confirm_os_window_close = 0;
+      
       # Color scheme
       background_opacity = "0.95";
       

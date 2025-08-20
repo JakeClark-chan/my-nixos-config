@@ -75,6 +75,7 @@
     swaylock-effects        # Screen locker
     swayidle        # Idle management
     swww            # Wallpaper daemon for Wayland
+    hyprpaper       # Alternative wallpaper daemon for Hyprland
     
     # File manager and utilities
     xfce.thunar        # File manager

@@ -15,6 +15,7 @@
     htop             # process monitor
     ncdu             # disk usage analyzer
     jq               # JSON processor
+    kbd              # for setleds (lock key state checking)
     
     # Shell and terminal
     zsh

@@ -1,17 +1,7 @@
 { config, pkgs, ... }:
 
 {
-  # Enable experimental features.
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  
-  # Set nix-channel to unstable for nix-shell and legacy commands
-  nix.nixPath = [
-    "nixpkgs=channel:nixos-unstable"
-    "nixos-config=/etc/nixos/configuration.nix"
-    "/nix/var/nix/profiles/per-user/root/channels"
-  ];
-  
-  # Ensure unstable channel is set up system-wide
+  # Ensure unstable channel is available system-wide
   systemd.services.setup-nix-channels = {
     description = "Setup NixOS unstable channels";
     wantedBy = [ "multi-user.target" ];
@@ -31,17 +21,13 @@
     };
   };
   
-  # Perform garbage collection weekly
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 1w";
-  };
-  
-  # Optimize storage
-  nix.settings.auto-optimise-store = true;
-  nix.optimise.automatic = true;
-  
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
+  # Also set up channels for users on login
+  environment.extraInit = ''
+    # Ensure users have access to unstable channel
+    if [ -n "$HOME" ] && [ -w "$HOME" ]; then
+      if ! ${pkgs.nix}/bin/nix-channel --list 2>/dev/null | grep -q "nixpkgs"; then
+        ${pkgs.nix}/bin/nix-channel --add https://nixos.org/channels/nixos-unstable nixpkgs 2>/dev/null || true
+      fi
+    fi
+  '';
 }
