@@ -168,11 +168,7 @@ in
     enable = true;
     settings = {
       general = {
-        disable_loading_bar = true;
-        grace = 2;
         hide_cursor = true;
-        no_fade_in = false;
-        no_fade_out = false;
         ignore_empty_input = false;
         immediate_render = true;
       };
@@ -247,7 +243,6 @@ in
           check_color = "rgba(204, 136, 34, 0)";
           fail_color = "rgba(204, 34, 34, 0)";
           fail_text = "<i>$FAIL <b>($ATTEMPTS)</b></i>";
-          fail_transition = 300;
           capslock_color = -1;
           numlock_color = -1;
           bothlock_color = -1;
