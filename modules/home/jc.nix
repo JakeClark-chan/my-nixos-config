@@ -121,6 +121,26 @@ in
   xdg.configFile."waybar/config".source = ./.config/waybar/config;
   xdg.configFile."waybar/style.css".source = ./.config/waybar/style.css;
 
+  # Kitty terminal configuration
+  programs.kitty = {
+    enable = true;
+    font = {
+      name = "Cascadia Code NF2";
+      size = 14;
+    };
+    settings = {
+      # Window settings
+      window_padding_width = 10;
+      window_margin_width = 0;
+      
+      # Color scheme
+      background_opacity = "0.95";
+      
+      # Performance
+      sync_to_monitor = "yes";
+    };
+  };
+
   # GTK theme configuration
   gtk = {
     enable = true;

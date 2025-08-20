@@ -21,7 +21,7 @@ button {
     box-shadow: inset 0 -3px transparent;
     /* Avoid rounded borders under each button name */
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
     padding: 2px 5px;
     margin: 2px;
 }
@@ -36,7 +36,7 @@ button:hover {
     padding: 2px 8px;
     background-color: rgba(100, 200, 255, 0.1);
     color: #ffffff;
-    border-radius: 5px;
+    border-radius: 10px;
     margin: 2px;
     border: 2px solid transparent;
     transition: all 0.3s ease;
@@ -82,7 +82,7 @@ button:hover {
 
 #mode {
     background-color: #9c27b0;
-    border-radius: 5px;
+    border-radius: 10px;
     padding: 5px;
     margin: 2px;
     color: #ffffff;
@@ -106,7 +106,7 @@ button:hover {
 #mpd {
     padding: 2px 8px;
     margin: 2px;
-    border-radius: 5px;
+    border-radius: 10px;
     color: #ffffff;
 }
 
@@ -119,7 +119,7 @@ button:hover {
     padding: 2px 8px;
     background: rgba(255, 255, 255, 0.1);
     color: #ffffff;
-    border-radius: 5px;
+    border-radius: 10px;
     margin: 2px;
     border: 2px solid transparent;
     transition: all 0.3s ease;
@@ -139,17 +139,11 @@ button:hover {
     box-shadow: 0 0 10px rgba(102, 126, 234, 0.6);
 }
 
-#taskbar button.minimized {
-    background: rgba(128, 128, 128, 0.3);
-    color: #cccccc;
-    border: 2px solid transparent;
-}
-
 #window {
     margin: 0 4px;
     padding: 2px 8px;
     background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-    border-radius: 5px;
+    border-radius: 10px;
     color: #ffffff;
     font-weight: bold;
 }
@@ -157,7 +151,7 @@ button:hover {
 #workspaces {
     margin: 0 4px;
     background: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 3px;
 }
 
@@ -344,7 +338,7 @@ label:focus {
     color: #ffffff;
     padding: 2px 12px;
     margin: 2px;
-    border-radius: 5px;
+    border-radius: 10px;
     font-weight: bold;
 }
 

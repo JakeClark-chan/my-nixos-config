@@ -22,6 +22,7 @@
       cascadia-code  # For Cascadia Code NF (monospace)
       noto-fonts-cjk-sans
       noto-fonts-emoji
+      font-awesome
     ];
     
     fontconfig = {
