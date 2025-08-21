@@ -140,6 +140,30 @@ in
     userEmail = "jakeclark38b@gmail.com";
   };
 
+  # Firefox configuration for proper font rendering
+  programs.firefox = {
+    enable = true;
+    profiles.default = {
+      settings = {
+        # Force DPI to 96 to prevent auto-scaling
+        "layout.css.dpi" = 96;
+        # Disable automatic font size scaling
+        "layout.css.devPixelsPerPx" = "1.2";
+        # Set default font sizes (these should match your expected 14px)
+        "font.default.x-western" = "sans-serif";
+        "font.size.variable.x-western" = 14;
+        "font.size.fixed.x-western" = 12;
+        "font.minimum-size.x-western" = 9;
+        # Disable font auto-scaling
+        "browser.display.auto_quality_min_font_size" = 0;
+        # Enable Wayland for better integration
+        "widget.use-xdg-desktop-portal.file-picker" = 1;
+        # Default zoom is 120%
+        "layout.css.zoom" = "1.2";
+      };
+    };
+  };
+
   # npm configuration
   home.file.".npmrc".text = ''
     prefix=~/.npm-global

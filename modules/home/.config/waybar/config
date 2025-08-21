@@ -63,8 +63,9 @@
     
     "clock": {
         "timezone": "Asia/Bangkok",
+        "format": "{:%a %b %d %H:%M}",
+        "format-alt": "{:%a, %d/%m/%y %H:%M:%S}",
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "format-alt": "{:%Y-%m-%d}",
         "calendar": {
             "mode": "month",
             "format": {
@@ -114,7 +115,7 @@
         "tooltip-format": "{ifname} via {gwaddr} has IP {ipaddr}/{cidr}",
         "format-linked": "{ifname} (No IP) ",
         "format-disconnected": "Disconnected ⚠",
-        "format-alt": "<span foreground='#99ffdd'> {bandwidthDownBytes}</span> <span foreground='#ffcc66'> {bandwidthUpBytes}</span>",
+        "format-alt": "<span foreground='#000000'> {bandwidthDownBytes}</span> <span foreground='#000000'> {bandwidthUpBytes}</span>",
         "interval": 1
     },
     
