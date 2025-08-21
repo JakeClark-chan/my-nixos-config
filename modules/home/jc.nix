@@ -11,10 +11,10 @@ let
     #!/bin/bash
     case "$1" in
       "up")
-        ${pkgs.wireplumber}/bin/wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 1%+
+        ${pkgs.wireplumber}/bin/wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 2%+
         ;;
       "down")
-        ${pkgs.wireplumber}/bin/wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-
+        ${pkgs.wireplumber}/bin/wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-
         ;;
       "mute")
         ${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
@@ -148,10 +148,10 @@ in
         # Force DPI to 96 to prevent auto-scaling
         "layout.css.dpi" = 96;
         # Disable automatic font size scaling
-        "layout.css.devPixelsPerPx" = "1.2";
+        "layout.css.devPixelsPerPx" = "0.8";
         # Set default font sizes (these should match your expected 14px)
         "font.default.x-western" = "sans-serif";
-        "font.size.variable.x-western" = 14;
+        "font.size.variable.x-western" = 12;
         "font.size.fixed.x-western" = 12;
         "font.minimum-size.x-western" = 9;
         # Disable font auto-scaling

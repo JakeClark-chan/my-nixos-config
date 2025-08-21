@@ -9,23 +9,38 @@ A modular NixOS configuration setup with flakes support for easy maintenance and
 ├── flake.nix                  # Flake configuration
 ├── hardware-configuration.nix # Hardware-specific settings (auto-generated)
 └── modules/
+    ├── core/
+    │   ├── boot.nix           # Bootloader settings (systemd-boot)
+    │   ├── default.nix        # Imports for core modules
+    │   ├── hardware.nix       # Hardware & firmware configs (kernel, firmware, udev rules)
+    │   └── nix.nix            # Nix settings, GC, unfree
     ├── desktop/
-    │   └── deepin.nix         # Deepin desktop environment + custom wallpaper
-    ├── hardware/
-    │   └── default.nix        # Hardware & firmware configs (kernel, firmware, udev rules)
+    │   ├── deepin.nix         # Deepin desktop environment (disabled)
+    │   ├── default.nix        # Imports for desktop modules
+    │   └── hyprland.nix       # Hyprland window manager
+    ├── fonts/
+    │   └── hsr-zh-cn.ttf      # Custom font
     ├── home/
-    │   └── jc.nix             # Home Manager: per-user packages & dotfiles
+    │   ├── jc.nix             # Home Manager: per-user packages & dotfiles
+    │   ├── .config/           # Dotfiles for various applications
+    │   └── scripts/           # Custom scripts
     ├── programs/
-    │   └── default.nix        # System programs & packages (Firefox, auto-cpufreq, etc.)
+    │   ├── cli.nix            # Command-line interface tools
+    │   ├── default.nix        # Imports for program modules
+    │   ├── development.nix    # Development tools
+    │   └── fonts.nix          # Font configurations
     ├── services/
     │   ├── audio.nix          # PipeWire audio configuration
+    │   ├── channels.nix       # Nix channels configuration
+    │   ├── default.nix        # Imports for service modules
     │   ├── network.nix        # Hostname, NetworkManager, firewall
     │   └── virtualization.nix # LXD + nix-ld (FHS compat)
-    ├── system/
-    │   ├── boot.nix           # Bootloader settings (systemd-boot)
+    ├── settings/
+    │   ├── default.nix        # Imports for settings modules
+    │   ├── journald.nix       # Journald configuration
     │   ├── locale.nix         # Timezone & localization + Fcitx5
     │   ├── memory.nix         # Swap & zram
-    │   └── nix.nix            # Nix settings, GC, unfree
+    │   └── plymouth.nix       # Plymouth configuration
     └── users/
         └── jc.nix             # User account & groups (packages via Home Manager)
 ```
@@ -33,23 +48,24 @@ A modular NixOS configuration setup with flakes support for easy maintenance and
 ## 🚀 Features
 
 - Modular design with Nix flakes
-- Deepin Desktop + LightDM with auto-login for user "jc"
+- Hyprland window manager with Waybar and Hyprlock
 - Home Manager integrated for per-user packages/config (modules/home/jc.nix)
 - Auto CPU scaling with auto-cpufreq (charger/battery profiles)
 - PipeWire (with ALSA and PulseAudio compat)
 - NetworkManager enabled
-- Firewall enabled (TCP 80, 443; UDP 53)
-- LXD virtualization enabled; Docker commented/optional
-- nix-ld (rs) enabled for running FHS/dynamic binaries (e.g., VS Code)
+- Firewall enabled
+- LXD virtualization enabled
+- nix-ld (rs) enabled for running FHS/dynamic binaries
 - Nix optimizations: auto-optimise-store and weekly GC
-- Custom wallpaper installed system-wide for Deepin
+- Custom Plymouth theme
 
 ## 📦 Included Software
 
 ### Desktop Environment
-- Deepin Desktop Environment
-- LightDM display manager
-- Auto-login for user "jc"
+- Hyprland Window Manager
+- Waybar Status Bar
+- Hyprlock Lockscreen
+- Swaylock as an alternative lockscreen
 
 ### Development Tools
 - Git
@@ -60,22 +76,20 @@ A modular NixOS configuration setup with flakes support for easy maintenance and
 
 ### System/User Tools
 - Firefox
+- Thunar File Manager
+- Kitty Terminal Emulator
+- Starship Prompt
+- Fcitx5 Input Method
 - OnlyOffice Desktop Editors (via Home Manager)
 - Flameshot (via Home Manager)
 - Distrobox (via Home Manager)
 - OpenVPN
-
-### Input Method
-- Fcitx5 with Vietnamese Bamboo input
 
 ## 🔧 Hardware Support
 
 - Kernel: Linux 6.15 (stable pin)
 - Firmware: All redistributable firmware enabled
 - Bluetooth disabled by default
-- USB Wi‑Fi: RTL8xxxu driver loaded
-- USB mode switch rule for Realtek device (usb-modeswitch)
-- ASUS laptops: battery charge limit set to 80%
 - NVIDIA PRIME config available in hardware module (commented with guidance)
 
 ## 💾 Memory Management
@@ -87,7 +101,7 @@ A modular NixOS configuration setup with flakes support for easy maintenance and
 
 - Hostname: JakeClark-Sep21st
 - NetworkManager enabled
-- Firewall: TCP 80, 443; UDP 53 allowed
+- Firewall enabled
 - OpenSSH server: disabled by default (SSH agent enabled for client usage)
 
 ## 🛠️ Installation
@@ -163,7 +177,6 @@ sudo nix-collect-garbage -d
 
 - This configuration targets NixOS 25.05 (stable)
 - Some packages can be pulled from nixpkgs-unstable via overlays (e.g., lmstudio)
-- Auto-login is enabled for user "jc"
 - Vietnamese locale with US keyboard layout
 
 ---
