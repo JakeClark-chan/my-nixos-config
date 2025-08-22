@@ -78,35 +78,37 @@
     },
     
     "cpu": {
-        "format": "{usage}% ",
+        "format": " {usage}% ",
         "tooltip": false
     },
     
     "memory": {
-        "format": "{}% "
+        "format": " {percentage}% "
     },
     
     "temperature": {
         "critical-threshold": 80,
-        "format": "{temperatureC}°C {icon}",
+        "format": " {temperatureC}°C {icon}",
         "format-icons": ["", "", ""]
     },
     
     "backlight": {
-        "format": "{percent}% {icon}",
+        "format": "󰃞 {percent}% {icon}",
         "format-icons": ["", "", "", "", "", "", "", "", ""]
     },
     
     "battery": {
         "states": {
-            "warning": 30,
-            "critical": 15
+            "warning": 20,
+            "critical": 10
         },
         "format": "{capacity}% {icon}",
         "format-charging": "{capacity}% ",
         "format-plugged": "{capacity}% ",
-        "format-alt": "{time} {icon}",
-        "format-icons": ["", "", "", "", ""]
+        // "format-alt": "{time} {icon}",
+        "format-icons": ["", "", "", "", ""],
+        "tooltip": true,
+        "tooltip-format": "Battery has {capacity}%, draw {power} W, estimate {time} remaining, health {health}"
     },
     
     "network": {

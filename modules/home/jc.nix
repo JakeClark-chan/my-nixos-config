@@ -96,6 +96,127 @@ let
             ;;
     esac
   '';
+
+  # Graceful shutdown script
+  shutdownScript = pkgs.writeShellScriptBin "graceful-shutdown" ''
+    #!/bin/bash
+    
+    ACTION="$1"  # "shutdown" or "reboot"
+    
+    if [ -z "$ACTION" ]; then
+        echo "Usage: graceful-shutdown [shutdown|reboot]"
+        exit 1
+    fi
+    
+    # Function to get running applications with windows
+    get_running_apps() {
+        ${pkgs.hyprland}/bin/hyprctl clients -j | ${pkgs.jq}/bin/jq -r '.[] | select(.workspace.id != -99) | .class' | sort -u
+    }
+    
+    # Function to show blocking apps dialog
+    show_blocking_dialog() {
+        local apps="$1"
+        local action="$2"
+        
+        dialog_text="The following applications are preventing $action:\\n\\n$apps\\n\\nWhat would you like to do?"
+        
+        choice=$(echo -e "Wait for apps to close\nForce close all apps\nCancel $action" | \
+            ${pkgs.wofi}/bin/wofi --dmenu \
+                 --prompt "Applications preventing $action:" \
+                 --width 400 \
+                 --height 200 \
+                 --cache-file /dev/null)
+        
+        case "$choice" in
+            "Wait for apps to close")
+                return 1  # Continue waiting
+                ;;
+            "Force close all apps")
+                return 0  # Force close
+                ;;
+            *)
+                return 2  # Cancel
+                ;;
+        esac
+    }
+    
+    # Function to force close all applications
+    force_close_apps() {
+        echo "Force closing all applications..."
+        
+        # Close all Hyprland clients gracefully first
+        ${pkgs.hyprland}/bin/hyprctl clients -j | ${pkgs.jq}/bin/jq -r '.[] | select(.workspace.id != -99) | .address' | while read addr; do
+            ${pkgs.hyprland}/bin/hyprctl dispatch closewindow address:$addr
+        done
+        
+        sleep 2
+        
+        # Force kill any remaining processes if needed
+        pkill -f "firefox|code|vlc|kitty" 2>/dev/null || true
+    }
+    
+    # Function to gracefully close applications
+    graceful_close_apps() {
+        echo "Attempting graceful shutdown of applications..."
+        
+        # Send close signals to all windows
+        ${pkgs.hyprland}/bin/hyprctl clients -j | ${pkgs.jq}/bin/jq -r '.[] | select(.workspace.id != -99) | .address' | while read addr; do
+            ${pkgs.hyprland}/bin/hyprctl dispatch closewindow address:$addr
+        done
+    }
+    
+    # Main shutdown logic
+    echo "Initiating graceful $ACTION..."
+    
+    # First attempt: graceful close
+    graceful_close_apps
+    
+    # Wait up to 30 seconds for apps to close
+    timeout=30
+    while [ $timeout -gt 0 ]; do
+        running_apps=$(get_running_apps)
+        
+        if [ -z "$running_apps" ]; then
+            echo "All applications closed successfully."
+            break
+        fi
+        
+        echo "Waiting for applications to close... ($timeout seconds remaining)"
+        echo "Running apps: $running_apps"
+        sleep 1
+        timeout=$((timeout - 1))
+    done
+    
+    # Check if apps are still running
+    running_apps=$(get_running_apps)
+    if [ -n "$running_apps" ]; then
+        echo "Some applications are still running:"
+        echo "$running_apps"
+        
+        # Show dialog to user
+        if show_blocking_dialog "$running_apps" "$ACTION"; then
+            force_close_apps
+            sleep 2
+        else
+            exit_code=$?
+            if [ $exit_code -eq 2 ]; then
+                echo "$ACTION cancelled by user."
+                exit 0
+            fi
+            # If return code is 1, continue waiting
+            echo "Continuing to wait for applications..."
+            exit 0
+        fi
+    fi
+    
+    # Proceed with shutdown/reboot
+    echo "Proceeding with $ACTION..."
+    if [ "$ACTION" = "shutdown" ]; then
+        systemctl poweroff
+    elif [ "$ACTION" = "reboot" ]; then
+        systemctl reboot
+    fi
+  '';
 in
 {
   home.username = "jc";
@@ -120,6 +241,7 @@ in
     volumeScript
     brightnessScript
     lockScreenScript
+    shutdownScript
 
     gemini-cli 
   ];
@@ -148,7 +270,7 @@ in
         # Force DPI to 96 to prevent auto-scaling
         "layout.css.dpi" = 96;
         # Disable automatic font size scaling
-        "layout.css.devPixelsPerPx" = "0.8";
+        "layout.css.devPixelsPerPx" = "0.9";
         # Set default font sizes (these should match your expected 14px)
         "font.default.x-western" = "sans-serif";
         "font.size.variable.x-western" = 12;
@@ -159,7 +281,7 @@ in
         # Enable Wayland for better integration
         "widget.use-xdg-desktop-portal.file-picker" = 1;
         # Default zoom is 120%
-        "layout.css.zoom" = "1.2";
+        "layout.css.zoom" = "1.33";
       };
     };
   };
@@ -284,7 +406,7 @@ in
   xdg.configFile."swaylock/config".source = ./.config/swaylock/config;
 
   # Waybar configuration
-  xdg.configFile."waybar/config".source = ./.config/waybar/config;
+  xdg.configFile."waybar/config.jsonc".source = ./.config/waybar/config.jsonc;
   xdg.configFile."waybar/style.css".source = ./.config/waybar/style.css;
 
   # Kitty terminal configuration
@@ -332,5 +454,49 @@ in
   qt = {
     enable = true;
     platformTheme.name = "gtk";
+  };
+
+  # Desktop entries for graceful shutdown/reboot
+  xdg.desktopEntries = {
+    graceful-shutdown = {
+      name = "Graceful Shutdown";
+      comment = "Gracefully shutdown the system";
+      exec = "graceful-shutdown shutdown";
+      terminal = false;
+      icon = "system-shutdown";
+      categories = [ "System" ];
+    };
+    
+    graceful-reboot = {
+      name = "Graceful Reboot";
+      comment = "Gracefully reboot the system";
+      exec = "graceful-shutdown reboot";
+      terminal = false;
+      icon = "system-reboot";
+      categories = [ "System" ];
+    };
+  };
+
+  # Systemd user services for graceful shutdown
+  systemd.user.services = {
+    graceful-shutdown-handler = {
+      Unit = {
+        Description = "Graceful shutdown handler";
+        DefaultDependencies = false;
+        Before = [ "shutdown.target" "reboot.target" ];
+      };
+      
+      Service = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "${pkgs.coreutils}/bin/true";
+        ExecStop = "${shutdownScript}/bin/graceful-shutdown shutdown";
+        TimeoutStopSec = 60;
+      };
+      
+      Install = {
+        WantedBy = [ "default.target" ];
+      };
+    };
   };
 }
