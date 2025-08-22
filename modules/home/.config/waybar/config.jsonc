@@ -4,8 +4,8 @@
     "height": 30,
     "spacing": 4,
     "modules-left": ["custom/applications", "hyprland/workspaces", "wlr/taskbar", "hyprland/mode", "hyprland/scratchpad"],
-    "modules-center": ["hyprland/window"],
-    "modules-right": ["idle_inhibitor", "pulseaudio", "network", "cpu", "memory", "temperature", "backlight", "battery", "clock", "tray"],
+    // "modules-center": ["hyprland/window"],
+    "modules-right": ["tray", "idle_inhibitor", "pulseaudio", "network", "cpu", "memory", "temperature", "backlight", "battery", "clock"],
     
     "hyprland/workspaces": {
         "disable-scroll": true,
@@ -52,9 +52,11 @@
     "idle_inhibitor": {
         "format": "{icon}",
         "format-icons": {
-            "activated": "",
-            "deactivated": ""
-        }
+            "activated": "󰐩",
+            "deactivated": "󰐨"
+        },
+        "tooltip": true,
+        "tooltip-format": "Idle inhibitor is {status}"
     },
     
     "tray": {
@@ -64,7 +66,7 @@
     "clock": {
         "timezone": "Asia/Bangkok",
         "format": "{:%a %b %d %H:%M}",
-        "format-alt": "{:%a, %d/%m/%y %H:%M:%S}",
+        "format-alt": "{:%a, %d/%m/%y, %H:%M:%S}",
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
         "calendar": {
             "mode": "month",

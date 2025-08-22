@@ -13,6 +13,12 @@
   hardware.enableAllFirmware = true;
   hardware.firmware = [ pkgs.linux-firmware ];
 
+  # Install Intel VA-API driver for hardware video acceleration
+  environment.systemPackages = with pkgs; [
+    intel-media-driver
+    libva-utils
+  ];
+
   # Load Realtek USB Wi-Fi driver
   boot.kernelModules = [ "rtl8xxxu" ];
   # Use a specific kernel version

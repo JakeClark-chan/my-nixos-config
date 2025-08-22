@@ -232,6 +232,7 @@ in
     #distrobox # for sandboxing applications - open when docker or podman is installed
     python313Packages.uv # for virtual environments
     flameshot # for screenshot
+    grim
     mission-center
     nvtopPackages.nvidia
 
@@ -270,7 +271,7 @@ in
         # Force DPI to 96 to prevent auto-scaling
         "layout.css.dpi" = 96;
         # Disable automatic font size scaling
-        "layout.css.devPixelsPerPx" = "0.9";
+        "layout.css.devPixelsPerPx" = "1.0";
         # Set default font sizes (these should match your expected 14px)
         "font.default.x-western" = "sans-serif";
         "font.size.variable.x-western" = 12;
@@ -281,7 +282,7 @@ in
         # Enable Wayland for better integration
         "widget.use-xdg-desktop-portal.file-picker" = 1;
         # Default zoom is 120%
-        "layout.css.zoom" = "1.33";
+        "layout.css.zoom" = "1.2";
       };
     };
   };
