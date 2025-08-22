@@ -41,5 +41,17 @@
         }
       ];
     };
+
+    # Standalone Home Manager configuration (for independent usage)
+    homeConfigurations."jc" = home-manager.lib.homeManagerConfiguration {
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      modules = [
+        ./modules/home/jc.nix
+        {
+          # Allow unfree packages for standalone Home Manager
+          nixpkgs.config.allowUnfree = true;
+        }
+      ];
+    };
   };
 }

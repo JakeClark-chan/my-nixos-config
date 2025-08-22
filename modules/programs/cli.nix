@@ -23,5 +23,8 @@
     
     # Version control
     git
+
+    # Home Manager
+    home-manager
   ];
 }

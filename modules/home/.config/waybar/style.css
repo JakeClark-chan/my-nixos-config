@@ -2,6 +2,9 @@
     /* `otf-font-awesome` is required to be installed for icons */
     font-family: SDK SC Web, FontAwesome, Roboto, Helvetica, Arial, sans-serif;
     font-size: 13px;
+    /* Default settings - just margins and padding */
+    margin: 0;
+    padding: 0;
 }
 
 window#waybar {

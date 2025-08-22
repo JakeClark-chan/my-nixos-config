@@ -405,6 +405,9 @@ in
   # Swaylock configuration
   xdg.configFile."swaylock/config".source = ./.config/swaylock/config;
 
+  # Flameshot configuration
+  xdg.configFile."flameshot/flameshot.ini".source = ./.config/flameshot/flameshot.ini;
+
   # Waybar configuration
   xdg.configFile."waybar/config.jsonc".source = ./.config/waybar/config.jsonc;
   xdg.configFile."waybar/style.css".source = ./.config/waybar/style.css;
