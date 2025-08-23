@@ -15,7 +15,7 @@ show_menu() {
             hyprlock
             ;;
         "Swaylock Effects")
-            swaylock --config /home/jc/.config/swaylock/config
+            swaylock
             ;;
         "Cancel"|"")
             exit 0
@@ -29,7 +29,7 @@ case "$1" in
         hyprlock
         ;;
     "swaylock")
-        swaylock --config /home/jc/.config/swaylock/config
+        swaylock
         ;;
     "menu")
         show_menu

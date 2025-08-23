@@ -7,12 +7,5 @@
   boot.loader.systemd-boot.configurationLimit = 10;
 
   # Kernel parameters to reduce boot noise and improve compatibility
-  boot.kernelParams = [
-    # Reduce ACPI verbosity
-    "acpi.debug_level=0x2"
-    # Suppress some harmless warnings
-    "loglevel=4"
-    # Improve Intel graphics compatibility
-    "i915.modeset=1"
-  ];
+  boot.kernelParams = [ "i915.modeset=1" ];
 }

@@ -33,9 +33,9 @@
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="1a2b", \
       RUN+="${pkgs.usb-modeswitch}/bin/usb_modeswitch -K -v 0bda -p 1a2b"
 
-    # Set battery charge limit for ASUS laptops
-    ACTION=="add", KERNEL=="asus-nb-wmi", \
-      RUN+="${pkgs.bash}/bin/bash -c 'echo 80 > /sys/class/power_supply/BAT1/charge_control_end_threshold'"
+    # Set battery charge limit for ASUS laptops - disable since we will use tlp instead
+    # ACTION=="add", KERNEL=="asus-nb-wmi", \
+    #   RUN+="${pkgs.bash}/bin/bash -c 'echo 80 > /sys/class/power_supply/BAT1/charge_control_end_threshold'"
   '';
 
   # # Enable NVIDIA PRIME for hybrid graphics

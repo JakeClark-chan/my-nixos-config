@@ -25,23 +25,93 @@
     startAgent = true;
   };
 
-  # Enable auto-cpufreq for CPU frequency scaling
-  programs.auto-cpufreq.enable = true;
-  programs.auto-cpufreq.settings = {
-    charger = {
-      governor = "performance";
-      turbo = "auto";
-      energy_performance_preference = "balance_performance";
-      # Remove energy_perf_bias as it might not be supported on this CPU
-      platform_profile = "balance";
-    };
+  # CPU performance scaling with TLP
+  # Enable TLP for power management - use tlp-stat -c or --cdiff for comparison
+  services.tlp = {
+    enable = true;
+    settings = {
+      # Force to use battery mode
+      TLP_DEFAULT_MODE = "BAT";
+      TLP_PERSISTENT_DEFAULT = 1;
 
-    battery = {
-      governor = "powersave";
-      turbo = "never";
-      energy_performance_preference = "power";
-      # Remove energy_perf_bias as it might not be supported on this CPU  
-      platform_profile = "balance";
+      # Sound power saving
+      SOUND_POWER_SAVE_ON_AC = 10;
+      SOUND_POWER_SAVE_ON_BAT = 10;
+
+      # Disk
+      SATA_LINKPWR_ON_BAT="min_power";
+
+      # Graphic card
+      INTEL_GPU_MAX_FREQ_ON_BAT=800000;
+      INTEL_GPU_BOOST_FREQ_ON_BAT=800000;
+
+      # Kernel
+      NMI_WATCHDOG=0;
+
+      # Wifi
+      WOL_DISABLE="Y";
+
+      # Platform profile
+      PLATFORM_PROFILE_ON_AC="balanced";
+      PLATFORM_PROFILE_ON_BAT="quiet"; # Reduce noise and power consumption
+
+      # Memory sleep
+      MEM_SLEEP_ON_AC="s2idle";
+      MEM_SLEEP_ON_BAT="deep";
+
+      # Processor
+      CPU_DRIVER_OPMODE_ON_AC="active";
+      CPU_DRIVER_OPMODE_ON_BAT="passive";
+
+      CPU_SCALING_GOVERNOR_ON_AC = "performance";
+      CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+
+      CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+      CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
+
+      CPU_MIN_PERF_ON_AC = 0;
+      CPU_MAX_PERF_ON_AC = 100;
+      CPU_MIN_PERF_ON_BAT = 0;
+      CPU_MAX_PERF_ON_BAT = 60;
+
+      CPU_BOOST_ON_AC=1;
+      CPU_BOOST_ON_BAT=0;
+
+      CPU_HWP_DYN_BOOST_ON_AC=1;
+      CPU_HWP_DYN_BOOST_ON_BAT=0;
+
+      # Runtime power management for pcie device
+      RUNTIME_PM_ON_AC="on";
+      RUNTIME_PM_ON_BAT="auto";
+
+      # PCIE active state power management
+      PCIE_ASPM_ON_AC="default";
+      PCIE_ASPM_ON_BAT="powersave";
+
+
+      # Optional helps save long term battery health
+      START_CHARGE_THRESH_BAT0 = 60; # 60 and below it starts to charge
+      STOP_CHARGE_THRESH_BAT0 = 80; # 80 and above it stops charging
     };
   };
+
+  # Commented out auto-cpufreq configuration (replaced with TLP)
+  # programs.auto-cpufreq.enable = true;
+  # programs.auto-cpufreq.settings = {
+  #   charger = {
+  #     governor = "performance";
+  #     turbo = "auto";
+  #     energy_performance_preference = "balance_performance";
+  #     # Remove energy_perf_bias as it might not be supported on this CPU
+  #     platform_profile = "balance";
+  #   };
+
+  #   battery = {
+  #     governor = "powersave";
+  #     turbo = "never";
+  #     energy_performance_preference = "power";
+  #     # Remove energy_perf_bias as it might not be supported on this CPU  
+  #     platform_profile = "balance";
+  #   };
+  # };
 }

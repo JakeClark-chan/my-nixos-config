@@ -50,7 +50,7 @@ A modular NixOS configuration setup with flakes support for easy maintenance and
 - Modular design with Nix flakes
 - Hyprland window manager with Waybar and Hyprlock
 - Home Manager integrated for per-user packages/config (modules/home/jc.nix)
-- Auto CPU scaling with auto-cpufreq (charger/battery profiles)
+- CPU performance scaling with TLP and thermald (charger/battery profiles)
 - PipeWire (with ALSA and PulseAudio compat)
 - NetworkManager enabled
 - Firewall enabled

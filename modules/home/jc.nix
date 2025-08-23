@@ -71,7 +71,7 @@ let
                 ${pkgs.hyprlock}/bin/hyprlock
                 ;;
             "Swaylock Effects")
-                ${pkgs.swaylock-effects}/bin/swaylock --config /home/jc/.config/swaylock/config
+                swaylock
                 ;;
             "Cancel"|"")
                 exit 0
@@ -85,7 +85,7 @@ let
             ${pkgs.hyprlock}/bin/hyprlock
             ;;
         "swaylock")
-            ${pkgs.swaylock-effects}/bin/swaylock --config /home/jc/.config/swaylock/config
+            swaylock
             ;;
         "menu")
             show_menu
@@ -217,6 +217,47 @@ let
         systemctl reboot
     fi
   '';
+
+  # Home Manager apply script with notifications
+  homeManagerScript = pkgs.writeShellScriptBin "apply-home-manager" ''
+    #!/usr/bin/env bash
+
+    # Home Manager Apply Script with Notifications
+    # This script applies Home Manager configuration with visual feedback
+
+    # Function to send notification
+    notify() {
+        local title="$1"
+        local message="$2"
+        local urgency="$3"
+        
+        # Use swaync if available, fallback to notify-send
+        if command -v ${pkgs.swaynotificationcenter}/bin/swaync-client &> /dev/null; then
+            ${pkgs.swaynotificationcenter}/bin/swaync-client -t "$title" -b "$message" ''${urgency:+-u $urgency}
+        elif command -v ${pkgs.libnotify}/bin/notify-send &> /dev/null; then
+            ${pkgs.libnotify}/bin/notify-send ''${urgency:+-u $urgency} "$title" "$message"
+        else
+            echo "$title: $message"
+        fi
+    }
+
+    # Change to the config directory
+    cd /home/jc/nixos-config || {
+        notify "Home Manager Error" "Could not change to config directory" "critical"
+        exit 1
+    }
+
+    # Send starting notification
+    notify "Home Manager" "Applying configuration..." "normal"
+
+    # Apply Home Manager configuration
+    if ${config.home.homeDirectory}/.nix-profile/bin/home-manager switch --flake .; then
+        notify "Home Manager" "Configuration applied successfully!" "normal"
+    else
+        notify "Home Manager Error" "Failed to apply configuration" "critical"
+        exit 1
+    fi
+  '';
 in
 {
   home.username = "jc";
@@ -243,8 +284,10 @@ in
     brightnessScript
     lockScreenScript
     shutdownScript
+    homeManagerScript
 
-    gemini-cli 
+    gemini-cli
+    swaylock-effects # Screen locker managed by Home Manager
   ];
 
   # Desktop launcher for the script (appears in your app menu)
@@ -269,7 +312,7 @@ in
     profiles.default = {
       settings = {
         # Force DPI to 96 to prevent auto-scaling
-        "layout.css.dpi" = 96;
+        # "layout.css.dpi" = 96;
         # Disable automatic font size scaling
         "layout.css.devPixelsPerPx" = "1.0";
         # Set default font sizes (these should match your expected 14px)
@@ -278,7 +321,7 @@ in
         "font.size.fixed.x-western" = 12;
         "font.minimum-size.x-western" = 9;
         # Disable font auto-scaling
-        "browser.display.auto_quality_min_font_size" = 0;
+        # "browser.display.auto_quality_min_font_size" = 0;
         # Enable Wayland for better integration
         "widget.use-xdg-desktop-portal.file-picker" = 1;
         # Default zoom is 120%
@@ -403,8 +446,89 @@ in
     };
   };
 
-  # Swaylock configuration
-  xdg.configFile."swaylock/config".source = ./.config/swaylock/config;
+  # Swaylock configuration using Home Manager
+  programs.swaylock = {
+    enable = true;
+    package = pkgs.swaylock-effects;
+    settings = {
+      # Background
+      image = "/home/jc/nixos-config/shiho.jpg";
+      scaling = "fill";
+
+      # General appearance
+      color = "1a1a1aff";
+      font = "Cascadia Code NF2";
+      font-size = 14;
+
+      # Ring (password input indicator)
+      ring-color = "3b4252ff";
+      ring-clear-color = "d8dee9ff";
+      ring-caps-lock-color = "ebcb8bff";
+      ring-ver-color = "5e81acff";
+      ring-wrong-color = "bf616aff";
+
+      # Key highlight
+      key-hl-color = "88c0d0ff";
+
+      # Separator
+      separator-color = "00000000";
+
+      # Inside ring
+      inside-color = "2e3440aa";
+      inside-clear-color = "88c0d0aa";
+      inside-caps-lock-color = "ebcb8baa";
+      inside-ver-color = "5e81acaa";
+      inside-wrong-color = "bf616aaa";
+
+      # Text colors
+      text-color = "eceff4ff";
+      text-clear-color = "2e3440ff";
+      text-caps-lock-color = "2e3440ff";
+      text-ver-color = "2e3440ff";
+      text-wrong-color = "2e3440ff";
+
+      # Layout
+      layout-bg-color = "00000000";
+      layout-border-color = "00000000";
+      layout-text-color = "eceff4ff";
+
+      # Line colors
+      line-color = "00000000";
+      line-clear-color = "d8dee9ff";
+      line-caps-lock-color = "ebcb8bff";
+      line-ver-color = "5e81acff";
+      line-wrong-color = "bf616aff";
+
+      # Effects and animations
+      effect-blur = "7x5";
+      effect-vignette = "0.5:0.5";
+      fade-in = 0.3;
+
+      # Clock
+      clock = true;
+      timestr = "%H:%M:%S";
+      datestr = "%A, %B %d, %Y";
+
+      # Indicators
+      indicator = true;
+      indicator-radius = 100;
+      indicator-thickness = 7;
+      indicator-caps-lock = true;
+
+      # Show failed login attempts
+      show-failed-attempts = true;
+
+      # Grace period before requiring password
+      grace = 2;
+
+      # Position indicators
+      indicator-x-position = 960;
+      indicator-y-position = 540;
+    };
+  };
+
+  # Remove old config file approach (now using programs.swaylock)
+  # xdg.configFile."swaylock/config".source = ./.config/swaylock/config;
 
   # Flameshot configuration
   xdg.configFile."flameshot/flameshot.ini".source = ./.config/flameshot/flameshot.ini;

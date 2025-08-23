@@ -107,7 +107,7 @@
     grim            # Screenshot utility
     slurp           # Screen area selection
     swaynotificationcenter  # Notification daemon
-    swaylock-effects        # Screen locker
+    # swaylock-effects        # Screen locker (now managed by Home Manager)
     hyprlock                # Hyprland-native screen locker
     swayidle        # Idle management
     swww            # Wallpaper daemon for Wayland
