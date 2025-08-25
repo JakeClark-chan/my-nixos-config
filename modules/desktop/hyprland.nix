@@ -107,7 +107,6 @@
     grim            # Screenshot utility
     slurp           # Screen area selection
     swaynotificationcenter  # Notification daemon
-    # swaylock-effects        # Screen locker (now managed by Home Manager)
     hyprlock                # Hyprland-native screen locker
     swayidle        # Idle management
     swww            # Wallpaper daemon for Wayland
@@ -123,6 +122,7 @@
     ntfs3g             # NTFS filesystem support
     exfat              # exFAT filesystem support
     networkmanagerapplet  # Network manager applet
+    unzip 
     
     # Terminal emulator
     kitty           # Terminal (you can change this)

@@ -37,7 +37,6 @@ in
     homeManagerScript
 
     gemini-cli
-    swaylock-effects # Screen locker managed by Home Manager
   ];
 
   # Desktop launcher for the script (appears in your app menu)
@@ -278,89 +277,7 @@ in
     };
   };
 
-  # Swaylock configuration using Home Manager
-  programs.swaylock = {
-    enable = true;
-    package = pkgs.swaylock-effects;
-    settings = {
-      # Background
-      image = "/home/jc/nixos-config/shiho.jpg";
-      scaling = "fill";
-
-      # General appearance
-      color = "1a1a1aff";
-      font = "Cascadia Code NF2";
-      font-size = 14;
-
-      # Ring (password input indicator)
-      ring-color = "3b4252ff";
-      ring-clear-color = "d8dee9ff";
-      ring-caps-lock-color = "ebcb8bff";
-      ring-ver-color = "5e81acff";
-      ring-wrong-color = "bf616aff";
-
-      # Key highlight
-      key-hl-color = "88c0d0ff";
-
-      # Separator
-      separator-color = "00000000";
-
-      # Inside ring
-      inside-color = "2e3440aa";
-      inside-clear-color = "88c0d0aa";
-      inside-caps-lock-color = "ebcb8baa";
-      inside-ver-color = "5e81acaa";
-      inside-wrong-color = "bf616aaa";
-
-      # Text colors
-      text-color = "eceff4ff";
-      text-clear-color = "2e3440ff";
-      text-caps-lock-color = "2e3440ff";
-      text-ver-color = "2e3440ff";
-      text-wrong-color = "2e3440ff";
-
-      # Layout
-      layout-bg-color = "00000000";
-      layout-border-color = "00000000";
-      layout-text-color = "eceff4ff";
-
-      # Line colors
-      line-color = "00000000";
-      line-clear-color = "d8dee9ff";
-      line-caps-lock-color = "ebcb8bff";
-      line-ver-color = "5e81acff";
-      line-wrong-color = "bf616aff";
-
-      # Effects and animations
-      effect-blur = "7x5";
-      effect-vignette = "0.5:0.5";
-      fade-in = 0.3;
-
-      # Clock
-      clock = true;
-      timestr = "%H:%M:%S";
-      datestr = "%A, %B %d, %Y";
-
-      # Indicators
-      indicator = true;
-      indicator-radius = 100;
-      indicator-thickness = 7;
-      indicator-caps-lock = true;
-
-      # Show failed login attempts
-      show-failed-attempts = true;
-
-      # Grace period before requiring password
-      grace = 2;
-
-      # Position indicators
-      indicator-x-position = 960;
-      indicator-y-position = 540;
-    };
-  };
-
-  # Remove old config file approach (now using programs.swaylock)
-  # xdg.configFile."swaylock/config".source = ./.config/swaylock/config;
+  # Removed swaylock: hyprlock is the sole lock screen now
 
   # Flameshot configuration
   xdg.configFile."flameshot/flameshot.ini".source = ./.config/flameshot/flameshot.ini;
@@ -437,7 +354,7 @@ in
     };
   };
 
-  # Systemd user services for graceful shutdown
+  # Systemd user services configuration
   systemd.user.services = {
     graceful-shutdown-handler = {
       Unit = {
@@ -457,6 +374,16 @@ in
       Install = {
         WantedBy = [ "default.target" ];
       };
+    };
+  };
+
+  # Mask swaync systemd service since we start it via Hyprland exec-once
+  systemd.user.services.swaync = {
+    Unit = {
+      Description = "Masked: swaync started via Hyprland";
+    };
+    Install = {
+      WantedBy = pkgs.lib.mkForce [ ];
     };
   };
 }

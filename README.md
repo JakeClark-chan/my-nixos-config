@@ -1,6 +1,6 @@
 # My NixOS Configuration
 
-A comprehensive, modular NixOS configuration with Nix flakes, featuring Hyprland window manager, advanced power management, and automated scripts for a seamless desktop experience.
+A comprehensive, modular NixOS configu- Hyprlock Lockscreenation with Nix flakes, featuring Hyprland window manager, advanced power management, and automated scripts for a seamless desktop experience.
 
 ## 🏗️ Structure
 
@@ -62,11 +62,11 @@ A comprehensive, modular NixOS configuration with Nix flakes, featuring Hyprland
 ### **Desktop Environment**
 - **Hyprland**: Modern Wayland compositor with smooth animations
 - **Waybar**: Customizable status bar with gradients and visual feedback
-- **Dual Lock Screens**: Hyprlock (recommended) + Swaylock Effects with interactive menu
+- **Dual Lock Screens**: Hyprlock (native Hyprland lock screen)
 - **Smart Notifications**: Swaynotificationcenter with fallback support
 
 ### **Developer Experience**
-- **Multiple Lock Screen Options**: Interactive selection between Hyprlock and Swaylock
+- **Lock Screen**: Hyprlock integration for Hyprland
 - **Graceful Shutdown**: Intelligent application closure with user prompts
 - **Custom Scripts**: Modular Nix-based scripts for system management
 - **Home Manager Automation**: One-command configuration updates with notifications
@@ -231,7 +231,7 @@ sudo nixos-rebuild switch --rollback
 - `XF86 Keys`: Volume/brightness with notifications
 
 ### **Custom Commands**
-- `lock-screen [hyprlock|swaylock|menu]`: Lock screen options
+- `lock-screen [hyprlock|menu]`: Lock screen options
 - `graceful-shutdown [shutdown|reboot]`: Smart system shutdown
 - `volume-control [up|down|mute]`: Audio control with notifications
 - `brightness-control [up|down]`: Display brightness with notifications
@@ -251,7 +251,7 @@ sudo nixos-rebuild switch --rollback
 - **Performance optimization**: Intelligent AC vs battery power profiles
 
 ### **Lock Screen Enhancement**
-- **Dual lock screen support**: Both Hyprlock and Swaylock Effects via Home Manager
+- **Lock screen support**: Hyprlock via Home Manager
 - **Interactive selection**: Menu-driven lock screen choice with Wofi integration
 - **Home Manager integration**: Native configuration management for both lockers
 

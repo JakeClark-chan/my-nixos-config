@@ -3,7 +3,11 @@
     "position": "top",
     "height": 30,
     "spacing": 4,
-    "modules-left": ["custom/applications", "hyprland/workspaces", "wlr/taskbar", "hyprland/mode", "hyprland/scratchpad"],
+    "margin-top": 2,
+    "margin-bottom": 2,
+    "margin-left": 2,
+    "margin-right": 2,
+    "modules-left": ["custom/applications", "hyprland/workspaces", "wlr/taskbar"],
     // "modules-center": ["hyprland/window"],
     "modules-right": ["tray", "idle_inhibitor", "pulseaudio", "network", "cpu", "memory", "temperature", "backlight", "battery", "clock"],
     
@@ -21,18 +25,6 @@
             "focused": "",
             "default": ""
         }
-    },
-    
-    "hyprland/mode": {
-        "format": "<span style=\"italic\">{}</span>"
-    },
-    
-    "hyprland/scratchpad": {
-        "format": "{icon} {count}",
-        "show-empty": false,
-        "format-icons": ["", ""],
-        "tooltip": true,
-        "tooltip-format": "{app}: {title}"
     },
 
     "wlr/taskbar": {
