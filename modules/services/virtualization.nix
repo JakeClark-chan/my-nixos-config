@@ -5,7 +5,7 @@
   #virtualisation.docker.enable = true;
 
   virtualisation.lxd = {
-    enable = false;
+    enable = true;
     # Configure LXD to use custom data directory
     # Look at https://documentation.ubuntu.com/lxd/latest/reference/preseed_yaml_fields/#preseed-yaml-file-fields
     preseed = {

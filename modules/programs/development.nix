@@ -31,11 +31,11 @@
     enable = true;
     settings = {
       # Force to use battery mode
-      TLP_DEFAULT_MODE = "BAT";
-      TLP_PERSISTENT_DEFAULT = 1;
+      # TLP_DEFAULT_MODE = "BAT";
+      # TLP_PERSISTENT_DEFAULT = 1;
 
       # Sound power saving
-      SOUND_POWER_SAVE_ON_AC = 10;
+      SOUND_POWER_SAVE_ON_AC = 0;
       SOUND_POWER_SAVE_ON_BAT = 10;
 
       # Disk
@@ -87,11 +87,6 @@
       # PCIE active state power management
       PCIE_ASPM_ON_AC="default";
       PCIE_ASPM_ON_BAT="powersave";
-
-
-      # Optional helps save long term battery health
-      START_CHARGE_THRESH_BAT0 = 60; # 60 and below it starts to charge
-      STOP_CHARGE_THRESH_BAT0 = 80; # 80 and above it stops charging
     };
   };
 
