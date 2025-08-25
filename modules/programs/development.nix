@@ -18,7 +18,8 @@
   ];
   
   # System programs configuration
-  programs.firefox.enable = true;
+  # Firefox is now configured via Home Manager with Zen Browser
+  # programs.firefox.enable = true;
 
   # Enable SSH agent for convenience
   programs.ssh = {

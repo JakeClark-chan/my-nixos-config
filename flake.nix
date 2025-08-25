@@ -18,9 +18,14 @@
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Zen Browser flake
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
+  outputs = { self, nixpkgs, home-manager, zen-browser, ... }@inputs: {
     # The host with the hostname `JakeClark-Sep21st` will use this configuration
     nixosConfigurations."JakeClark-Sep21st" = nixpkgs.lib.nixosSystem {
       specialArgs = { inherit inputs; };
@@ -42,6 +47,9 @@
 
           # Pass system inputs to Home Manager
           home-manager.extraSpecialArgs = { inherit inputs; };
+          
+          # Import Zen Browser Home Manager module
+          home-manager.sharedModules = [ inputs.zen-browser.homeModules.default ];
         }
       ];
     };
@@ -49,7 +57,9 @@
     # Standalone Home Manager configuration (for independent usage)
     homeConfigurations."jc" = home-manager.lib.homeManagerConfiguration {
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      extraSpecialArgs = { inherit inputs; };
       modules = [
+        inputs.zen-browser.homeModules.default
         ./modules/home/jc.nix
         {
           # Allow unfree packages for standalone Home Manager

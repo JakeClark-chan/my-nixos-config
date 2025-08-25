@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 let
   # Import script modules
@@ -56,27 +56,109 @@ in
     userEmail = "jakeclark38b@gmail.com";
   };
 
-  # Firefox configuration for proper font rendering
-  programs.firefox = {
+  # Zen Browser configuration (Firefox-based browser)
+  programs.zen-browser = {
     enable = true;
-    profiles.default = {
-      settings = {
-        # Force DPI to 96 to prevent auto-scaling
-        # "layout.css.dpi" = 96;
-        # Disable automatic font size scaling
+    # package = inputs.zen-browser.packages.${pkgs.system}.default; # Removed: provided by module
+    
+    # Native messaging hosts for extensions
+    # nativeMessagingHosts = [ pkgs.firefoxpwa ];
+
+    # Browser policies (recommended settings from upstream)
+    policies = {
+      # Privacy and security settings
+      AutofillAddressEnabled = false;
+      AutofillCreditCardEnabled = false;
+      DisableAppUpdate = true;
+      DisableFeedbackCommands = true;
+      DisableFirefoxStudies = true;
+      DisablePocket = true;
+      DisableTelemetry = true;
+      DontCheckDefaultBrowser = true;
+      NoDefaultBookmarks = true;
+      OfferToSaveLogins = false;
+      EnableTrackingProtection = {
+        Value = true;
+        Locked = true;
+        Cryptomining = true;
+        Fingerprinting = true;
+      };
+
+      # Preferences (inherited from Firefox config + Zen-specific)
+      Preferences = let
+        mkLockedAttrs = builtins.mapAttrs (_: value: {
+          Value = value;
+          Status = "locked";
+        });
+      in mkLockedAttrs {
+        # Font rendering (inherited from Firefox config)
         "layout.css.devPixelsPerPx" = "1.0";
-        # Set default font sizes (these should match your expected 14px)
         "font.default.x-western" = "sans-serif";
         "font.size.variable.x-western" = 12;
         "font.size.fixed.x-western" = 12;
         "font.minimum-size.x-western" = 9;
-        # Disable font auto-scaling
-        # "browser.display.auto_quality_min_font_size" = 0;
-        # Enable Wayland for better integration
-        "widget.use-xdg-desktop-portal.file-picker" = 1;
-        # Default zoom is 120%
         "layout.css.zoom" = "1.2";
+        
+        # Wayland integration (inherited from Firefox config)
+        "widget.use-xdg-desktop-portal.file-picker" = 1;
+        
+        # Browser behavior
+        "browser.tabs.warnOnClose" = false;
+        "browser.startup.page" = 3; # Restore previous session
+        "browser.sessionstore.restore_on_demand" = true;
+        
+        # Performance optimizations
+        "gfx.webrender.all" = true;
+        "media.ffmpeg.vaapi.enabled" = true;
+        "media.hardware-video-decoding.force-enabled" = true;
+        
+        # Privacy settings
+        "privacy.donottrackheader.enabled" = true;
+        "privacy.trackingprotection.enabled" = true;
+        "privacy.trackingprotection.socialtracking.enabled" = true;
+        
+        # Zen-specific preferences
+        # Check: https://github.com/0xc000022070/zen-browser-flake/issues/59#issuecomment-2964607780
+        # Add Zen-specific settings here when you find preferences you want to lock
       };
+
+      # Extensions configuration (example - you can add your extensions here)
+      # ExtensionSettings = let
+      #   mkExtensionSettings = builtins.mapAttrs (_: pluginId: {
+      #     install_url = "https://addons.mozilla.org/firefox/downloads/latest/${pluginId}/latest.xpi";
+      #     installation_mode = "force_installed";
+      #   });
+      # in mkExtensionSettings {
+      #   # Example extensions (uncomment and modify as needed):
+      #   # "uBlock0@raymondhill.net" = "ublock-origin";
+      #   # "{446900e4-71c2-419f-a6a7-df9c091e268b}" = "bitwarden-password-manager";
+      # };
+    };
+
+    profiles.default = {
+      # You can add additional profile-specific settings here
+      
+      # Containers configuration (example)
+      # containers = {
+      #   Personal = {
+      #     color = "purple";
+      #     icon = "fingerprint";
+      #     id = 1;
+      #   };
+      #   Work = {
+      #     color = "blue";
+      #     icon = "briefcase";
+      #     id = 2;
+      #   };
+      # };
+      
+      # Spaces configuration (Zen-specific feature)
+      # spaces = {
+      #   "Main" = {
+      #     id = "c6de089c-410d-4206-961d-ab11f988d40a";
+      #     position = 1000;
+      #   };
+      # };
     };
   };
 
