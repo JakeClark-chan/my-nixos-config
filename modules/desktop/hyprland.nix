@@ -123,8 +123,16 @@
     ntfs3g             # NTFS filesystem support
     exfat              # exFAT filesystem support
     networkmanagerapplet  # Network manager applet
-    unzip 
     
+    # Archive manager
+    zip
+    unzip
+    rar
+    unrar
+    p7zip
+    # Frontend for thunar
+    xfce.thunar-archive-plugin
+    xarchiver
     # Terminal emulator
     kitty           # Terminal (you can change this)
     
