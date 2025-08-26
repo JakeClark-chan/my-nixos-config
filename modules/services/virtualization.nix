@@ -58,9 +58,12 @@
     "d /home/jc/lxc 0755 root root -"
   ];
 
-  # Enable LXD UI
-  virtualisation.lxd.ui.enable = true;
-  
+  # Enable Waydroid https://wiki.nixos.org/wiki/Waydroid
+  virtualisation.waydroid.enable = true;
+  environment.systemPackages = with pkgs; [
+    wl-clipboard
+  ];
+
   # Fix VS Code dynamic binaries and other FHS binaries
   programs.nix-ld.enable = true;
   programs.nix-ld.package = pkgs.nix-ld-rs;

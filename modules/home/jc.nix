@@ -18,7 +18,6 @@ in
     vlc
     gthumb
     onlyoffice-desktopeditors # for office work
-    jdk
     
     #distrobox # for sandboxing applications - open when docker or podman is installed
     python313Packages.uv # for virtual environments

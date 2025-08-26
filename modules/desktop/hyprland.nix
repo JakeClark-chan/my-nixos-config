@@ -117,7 +117,8 @@
     xfce.thunar-volman # Volume management for Thunar
     gvfs               # Virtual file system (required for trash)
     gnome-settings-daemon  # Settings daemon for proper file operations
-    polkit_gnome       # Polkit authentication agent
+    polkit_gnome       # Polkit authentication agent (fallback)
+    hyprpolkitagent    # Hyprland-native polkit authentication agent
     udisks2            # Disk management service
     ntfs3g             # NTFS filesystem support
     exfat              # exFAT filesystem support
