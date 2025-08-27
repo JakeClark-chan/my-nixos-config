@@ -8,6 +8,7 @@ let
   lockScreenScript = import ./scripts/lock-screen.nix { inherit pkgs; };
   shutdownScript = import ./scripts/graceful-shutdown.nix { inherit pkgs; };
   homeManagerScript = import ./scripts/apply-home-manager.nix { inherit pkgs config; };
+  backgroundPath = "/home/jc/nixos-config/backgrounds/shiho.jpg";
 in
 {
   home.username = "jc";
@@ -181,7 +182,7 @@ in
   xdg.configFile."starship.toml".source = ./.config/starship.toml;
   
   # Hyprland configuration
-  xdg.configFile."hypr/hyprland.conf".source = ./.config/hypr/hyprland.conf;
+  xdg.configFile."hypr/hyprland.conf".text = builtins.replaceStrings [ "@backgroundPath@" ] [ backgroundPath ] (builtins.readFile ./.config/hypr/hyprland.conf);
   
   # Hyprlock configuration (using Home Manager)
   programs.hyprlock = {
@@ -196,7 +197,7 @@ in
       background = [
         {
           monitor = "";
-          path = "/home/jc/nixos-config/shiho.jpg";
+          path = backgroundPath;
           blur_passes = 3;
           blur_size = 8;
           noise = 0.0117;
@@ -294,7 +295,7 @@ in
       "transition-time" = 200;
       "hide-on-action" = true;
       "hide-on-empty" = false;
-      "widgets" = [ "title" "dnd" "notifications" ];
+      "widgets" = [ "title" "dnd" "notifications" "mpris" ];
       "widget-config" = {
         "title" = {
           "text" = " Notifications";
@@ -307,6 +308,10 @@ in
         "notifications" = {
           "label" = "Notifications";
           "actions" = ["default" "open"];
+        };
+        "mpris" = {
+          "label" = "Media Player";
+          "actions" = ["play-pause" "next" "previous"];
         };
       };
     };

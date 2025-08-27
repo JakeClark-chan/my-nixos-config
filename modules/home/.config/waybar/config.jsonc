@@ -9,8 +9,7 @@
     "margin-right": 2,
     "modules-left": ["custom/applications", "hyprland/workspaces", "wlr/taskbar"],
     // "modules-center": ["hyprland/window"],
-    "modules-right": ["custom/control-center", "tray", "idle_inhibitor", "pulseaudio", "network", "cpu", "memory", "temperature", "backlight", "battery", "clock"],
-    
+    "modules-right": ["tray", "idle_inhibitor", "pulseaudio", "network", "cpu", "memory", "temperature", "backlight", "battery", "clock", "custom/control-center"],
     "custom/control-center": {
         "format": "󰒓",
         "on-click": "swaync-client -t",

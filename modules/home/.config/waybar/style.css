@@ -52,11 +52,11 @@ button:hover {
 }
 
 #workspaces button.active {
-    background: linear-gradient(45deg, #00ff87 0%, #60efff 100%);
-    color: #000000;
-    border: 2px solid #ffffff;
+    background: linear-gradient(45deg, #4CAF50 0%, #2196F3 100%);
+    color: #ffffff;
+    border: 2px solid #4CAF50;
     font-weight: bold;
-    box-shadow: 0 0 10px rgba(0, 255, 135, 0.5);
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
 }
 
 #workspaces button.focused {
@@ -136,11 +136,11 @@ button:hover {
 }
 
 #taskbar button.active {
-    background: linear-gradient(45deg, #2d3748 0%, #4a5568 100%);
+    background: linear-gradient(45deg, #4CAF50 0%, #2196F3 100%);
     color: #ffffff;
-    border: 2px solid #ffffff;
+    border: 2px solid #4CAF50;
     font-weight: bold;
-    box-shadow: 0 0 10px rgba(45, 55, 72, 0.6);
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
 }
 
 #window {
@@ -160,18 +160,18 @@ button:hover {
 }
 
 #clock {
-    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
     font-weight: bold;
 }
 
 #battery {
-    background: linear-gradient(45deg, #4ecdc4 0%, #44a08d 100%);
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
     color: #ffffff;
 }
 
 #battery.charging, #battery.plugged {
     background: linear-gradient(45deg, #56ab2f 0%, #a8e6cf 100%);
-    color: #000000;
+    color: #ffffff;
 }
 
 @keyframes blink {
@@ -196,30 +196,30 @@ label:focus {
 }
 
 #cpu {
-    background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 100%);
-    color: #000000;
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
     font-weight: bold;
 }
 
 #memory {
-    background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%);
-    color: #000000;
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
     font-weight: bold;
 }
 
 #disk {
-    background: linear-gradient(45deg, #d299c2 0%, #fef9d7 100%);
-    color: #000000;
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
 }
 
 #backlight {
-    background: linear-gradient(45deg, #ffecd2 0%, #fcb69f 100%);
-    color: #000000;
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
 }
 
 #network {
-    background: linear-gradient(45deg, #89f7fe 0%, #66a6ff 100%);
-    color: #000000;
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
     font-weight: bold;
 }
 
@@ -229,8 +229,8 @@ label:focus {
 }
 
 #pulseaudio {
-    background: linear-gradient(45deg, #ffeaa7 0%, #fab1a0 100%);
-    color: #000000;
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
     font-weight: bold;
 }
 
@@ -250,7 +250,7 @@ label:focus {
 
 #custom-media {
     background-color: #66cc99;
-    color: #2a5c45;
+    color: #ffffff;
     min-width: 100px;
 }
 
@@ -263,8 +263,8 @@ label:focus {
 }
 
 #temperature {
-    background: linear-gradient(45deg, #ff9a56 0%, #ffad56 100%);
-    color: #000000;
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
 }
 
 #temperature.critical {
@@ -274,7 +274,7 @@ label:focus {
 }
 
 #tray {
-    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
     padding: 2px 8px;
 }
 
@@ -347,6 +347,20 @@ label:focus {
 }
 
 #custom-applications:hover {
+    background: linear-gradient(45deg, #5a67d8 0%, #6b46c1 100%);
+    transition: all 0.2s ease;
+}
+
+#custom-control-center {
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    padding: 2px 12px;
+    margin: 2px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+#custom-control-center:hover {
     background: linear-gradient(45deg, #5a67d8 0%, #6b46c1 100%);
     transition: all 0.2s ease;
 }
