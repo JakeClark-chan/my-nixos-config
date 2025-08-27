@@ -4,17 +4,8 @@
   boot = {
     plymouth = {
       enable = true;
-      theme = "breeze";
-      # themePackages = [
-      #   (pkgs.stdenv.mkDerivation {
-      #     name = "my-plymouth-theme";
-      #     src = ./plymouth-themes/my-theme;  # put theme files here
-      #     installPhase = ''
-      #       mkdir -p $out/share/plymouth/themes/my-theme
-      #       cp -r * $out/share/plymouth/themes/my-theme/
-      #     '';
-      #   })
-      # ];
+      theme = "spinner";
+      themePackages = [ pkgs.plymouth ];
     };
     consoleLogLevel = 3;
     initrd.verbose = false;

@@ -276,6 +276,42 @@ in
     };
   };
 
+  # Swaync notification daemon
+  services.swaync = {
+    enable = true;
+    settings = {
+      positionX = "right";
+      positionY = "top";
+      "layer" = "top";
+      "control-center-layer" = "overlay";
+      "layer-shell" = true;
+      "cssPriority" = "user";
+      "control-center-width" = 500;
+      "control-center-height" = 600;
+      "notification-window-width" = 400;
+      "keyboard-shortcuts" = true;
+      "image-visibility" = "when-available";
+      "transition-time" = 200;
+      "hide-on-action" = true;
+      "hide-on-empty" = false;
+      "widgets" = [ "title" "dnd" "notifications" ];
+      "widget-config" = {
+        "title" = {
+          "text" = " Notifications";
+          "clear-all-button" = true;
+          "button-text" = "Clear All";
+        };
+        "dnd" = {
+          "text" = "Do Not Disturb";
+        };
+        "notifications" = {
+          "label" = "Notifications";
+          "actions" = ["default" "open"];
+        };
+      };
+    };
+  };
+
   # Removed swaylock: hyprlock is the sole lock screen now
 
   # Flameshot configuration
@@ -376,13 +412,5 @@ in
     };
   };
 
-  # Mask swaync systemd service since we start it via Hyprland exec-once
-  systemd.user.services.swaync = {
-    Unit = {
-      Description = "Masked: swaync started via Hyprland";
-    };
-    Install = {
-      WantedBy = pkgs.lib.mkForce [ ];
-    };
-  };
+  
 }

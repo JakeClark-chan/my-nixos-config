@@ -2,6 +2,7 @@
 
 pkgs.writeShellScriptBin "apply-home-manager" ''
   #!/usr/bin/env bash
+  set -x
 
   # Home Manager Apply Script with Notifications
   # This script applies Home Manager configuration with visual feedback
@@ -32,7 +33,7 @@ pkgs.writeShellScriptBin "apply-home-manager" ''
   notify "Home Manager" "Applying configuration..." "normal"
 
   # Apply Home Manager configuration
-  if ${config.home.homeDirectory}/.nix-profile/bin/home-manager switch --flake .; then
+  if ${pkgs.home-manager}/bin/home-manager switch --flake .; then
       notify "Home Manager" "Configuration applied successfully!" "normal"
   else
       notify "Home Manager Error" "Failed to apply configuration" "critical"
