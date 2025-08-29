@@ -92,15 +92,6 @@
     hyprsunset         # Night light for Hyprland (official hypr-ecosystem tool)
     playerctl          # Media player control
 
-    # Around Minecraft Launcher
-    xorg.libXxf86vm         # For JavaFX on XWayland
-    glib               # For JavaFX GTK backend
-    temurin-bin
-    xwayland-satellite
-    xorg.libXext
-    xorg.libXrender
-    
-
     # Wayland utilities
     waybar          # Status bar
     wofi            # Application launcher
@@ -125,12 +116,6 @@
     exfat              # exFAT filesystem support
     networkmanagerapplet  # Network manager applet
     
-    # Archive manager
-    zip
-    unzip
-    rar
-    unrar
-    p7zip
     # Frontend for thunar
     xfce.thunar-archive-plugin
     xarchiver
