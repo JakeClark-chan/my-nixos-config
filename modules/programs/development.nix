@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   # Development Tools and Languages
@@ -22,8 +22,9 @@
   ];
   
   # System programs configuration
-  # Firefox is now configured via Home Manager with Zen Browser
+  # No Firefox
   # programs.firefox.enable = true;
+  # Zen Browser configuration (Firefox-based browser)
 
   # Enable SSH agent for convenience
   programs.ssh = {

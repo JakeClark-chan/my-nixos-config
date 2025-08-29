@@ -57,7 +57,6 @@
       pkgs = pkgs;
       extraSpecialArgs = { inherit inputs systemSettings desktopSettings homeSettings; };
       modules = [
-        inputs.zen-browser.homeModules.default
         ./modules/home/jc.nix
         {
           # Allow unfree packages for standalone Home Manager
