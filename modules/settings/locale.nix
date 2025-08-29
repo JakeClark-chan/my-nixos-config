@@ -1,22 +1,12 @@
-{ config, pkgs, ... }:
+{ config, pkgs, systemSettings, ... }:
 
 {
   # Set your time zone.
-  time.timeZone = "Asia/Ho_Chi_Minh";
+  time.timeZone = systemSettings.timezone;
   
   # Select internationalisation properties.
-  i18n.defaultLocale = "en_US.UTF-8";
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "vi_VN";
-    LC_IDENTIFICATION = "vi_VN";
-    LC_MEASUREMENT = "vi_VN";
-    LC_MONETARY = "vi_VN";
-    LC_NAME = "vi_VN";
-    LC_NUMERIC = "vi_VN";
-    LC_PAPER = "vi_VN";
-    LC_TELEPHONE = "vi_VN";
-    LC_TIME = "vi_VN";
-  };
+  i18n.defaultLocale = systemSettings.locale;
+  i18n.extraLocaleSettings = systemSettings.extraLocaleSettings;
   
   # Fcitx5 input method
   i18n.inputMethod = {

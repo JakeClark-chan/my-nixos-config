@@ -1,18 +1,7 @@
-{ config, pkgs, inputs, ... }:
-
-let
-  # Import script modules
-  lxcGui = import ./scripts/lxc-gui.nix { inherit pkgs; };
-  volumeScript = import ./scripts/volume-control.nix { inherit pkgs; };
-  brightnessScript = import ./scripts/brightness-control.nix { inherit pkgs; };
-  lockScreenScript = import ./scripts/lock-screen.nix { inherit pkgs; };
-  shutdownScript = import ./scripts/graceful-shutdown.nix { inherit pkgs; };
-  homeManagerScript = import ./scripts/apply-home-manager.nix { inherit pkgs config; };
-  backgroundPath = "/home/jc/nixos-config/backgrounds/shiho.jpg";
-in
+{ config, pkgs, inputs, systemSettings, desktopSettings, homeSettings, ... }:
 {
-  home.username = "jc";
-  home.homeDirectory = "/home/jc";
+  home.username = systemSettings.username;
+  home.homeDirectory = systemSettings.homeDirectory;
   home.stateVersion = "25.05";
 
   home.packages = with pkgs; [
@@ -51,8 +40,8 @@ in
   # Git
   programs.git = {
     enable = true;
-    userName = "JakeClark";
-    userEmail = "jakeclark38b@gmail.com";
+    userName = homeSettings.git.name;
+    userEmail = homeSettings.git.email;
   };
 
   # Zen Browser configuration (Firefox-based browser)
@@ -165,24 +154,24 @@ in
   home.file.".npmrc".text = ''
     prefix=~/.npm-global
     cache=~/.npm-cache
-    init-author-name=JakeClark
-    init-author-email=jakeclark38b@gmail.com
-    init-license=MIT
-  '';
+    init-author-name=${homeSettings.npm.authorName}
+    init-author-email=${homeSettings.npm.authorEmail}
+    init-license=${homeSettings.npm.license}
+  '';_EOL_
 
   # Add npm global bin to PATH
   home.sessionVariables = {
     PATH = "$HOME/.npm-global/bin:$PATH";
     # Cursor theme configuration
-    XCURSOR_THEME = "Adwaita";
-    XCURSOR_SIZE = "24";
+    XCURSOR_THEME = desktopSettings.cursorTheme;
+    XCURSOR_SIZE = toString desktopSettings.cursorSize;
   };
 
   # Configuration
   xdg.configFile."starship.toml".source = ./.config/starship.toml;
   
   # Hyprland configuration
-  xdg.configFile."hypr/hyprland.conf".text = builtins.replaceStrings [ "@backgroundPath@" ] [ backgroundPath ] (builtins.readFile ./.config/hypr/hyprland.conf);
+  xdg.configFile."hypr/hyprland.conf".text = builtins.replaceStrings [ "@backgroundPath@" ] [ desktopSettings.hyprland.backgroundPath ] (builtins.readFile ./.config/hypr/hyprland.conf);
   
   # Hyprlock configuration (using Home Manager)
   programs.hyprlock = {
@@ -197,7 +186,7 @@ in
       background = [
         {
           monitor = "";
-          path = backgroundPath;
+          path = desktopSettings.hyprland.backgroundPath;
           blur_passes = 3;
           blur_size = 8;
           noise = 0.0117;
@@ -258,7 +247,7 @@ in
           font_color = "rgba(200, 200, 200, 1.0)";
           fade_on_empty = false;
           fade_timeout = 1000;
-          placeholder_text = "<i><span foreground=\"##cdd6f4\">🔒 Enter Password</span></i>";
+          placeholder_text = "<i><span foreground="##cdd6f4">🔒 Enter Password</span></i>";
           hide_input = false;
           rounding = 15;
           check_color = "rgba(204, 136, 34, 0)";
@@ -330,7 +319,7 @@ in
   programs.kitty = {
     enable = true;
     font = {
-      name = "Cascadia Code NF2";
+      name = builtins.head desktopSettings.fontProfiles.monospace;
       size = 14;
     };
     settings = {
@@ -353,17 +342,17 @@ in
   gtk = {
     enable = true;
     font = {
-      name = "SDK SC Web";
+      name = builtins.head desktopSettings.fontProfiles.sansSerif;
       size = 14;
     };
     theme = {
-      name = "Adwaita";
+      name = desktopSettings.theme;
       package = pkgs.gnome-themes-extra;
     };
     cursorTheme = {
-      name = "Adwaita";
+      name = desktopSettings.cursorTheme;
       package = pkgs.adwaita-icon-theme;
-      size = 24;
+      size = desktopSettings.cursorSize;
     };
   };
 

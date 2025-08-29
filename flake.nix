@@ -25,10 +25,16 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, zen-browser, ... }@inputs: {
-    # The host with the hostname `JakeClark-Sep21st` will use this configuration
-    nixosConfigurations."JakeClark-Sep21st" = nixpkgs.lib.nixosSystem {
-      specialArgs = { inherit inputs; };
+  outputs = { self, nixpkgs, home-manager, zen-browser, ... }@inputs: 
+  let
+    systemSettings = import ./modules/settings/system-settings.nix;
+    desktopSettings = import ./modules/settings/desktop-settings.nix;
+    homeSettings = import ./modules/settings/home-settings.nix;
+  in
+  {
+    # The host with the hostname from systemSettings will use this configuration
+    nixosConfigurations.${systemSettings.hostname} = nixpkgs.lib.nixosSystem {
+      specialArgs = { inherit inputs systemSettings desktopSettings homeSettings; };
       system = "x86_64-linux";
       modules = [
         ./configuration.nix
@@ -38,26 +44,16 @@
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
-          
-          # Tie Home Manager to NixOS system generations
           home-manager.backupFileExtension = "backup";
-          
-          # Import user-specific home configuration
-          home-manager.users.jc = import ./modules/home/jc.nix;
-
-          # Pass system inputs to Home Manager
-          home-manager.extraSpecialArgs = { inherit inputs; };
-          
-          # Import Zen Browser Home Manager module
-          home-manager.sharedModules = [ inputs.zen-browser.homeModules.default ];
+          home-manager.extraSpecialArgs = { inherit inputs systemSettings desktopSettings homeSettings; };
         }
       ];
     };
 
     # Standalone Home Manager configuration (for independent usage)
-    homeConfigurations."jc" = home-manager.lib.homeManagerConfiguration {
+    homeConfigurations.${systemSettings.username} = home-manager.lib.homeManagerConfiguration {
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
-      extraSpecialArgs = { inherit inputs; };
+      extraSpecialArgs = { inherit inputs systemSettings desktopSettings homeSettings; };
       modules = [
         inputs.zen-browser.homeModules.default
         ./modules/home/jc.nix

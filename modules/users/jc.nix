@@ -1,9 +1,9 @@
-{ config, pkgs, ... }:
+{ config, pkgs, systemSettings, ... }:
 
 {
-  users.users.jc = {
+  users.users.${systemSettings.username} = {
     isNormalUser = true;
-    description = "JakeClark";
+    description = systemSettings.userFullName;
     # Add common groups: network, sudo, docker
     extraGroups = [ "networkmanager" "wheel" "docker" "lxd" ];
     shell = pkgs.zsh;

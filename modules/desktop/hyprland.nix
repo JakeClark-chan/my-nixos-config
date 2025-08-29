@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, systemSettings, desktopSettings, ... }:
 
 {
   # Enable Hyprland
@@ -53,21 +53,11 @@
 
   # Font configuration
   fonts = {
-    packages = with pkgs; [
-      cascadia-code  # For Cascadia Code NF (monospace)
-      noto-fonts-cjk-sans
-      noto-fonts-emoji
-      font-awesome
-    ];
+    packages = desktopSettings.fontPackages;
     
     fontconfig = {
       enable = true;
-      defaultFonts = {
-        serif = [ "SDK_SC_Web" "Noto Serif" ];
-        sansSerif = [ "SDK_SC_Web" ];
-        monospace = [ "Cascadia Code NF" "Cascadia Mono NF" ];
-        emoji = [ "Noto Color Emoji" ];
-      };
+      defaultFonts = desktopSettings.fontProfiles;
     };
   };
 
@@ -77,29 +67,35 @@
     settings = {
       default_session = {
         command = "${pkgs.hyprland}/bin/Hyprland";
-        user = "jc";
+        user = systemSettings.username;
       };
     };
   };
 
   # Configure keymap (Wayland)
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
+  services.xserver = {
+    xkb = {
+      layout = "us";
+      variant = "";
+    };
+
+    # Enable legacy X11 scaling
+    xresources = {
+      "Xft.dpi" = desktopSettings.xftDpi;
+    };
   };
 
     # Essential packages for Hyprland
   environment.systemPackages = with pkgs; [
-    # Fonts and cursors
-    noto-fonts-emoji
+    # Cursors
     adwaita-icon-theme  # For Adwaita cursor theme
-    cascadia-code
     
     # System utilities
     brightnessctl       # Brightness control
     libnotify          # For notifications
     hyprsunset         # Night light for Hyprland (official hypr-ecosystem tool)
-    
+    playerctl          # Media player control
+
     # Wayland utilities
     waybar          # Status bar
     wofi            # Application launcher
@@ -111,7 +107,8 @@
     swayidle        # Idle management
     swww            # Wallpaper daemon for Wayland
     hyprpaper       # Alternative wallpaper daemon for Hyprland
-    
+    glfw            # OpenGL framework for Wayland
+
     # File manager and utilities
     xfce.thunar        # File manager
     xfce.thunar-volman # Volume management for Thunar

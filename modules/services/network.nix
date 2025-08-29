@@ -1,8 +1,8 @@
-{ config, pkgs, ... }:
+{ config, pkgs, systemSettings, ... }:
 
 {
   # Define your hostname.
-  networking.hostName = "JakeClark-Sep21st";
+  networking.hostName = systemSettings.hostname;
   # Enable networking via NetworkManager
   networking.networkmanager = {
     enable = true;
