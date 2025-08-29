@@ -4,9 +4,9 @@
 {
   imports = [
     # Deepin Desktop Environment (traditional)
-    # ./deepin.nix
+    ./deepin.nix
     
     # Hyprland Window Manager (modern/tiling)
-    ./hyprland.nix
+    # ./hyprland.nix
   ];
 }
