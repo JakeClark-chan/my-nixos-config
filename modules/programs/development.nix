@@ -9,6 +9,10 @@
     
     # Editors and IDEs
     vscode
+
+    # Java
+    temurin-bin
+    glib               # For JavaFX GTK backend
     
     # AI/ML Tools
     # lmstudio

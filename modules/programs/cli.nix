@@ -16,6 +16,13 @@
     ncdu             # disk usage analyzer
     jq               # JSON processor
     kbd              # for setleds (lock key state checking)
+
+    # Archive manager
+    zip
+    unzip
+    rar
+    unrar
+    p7zip
     
     # Shell and terminal
     zsh
