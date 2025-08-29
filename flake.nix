@@ -27,15 +27,17 @@
 
   outputs = { self, nixpkgs, home-manager, zen-browser, ... }@inputs: 
   let
+    system = "x86_64-linux";
+    pkgs = nixpkgs.legacyPackages.${system};
     systemSettings = import ./modules/settings/system-settings.nix;
-    desktopSettings = import ./modules/settings/desktop-settings.nix;
+    desktopSettings = (import ./modules/settings/desktop-settings.nix) { inherit pkgs; };
     homeSettings = import ./modules/settings/home-settings.nix;
   in
   {
     # The host with the hostname from systemSettings will use this configuration
     nixosConfigurations.${systemSettings.hostname} = nixpkgs.lib.nixosSystem {
       specialArgs = { inherit inputs systemSettings desktopSettings homeSettings; };
-      system = "x86_64-linux";
+      system = system;
       modules = [
         ./configuration.nix
         # auto-cpufreq.nixosModules.default  # Commented out - replaced with TLP
@@ -52,7 +54,7 @@
 
     # Standalone Home Manager configuration (for independent usage)
     homeConfigurations.${systemSettings.username} = home-manager.lib.homeManagerConfiguration {
-      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      pkgs = pkgs;
       extraSpecialArgs = { inherit inputs systemSettings desktopSettings homeSettings; };
       modules = [
         inputs.zen-browser.homeModules.default

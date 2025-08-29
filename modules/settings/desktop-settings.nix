@@ -1,6 +1,6 @@
 # Desktop environment and window manager settings
 
-{
+{ pkgs, ... }: {
   # Scaling factor for displays
   scalingFactor = 1.2;
   # DPI for X11 applications

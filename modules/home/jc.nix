@@ -1,4 +1,12 @@
 { config, pkgs, inputs, systemSettings, desktopSettings, homeSettings, ... }:
+let
+  lxcGui = pkgs.callPackage ./scripts/lxc-gui.nix {};
+  shutdownScript = pkgs.callPackage ./scripts/graceful-shutdown.nix {};
+  volumeScript = pkgs.callPackage ./scripts/volume-control.nix {};
+  brightnessScript = pkgs.callPackage ./scripts/brightness-control.nix {};
+  lockScreenScript = pkgs.callPackage ./scripts/lock-screen.nix {};
+  homeManagerScript = import ./scripts/apply-home-manager.nix { inherit pkgs config; };
+in
 {
   home.username = systemSettings.username;
   home.homeDirectory = systemSettings.homeDirectory;
@@ -15,6 +23,7 @@
     grim
     mission-center
     nvtopPackages.nvidia
+    prismlauncher
 
     ani-cli # for anime streaming
     python313Packages.yt-dlp
@@ -157,7 +166,7 @@
     init-author-name=${homeSettings.npm.authorName}
     init-author-email=${homeSettings.npm.authorEmail}
     init-license=${homeSettings.npm.license}
-  '';_EOL_
+  '';
 
   # Add npm global bin to PATH
   home.sessionVariables = {
@@ -247,7 +256,7 @@
           font_color = "rgba(200, 200, 200, 1.0)";
           fade_on_empty = false;
           fade_timeout = 1000;
-          placeholder_text = "<i><span foreground="##cdd6f4">🔒 Enter Password</span></i>";
+          placeholder_text = "<i><span foreground=\"##cdd6f4\">🔒 Enter Password</span></i>";
           hide_input = false;
           rounding = 15;
           check_color = "rgba(204, 136, 34, 0)";

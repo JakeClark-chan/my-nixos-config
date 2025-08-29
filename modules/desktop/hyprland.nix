@@ -74,14 +74,10 @@
 
   # Configure keymap (Wayland)
   services.xserver = {
+    enable = true;
     xkb = {
       layout = "us";
       variant = "";
-    };
-
-    # Enable legacy X11 scaling
-    xresources = {
-      "Xft.dpi" = desktopSettings.xftDpi;
     };
   };
 
@@ -95,6 +91,15 @@
     libnotify          # For notifications
     hyprsunset         # Night light for Hyprland (official hypr-ecosystem tool)
     playerctl          # Media player control
+
+    # Around Minecraft Launcher
+    xorg.libXxf86vm         # For JavaFX on XWayland
+    glib               # For JavaFX GTK backend
+    temurin-bin
+    xwayland-satellite
+    xorg.libXext
+    xorg.libXrender
+    
 
     # Wayland utilities
     waybar          # Status bar
