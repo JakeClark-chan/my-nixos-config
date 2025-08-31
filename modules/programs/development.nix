@@ -19,6 +19,9 @@
     
     # Container tools (commented - enable as needed)
     #docker-compose
+
+    # Zen Browser
+    inputs.zen-browser.packages."${system}".default
   ];
   
   # System programs configuration

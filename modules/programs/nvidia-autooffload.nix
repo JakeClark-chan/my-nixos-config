@@ -10,6 +10,6 @@ with pkgs; let
 in
 {
   environment.systemPackages = with pkgs; [
-    (GPUOffloadApp inputs.zen-browser.packages."${system}".default "zen")
+    # (GPUOffloadApp inputs.zen-browser.packages."${system}".default "zen")
   ];
 }
