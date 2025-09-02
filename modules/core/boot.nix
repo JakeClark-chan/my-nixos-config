@@ -2,9 +2,14 @@
 
 {
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
+  boot.loader.grub = {
+    enable = true;
+    efiSupport = true;
+    device = "nodev";
+    # configurationLimit = 10;
+    useOSProber = true;
+  };
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.systemd-boot.configurationLimit = 10;
 
   # Kernel parameters to reduce boot noise and improve compatibility
   boot.kernelParams = [ "i915.modeset=1" ];

@@ -33,8 +33,5 @@
 
     # Home Manager
     home-manager
-
-    # Game
-    # prismlauncher
   ];
 }

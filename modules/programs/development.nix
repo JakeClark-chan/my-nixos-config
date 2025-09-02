@@ -21,7 +21,12 @@
     #docker-compose
 
     # Zen Browser
-    inputs.zen-browser.packages."${system}".default
+    inputs.zen-browser.packages."${pkgs.system}".default
+    
+    # PrismLauncher Cracked
+    inputs.prismlauncher-cracked.packages."${pkgs.system}".default
+    # Steam run for prism-launcher
+    steam-run
   ];
   
   # System programs configuration
