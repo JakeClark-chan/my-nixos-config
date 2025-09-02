@@ -23,9 +23,14 @@
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # PrismLauncher Cracked flake
+    prismlauncher-cracked = {
+      url = "github:Diegiwg/PrismLauncher-Cracked";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, zen-browser, ... }@inputs: 
+  outputs = { self, nixpkgs, home-manager, zen-browser, prismlauncher-cracked, ... }@inputs: 
   let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};

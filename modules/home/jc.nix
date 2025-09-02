@@ -299,7 +299,7 @@ in
         Type = "oneshot";
         RemainAfterExit = true;
         ExecStart = "${pkgs.coreutils}/bin/true";
-        ExecStop = "${shutdownScript}/bin/graceful-shutdown shutdown";
+        # ExecStop = "${shutdownScript}/bin/graceful-shutdown shutdown";
         TimeoutStopSec = 60;
       };
       
