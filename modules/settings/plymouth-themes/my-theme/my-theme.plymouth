@@ -5,4 +5,4 @@ ModuleName=script
 
 [script]
 ImageDir=@out@/share/plymouth/themes/my-theme
-ScriptFile=@out@/share/plymouth/themes/my-theme/simple-image.script
+ScriptFile=@out@/share/plymouth/themes/my-theme/my-theme.script
