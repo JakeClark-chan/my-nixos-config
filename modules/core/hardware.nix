@@ -25,10 +25,13 @@
 
   # Load Realtek USB Wi-Fi driver
   boot.kernelModules = [ "rtl8xxxu" ];
-  # Use a specific kernel version
-  # Uncomment the line below to use the latest kernel version
-  # boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_15; # Stable kernel version
+  # Use a stable kernel version
+  # Default stable kernel (for current LTS version)
+  boot.kernelPackages = pkgs.linuxPackages;
+  # Alternative specific stable versions:
+  # boot.kernelPackages = pkgs.linuxPackages_6_11; # Specific stable version, but be aware of non-LTS cause Nix will remove EOL kernel.
+  # boot.kernelPackages = pkgs.linuxPackages_latest; # Latest mainline (not recommended for stability)
+  # Check EOL status at https://www.kernel.org/
   
   # USB mode switching and battery threshold rules
   services.udev.packages = [ pkgs.usb-modeswitch ];
