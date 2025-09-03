@@ -1,8 +1,0 @@
-[Plymouth Theme]
-Name=Custom NixOS Simple Image
-Description=This is a plymouth theme which simply displays an image
-ModuleName=script
-
-[script]
-ImageDir=@out@/share/plymouth/themes/my-theme
-ScriptFile=@out@/share/plymouth/themes/my-theme/simple-image.script

@@ -82,12 +82,16 @@
     },
     
     "memory": {
-        "format": " {percentage}% "
+        "format": " {percentage}% ",
+        "tooltip": true,
+        "tooltip-format": "RAM: {used:0.1f}GB / {total:0.1f}GB\nSwap: {swapUsed:0.1f}GB / {swapTotal:0.1f}GB"
     },
     
     "temperature": {
         "critical-threshold": 80,
-        "hwmon-path-abs": "/sys/devices/platform/coretemp.0/hwmon/hwmon5",
+        // "hwmon-path-abs": "/sys/devices/platform/coretemp.0/hwmon/hwmon5",
+        "thermal-zone": 2,
+        "hwmon-path": "/sys/class/thermal/thermal_zone2/hwmon0/temp1_input",
         "input-filename": "temp1_input",
         "format": " {temperatureC}°C {icon}",
         "format-icons": ["", "", ""]
