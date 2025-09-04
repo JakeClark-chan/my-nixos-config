@@ -1,6 +1,11 @@
 { config, pkgs, ... }:
 
 {
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
+
   # CLI Tools and System Utilities
   environment.systemPackages = with pkgs; [
     # Network utilities

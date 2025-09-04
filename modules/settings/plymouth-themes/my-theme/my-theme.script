@@ -1,3 +1,6 @@
+Window.SetBackgroundTopColor(0.13, 0.17, 0.44);
+Window.SetBackgroundBottomColor(0.13, 0.17, 0.44);
+
 logo_image = Image("Leo-need-Logo-Vector.png");
 
 screen_width = Window.GetWidth();

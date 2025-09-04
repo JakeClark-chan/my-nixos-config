@@ -6,6 +6,7 @@ let
   brightnessScript = pkgs.callPackage ../scripts/brightness-control.nix {};
   lockScreenScript = pkgs.callPackage ../scripts/lock-screen.nix {};
   homeManagerScript = import ../scripts/apply-home-manager.nix { inherit pkgs config; };
+  wallpaperScript = pkgs.callPackage ../scripts/change-wallpaper.nix {};
 in
 {
   home.packages = with pkgs; [
@@ -35,6 +36,7 @@ in
     lockScreenScript
     shutdownScript
     homeManagerScript
+    wallpaperScript
 
     # AI CLI tools
     gemini-cli
