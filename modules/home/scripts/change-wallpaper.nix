@@ -32,7 +32,7 @@ pkgs.writeShellScriptBin "change-wallpaper" ''
 
   if [ "$MODE" = "random" ]; then
       # --- Random Mode ---
-      notify "🖼️ Wallpaper" "Switching to a random wallpaper..."
+    #   notify "🖼️ Wallpaper" "Switching to a random wallpaper..."
       # Get current wallpaper to avoid repetition if possible
       current_wallpaper_path=$(${pkgs.swww}/bin/swww query | ${pkgs.gawk}/bin/awk -F 'image: ' '{print $2}' | ${pkgs.coreutils}/bin/tr -d '[:space:]')
       

@@ -9,7 +9,7 @@
     "margin-right": 2,
     "modules-left": ["custom/applications", "hyprland/workspaces", "wlr/taskbar"],
     // "modules-center": ["hyprland/window"],
-    "modules-right": ["tray", "idle_inhibitor", "custom/hyprpicker", "custom/wallpaper", "pulseaudio", "network", "cpu", "memory", "temperature", "backlight", "battery", "clock", "custom/control-center"],
+    "modules-right": ["tray", "idle_inhibitor", "keyboard-state", "custom/hyprpicker", "custom/wallpaper", "pulseaudio", "network", "cpu", "memory", "temperature", "backlight", "battery", "clock", "custom/control-center"],
     "custom/control-center": {
         "format": "󰒓",
         "on-click": "swaync-client -t",
@@ -165,5 +165,15 @@
         "format": " Applications",
         "tooltip": false,
         "on-click": "wofi --show drun"
+    },
+    
+    "keyboard-state": {
+        "numlock": true,
+        "capslock": true,
+        "format": "{name} {icon}",
+        "format-icons": {
+            "locked": "",
+            "unlocked": ""
+        }
     }
 }

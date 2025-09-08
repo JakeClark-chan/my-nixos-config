@@ -15,7 +15,6 @@
     glib               # For JavaFX GTK backend
     
     # AI/ML Tools
-    # lmstudio
     
     # Container tools (commented - enable as needed)
     #docker-compose
@@ -33,6 +32,17 @@
   # No Firefox
   # programs.firefox.enable = true;
   # Zen Browser configuration (Firefox-based browser)
+
+  # Ollama Services
+  services.ollama = {
+    enable = true;
+    # package = with pkgs; [
+    #   ollama-cuda
+    # ];
+    # models = "/home/jc/.local/share/ollama/models";
+    acceleration = "cuda";
+    loadModels = [ "qwen3:1.7b" "qwen3:8b" ];
+  };
 
   # Enable SSH agent for convenience
   programs.ssh = {

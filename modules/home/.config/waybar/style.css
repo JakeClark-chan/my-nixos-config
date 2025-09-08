@@ -321,14 +321,6 @@ label:focus {
     min-width: 16px;
 }
 
-#keyboard-state {
-    background: #97e1ad;
-    color: #000000;
-    padding: 0 0px;
-    margin: 0 5px;
-    min-width: 16px;
-}
-
 #keyboard-state > label {
     padding: 0 5px;
 }
@@ -371,4 +363,26 @@ label:focus {
 
 #scratchpad.empty {
 	background-color: transparent;
+}
+
+#custom-hyprpicker,
+#custom-wallpaper,
+#keyboard-state {
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    /* color: #000000; */
+    padding: 2px 12px;
+    margin: 2px;
+    border-radius: 999em;
+    font-weight: bold;
+}
+
+#keyboard-state {
+    padding: 2px 0;
+    font-weight: normal;
+}
+
+#custom-hyprpicker:hover,
+#custom-wallpaper:hover {
+    background: linear-gradient(45deg, #79e7ef 0%, #5595ee 100%);
+    transition: all 0.2s ease;
 }
