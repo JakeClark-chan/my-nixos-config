@@ -199,12 +199,26 @@ label:focus {
     background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
     color: #ffffff;
     font-weight: bold;
+    border-radius: 999em 0 0 999em;
 }
 
 #memory {
     background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
     color: #ffffff;
     font-weight: bold;
+    border-radius: 0;
+}
+
+#temperature {
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
+    border-radius: 0 999em 999em 0;
+}
+
+#temperature.critical {
+    background: linear-gradient(45deg, #ff416c 0%, #ff4b2b 100%);
+    color: #ffffff;
+    animation: blink 0.5s linear infinite alternate;
 }
 
 #disk {
@@ -262,16 +276,7 @@ label:focus {
     background-color: #ffa000;
 }
 
-#temperature {
-    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
-    color: #ffffff;
-}
 
-#temperature.critical {
-    background: linear-gradient(45deg, #ff416c 0%, #ff4b2b 100%);
-    color: #ffffff;
-    animation: blink 0.5s linear infinite alternate;
-}
 
 #tray {
     background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
@@ -319,14 +324,6 @@ label:focus {
     padding: 0 5px;
     margin: 0 5px;
     min-width: 16px;
-}
-
-#keyboard-state > label {
-    padding: 0 5px;
-}
-
-#keyboard-state > label.locked {
-    background: rgba(0, 0, 0, 0.2);
 }
 
 #custom-applications {
@@ -379,6 +376,15 @@ label:focus {
 #keyboard-state {
     padding: 2px 0;
     font-weight: normal;
+}
+
+#keyboard-state > label {
+    padding: 0 5px;
+}
+
+#keyboard-state > label.locked {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 999em;
 }
 
 #custom-hyprpicker:hover,

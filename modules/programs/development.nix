@@ -36,12 +36,9 @@
   # Ollama Services
   services.ollama = {
     enable = true;
-    # package = with pkgs; [
-    #   ollama-cuda
-    # ];
     # models = "/home/jc/.local/share/ollama/models";
     acceleration = "cuda";
-    loadModels = [ "qwen3:1.7b" "qwen3:8b" ];
+    loadModels = [ "qwen3:1.7b" ];
   };
 
   # Enable SSH agent for convenience
