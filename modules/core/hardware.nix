@@ -8,20 +8,23 @@
     powerOnBoot = false;
   };
 
+  # Look at https://wiki.nixos.org/wiki/Accelerated_Video_Playback
   hardware.graphics = {
     enable = true;
+    extraPackages = with pkgs; [ 
+      intel-media-driver
+      intel-vaapi-driver
+      libva-utils
+      libvdpau-va-gl
+      nvidia-vaapi-driver
+    ];
   };
+  environment.sessionVariables = { LIBVA_DRIVER_NAME = "iHD"; };
 
   # Enable non-redistributable and all firmware bundles
   hardware.enableRedistributableFirmware = true;
   hardware.enableAllFirmware = true;
   hardware.firmware = [ pkgs.linux-firmware ];
-
-  # Install Intel VA-API driver for hardware video acceleration
-  environment.systemPackages = with pkgs; [
-    intel-media-driver
-    libva-utils
-  ];
 
   # Load Realtek USB Wi-Fi driver
   boot.kernelModules = [ "rtl8xxxu" ];
@@ -29,7 +32,7 @@
   # Default stable kernel (for current LTS version)
   boot.kernelPackages = pkgs.linuxPackages;
   # Alternative specific stable versions:
-  # boot.kernelPackages = pkgs.linuxPackages_6_11; # Specific stable version, but be aware of non-LTS cause Nix will remove EOL kernel.
+  # boot.kernelPackages = pkgs.linuxPackages_6_11; # Specific stable version, but be aware of non-LTS cause Nix unstable will remove EOL kernel.
   # boot.kernelPackages = pkgs.linuxPackages_latest; # Latest mainline (not recommended for stability)
   # Check EOL status at https://www.kernel.org/
   

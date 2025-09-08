@@ -8,6 +8,7 @@ let
   homeManagerScript = import ../scripts/apply-home-manager.nix { inherit pkgs config; };
   wallpaperScript = pkgs.callPackage ../scripts/change-wallpaper.nix {};
   hdmiControlScript = pkgs.callPackage ../scripts/hdmi-control.nix {};
+  keybindsScript = pkgs.callPackage ../scripts/hyprland-keybinds.nix {};
 in
 {
   home.packages = with pkgs; [
@@ -39,6 +40,7 @@ in
     homeManagerScript
     wallpaperScript
     hdmiControlScript
+    keybindsScript
 
     # AI CLI tools
     gemini-cli

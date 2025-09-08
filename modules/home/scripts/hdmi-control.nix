@@ -3,12 +3,11 @@
 pkgs.writeShellScriptBin "hdmi-control" ''
   #!/usr/bin/env bash
   
-  # HDMI Control Script for Hyprland
-  # Usage: hdmi-control [enable|disable|toggle|status]
+  # HDMI Control Script for Hyprland - Advanced Display Management
+  # Usage: hdmi-control [mirror|extend|disable|status|help] [workspace_number]
   
   HDMI_PRIMARY="HDMI-A-1"
   HDMI_SECONDARY="HDMI-A-2"
-  WORKSPACE_HDMI=5
   
   # Function to check if HDMI is connected
   check_hdmi_connected() {
@@ -20,68 +19,94 @@ pkgs.writeShellScriptBin "hdmi-control" ''
     fi
   }
   
-  # Function to enable HDMI output
-  enable_hdmi() {
-    echo "Enabling HDMI mirroring..."
-    
-    # Check which HDMI port is connected
+  # Function to get active HDMI port
+  get_active_hdmi() {
     if check_hdmi_connected "$HDMI_PRIMARY"; then
-      echo "HDMI-A-1 detected, configuring mirror mode at 1920x1080@60Hz..."
-      hyprctl keyword monitor "$HDMI_PRIMARY,1920x1080@60,0x0,1,mirror,eDP-1"
-      ACTIVE_HDMI="$HDMI_PRIMARY"
+      echo "$HDMI_PRIMARY"
+      return 0
     elif check_hdmi_connected "$HDMI_SECONDARY"; then
-      echo "HDMI-A-2 detected, configuring mirror mode at 1920x1080@60Hz..."
-      hyprctl keyword monitor "$HDMI_SECONDARY,1920x1080@60,0x0,1,mirror,eDP-1"
-      ACTIVE_HDMI="$HDMI_SECONDARY"
+      echo "$HDMI_SECONDARY"
+      return 0
+    else
+      return 1
+    fi
+  }
+  
+  # Function to enable HDMI mirroring
+  enable_mirror() {
+    echo "Enabling HDMI mirror mode..."
+    
+    local active_hdmi
+    if active_hdmi=$(get_active_hdmi); then
+      echo "HDMI detected on $active_hdmi, configuring mirror mode at 1920x1080@60Hz..."
+      hyprctl keyword monitor "$active_hdmi,1920x1080@60,0x0,1,mirror,eDP-1"
+      
+      # Enable both if both are connected
+      if check_hdmi_connected "$HDMI_PRIMARY" && check_hdmi_connected "$HDMI_SECONDARY"; then
+        echo "Both HDMI ports detected, enabling dual mirroring..."
+        hyprctl keyword monitor "$HDMI_PRIMARY,1920x1080@60,0x0,1,mirror,eDP-1"
+        hyprctl keyword monitor "$HDMI_SECONDARY,1920x1080@60,0x0,1,mirror,eDP-1"
+      fi
+      
+      notify-send "Display Manager" "Mirror mode enabled - laptop screen duplicated to HDMI" -i display
+      echo "HDMI mirror mode enabled successfully"
     else
       echo "No HDMI display detected. Please connect an HDMI cable."
+      notify-send "Display Manager" "No HDMI display detected" -i dialog-error
       exit 1
     fi
+  }
+  
+  # Function to enable HDMI extended mode with workspace binding
+  enable_extend() {
+    local workspace="''${1:-5}"  # Default to workspace 5 if not specified
+    echo "Enabling HDMI extended mode with workspace $workspace..."
     
-    # Check if both HDMI ports are connected and enable both for mirroring
-    if check_hdmi_connected "$HDMI_PRIMARY" && check_hdmi_connected "$HDMI_SECONDARY"; then
-      echo "Both HDMI ports detected, enabling dual mirroring..."
-      hyprctl keyword monitor "$HDMI_PRIMARY,1920x1080@60,0x0,1,mirror,eDP-1"
-      hyprctl keyword monitor "$HDMI_SECONDARY,1920x1080@60,0x0,1,mirror,eDP-1"
-      ACTIVE_HDMI="$HDMI_PRIMARY and $HDMI_SECONDARY"
+    local active_hdmi
+    if active_hdmi=$(get_active_hdmi); then
+      echo "HDMI detected on $active_hdmi, configuring extended mode at preferred@60Hz..."
+      
+      # Enable HDMI with preferred resolution at 60Hz, positioned to the right
+      hyprctl keyword monitor "$active_hdmi,preferred@60,1920x0,1"
+      
+      # Enable secondary HDMI as fallback
+      if [ "$active_hdmi" = "$HDMI_PRIMARY" ] && check_hdmi_connected "$HDMI_SECONDARY"; then
+        hyprctl keyword monitor "$HDMI_SECONDARY,preferred@60,3840x0,1"
+      elif [ "$active_hdmi" = "$HDMI_SECONDARY" ] && check_hdmi_connected "$HDMI_PRIMARY"; then
+        hyprctl keyword monitor "$HDMI_PRIMARY,preferred@60,3840x0,1"
+      fi
+      
+      # Bind workspace to HDMI
+      sleep 0.5  # Give time for monitor to initialize
+      hyprctl keyword workspace "$workspace,monitor:$active_hdmi,default:true"
+      
+      # Switch to the workspace
+      hyprctl dispatch workspace "$workspace"
+      
+      notify-send "Display Manager" "Extended mode enabled - Workspace $workspace on HDMI display" -i display
+      echo "HDMI extended mode enabled with workspace $workspace"
+    else
+      echo "No HDMI display detected. Please connect an HDMI cable."
+      notify-send "Display Manager" "No HDMI display detected" -i dialog-error
+      exit 1
     fi
-    
-    # Wait a moment for the monitor to be recognized
-    sleep 1
-    
-    # Send notification
-    notify-send "HDMI Mirroring" "HDMI display mirroring enabled - laptop screen duplicated to HDMI" -i display
-    
-    echo "HDMI mirroring enabled on $ACTIVE_HDMI - laptop screen duplicated to external display(s)"
   }
   
   # Function to disable HDMI output
   disable_hdmi() {
-    echo "Disabling HDMI mirroring..."
+    echo "Disabling HDMI displays..."
     
     # Disable both HDMI ports
     hyprctl keyword monitor "$HDMI_PRIMARY,disable"
     hyprctl keyword monitor "$HDMI_SECONDARY,disable"
     
-    # Send notification
-    notify-send "HDMI Mirroring" "HDMI display mirroring disabled - using laptop screen only" -i display
-    
-    echo "HDMI mirroring disabled - using laptop screen only"
+    notify-send "Display Manager" "HDMI displays disabled - using laptop screen only" -i display
+    echo "HDMI displays disabled successfully"
   }
   
-  # Function to toggle HDMI output
-  toggle_hdmi() {
-    # Check if any HDMI is currently active
-    if hyprctl monitors | grep -q "HDMI"; then
-      disable_hdmi
-    else
-      enable_hdmi
-    fi
-  }
-  
-  # Function to show HDMI status
+  # Function to show display status
   show_status() {
-    echo "=== HDMI Mirroring Status ==="
+    echo "=== Display Management Status ==="
     echo "Available HDMI ports:"
     
     if check_hdmi_connected "$HDMI_PRIMARY"; then
@@ -101,39 +126,52 @@ pkgs.writeShellScriptBin "hdmi-control" ''
     hyprctl monitors | grep -E "Monitor|description|active workspace|mirrorOf" | sed 's/^/  /'
     
     echo ""
-    echo "Mirroring Mode: All displays show the same content (laptop screen duplicated)"
-    echo "HDMI Resolution: 1920x1080@60Hz when enabled"
+    echo "Display Submap Controls:"
+    echo "  Win + P                 - Enter display management submap"
+    echo "  \` (backtick)           - Enable mirror mode"
+    echo "  1-0                    - Bind workspace to HDMI (extended mode)"
+    echo "  Esc                    - Exit submap"
+    echo "  Win + Shift + P        - Disable HDMI displays"
   }
   
   # Main script logic
   case "''${1:-help}" in
-    enable|on)
-      enable_hdmi
+    mirror)
+      enable_mirror
+      ;;
+    extend)
+      enable_extend "''${2:-5}"
       ;;
     disable|off)
       disable_hdmi
-      ;;
-    toggle)
-      toggle_hdmi
       ;;
     status|check)
       show_status
       ;;
     help|--help|-h)
-      echo "HDMI Control Script for Hyprland - Mirroring Mode"
+      echo "HDMI Control Script for Hyprland - Advanced Display Management"
       echo ""
-      echo "Usage: hdmi-control [command]"
+      echo "Usage: hdmi-control [command] [workspace]"
       echo ""
       echo "Commands:"
-      echo "  enable, on     - Enable HDMI mirroring (duplicate laptop screen to HDMI)"
-      echo "  disable, off   - Disable HDMI mirroring (laptop screen only)"
-      echo "  toggle         - Toggle HDMI mirroring on/off"
-      echo "  status, check  - Show current HDMI and monitor status"
-      echo "  help           - Show this help message"
+      echo "  mirror             - Enable HDMI mirror mode (1920x1080@60Hz)"
+      echo "  extend [workspace] - Enable HDMI extended mode with workspace binding"
+      echo "  disable, off       - Disable HDMI displays"
+      echo "  status, check      - Show current display status"
+      echo "  help               - Show this help message"
       echo ""
-      echo "Mirror Mode: All displays show the same content"
-      echo "HDMI Resolution: 1920x1080@60Hz"
-      echo "Laptop Resolution: 1920x1080@144Hz"
+      echo "Submap Controls (Win + P):"
+      echo "  \\\` (backtick)       - Mirror mode"
+      echo "  1-0                - Extended mode with workspace 1-10"
+      echo "  Esc                - Exit submap"
+      echo ""
+      echo "Quick Controls:"
+      echo "  Win + Shift + P    - Disable HDMI displays"
+      echo ""
+      echo "Examples:"
+      echo "  hdmi-control mirror              # Enable mirror mode"
+      echo "  hdmi-control extend 5            # Extended mode with workspace 5"
+      echo "  hdmi-control extend              # Extended mode with workspace 5 (default)"
       ;;
     *)
       echo "Unknown command: $1"
