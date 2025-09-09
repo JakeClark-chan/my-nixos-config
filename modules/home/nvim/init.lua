@@ -69,7 +69,6 @@ require("lazy").setup({
           "L3MON4D3/LuaSnip",
       },
       config = function()
-        -- nvim-cmp configuration will go here
         -- nvim-cmp configuration
         local cmp = require("cmp")
         local luasnip = require("luasnip")
@@ -105,6 +104,21 @@ vim.keymap.set('n', '<leader>ff', '<cmd>Telescope find_files<cr>', { noremap = t
 vim.keymap.set('n', '<leader>vd', vim.diagnostic.open_float, { noremap = true, silent = true, desc = "View Diagnostics" })
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { noremap = true, silent = true, desc = "Previous Diagnostic" })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { noremap = true, silent = true, desc = "Next Diagnostic" })
+
+-- Autocommands for diagnostics
+vim.api.nvim_create_autocmd("CursorHoldI", {
+  callback = function()
+    vim.diagnostic.open_float({
+      focusable = false,
+      close_events = {
+        "BufLeave",
+        "CursorMoved",
+        "InsertEnter",
+        "FocusLost",
+      },
+    })
+  end,
+})
 
 
 -- Enable relative line numbers
