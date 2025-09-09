@@ -44,5 +44,10 @@ in
 
     # AI CLI tools
     gemini-cli
+
+    # IDE
+    vscode
+    cargo
+    gcc
   ];
 }

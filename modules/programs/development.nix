@@ -8,7 +8,9 @@
     nodejs           # for gemini cli and more
     
     # Editors and IDEs
-    vscode
+    neovim
+    # Fallback
+    gedit
 
     # Java
     temurin-bin

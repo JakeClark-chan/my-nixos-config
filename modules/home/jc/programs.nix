@@ -3,6 +3,19 @@
 {
   # Program configurations
   programs = {
+    # Neovim configuration
+    neovim = {
+      enable = true;
+      extraLuaConfig = builtins.readFile ../nvim/init.lua;
+      extraPackages = with pkgs; [
+        vimPlugins.lazy-nvim
+        vimPlugins.nvim-lspconfig
+        # Language Server
+        pyright # Python
+        nil # Nix Language
+      ];
+    };
+
     # Git configuration
     git = {
       enable = true;
