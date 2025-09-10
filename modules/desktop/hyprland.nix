@@ -51,12 +51,6 @@
     # hyprshot        # Screenshot tool for Hyprland (commented out, use grim + slurp instead)
     # Terminal emulator
     kitty           # Terminal (you can change this)
-    
-    # Custom background (if you want to keep it)
-    # (pkgs.runCommand "custom-background" { } ''
-    #   mkdir -p $out/share/backgrounds
-    #   cp ${../../shiho.jpg} $out/share/backgrounds/
-    # '')
   ];
 
   # Auto-login (optional, comment out if you prefer manual login)
