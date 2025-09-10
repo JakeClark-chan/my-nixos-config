@@ -17,7 +17,7 @@ in
     gthumb
     onlyoffice-desktopeditors # for office work
     # For reading EPUB, PDF and more
-    okular
+    kdePackages.okular
     
     # Development and virtual environments
     #distrobox # for sandboxing applications - open when docker or podman is installed
