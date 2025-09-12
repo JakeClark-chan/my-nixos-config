@@ -21,7 +21,7 @@ in
     
     # Development and virtual environments
     #distrobox # for sandboxing applications - open when docker or podman is installed
-    python313Packages.uv # for virtual environments
+    python3Packages.uv # for virtual environments
     
     # Screenshots and system monitoring
     flameshot # for screenshot
@@ -31,7 +31,7 @@ in
     
     # Entertainment
     ani-cli # for anime streaming
-    python313Packages.yt-dlp
+    python3Packages.yt-dlp
     
     # Custom scripts
     lxcGui

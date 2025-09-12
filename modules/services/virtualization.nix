@@ -2,7 +2,17 @@
 
 {
   # Virtualization
-  #virtualisation.docker.enable = true;
+  virtualisation.docker = {
+    enable = true;
+    rootless = {
+      enable = false;  # Keep using system Docker
+      setSocketVariable = false;
+    };
+    # Set custom data directory
+    daemon.settings = {
+      data-root = "/home/jc/docker";
+    };
+  };
 
   virtualisation.lxd = {
     enable = true;
@@ -56,6 +66,7 @@
     "d /home/jc/lxd/storage-pools 0755 root root -"
     "d /home/jc/lxd/storage-pools/default 0755 root root -"
     "d /home/jc/lxc 0755 root root -"
+    "d /home/jc/docker 0755 jc jc -"  # Add this line
   ];
 
   # Enable Waydroid https://wiki.nixos.org/wiki/Waydroid

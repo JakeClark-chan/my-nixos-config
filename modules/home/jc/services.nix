@@ -48,24 +48,6 @@ in
 
   # Systemd user services configuration
   systemd.user.services = {
-    graceful-shutdown-handler = {
-      Unit = {
-        Description = "Graceful shutdown handler";
-        DefaultDependencies = false;
-        Before = [ "shutdown.target" "reboot.target" ];
-      };
-      
-      Service = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        ExecStart = "${pkgs.coreutils}/bin/true";
-        # ExecStop = "${shutdownScript}/bin/graceful-shutdown shutdown";
-        TimeoutStopSec = 60;
-      };
-      
-      Install = {
-        WantedBy = [ "default.target" ];
-      };
-    };
+    
   };
 }

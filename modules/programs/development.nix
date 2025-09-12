@@ -4,7 +4,7 @@
   # Development Tools and Languages
   environment.systemPackages = with pkgs; [
     # Programming languages
-    python313Full
+    python3
     nodejs           # for gemini cli and more
     
     # Editors and IDEs

@@ -3,6 +3,7 @@
 {
   # Set your time zone.
   time.timeZone = systemSettings.timezone;
+  time.hardwareClockInLocalTime = true;
   
   # Select internationalisation properties.
   i18n.defaultLocale = systemSettings.locale;
