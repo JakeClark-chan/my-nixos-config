@@ -7,7 +7,7 @@ in
   services = {
     # Swaync notification daemon
     swaync = {
-      enable = true;
+      enable = false;  # Disabled - will be started by Hyprland instead
       settings = {
         positionX = "right";
         positionY = "top";
