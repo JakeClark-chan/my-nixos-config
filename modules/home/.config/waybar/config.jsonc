@@ -55,7 +55,7 @@
     "wlr/taskbar": {
         "format": "{icon}",
         "tooltip": true,
-        "tooltip-format": "{title}",
+        "tooltip-format": "{title} - {state}",
         "on-click": "activate",
         "on-click-middle": "close",
         "active-first": true
