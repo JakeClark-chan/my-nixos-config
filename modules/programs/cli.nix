@@ -1,0 +1,43 @@
+{ config, pkgs, ... }:
+
+{
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
+
+  # CLI Tools and System Utilities
+  environment.systemPackages = with pkgs; [
+    # Network utilities
+    wget
+    curl
+    openvpn
+    
+    # System utilities
+    usbutils         # for lsusb
+    usb-modeswitch   # for usb_modeswitch
+    fastfetch        # system info
+    htop             # process monitor
+    ncdu             # disk usage analyzer
+    jq               # JSON processor
+    kbd              # for setleds (lock key state checking)
+    tree             # directory tree viewer
+
+    # Archive manager
+    zip
+    unzip
+    rar
+    unrar
+    p7zip
+    
+    # Shell and terminal
+    zsh
+    starship         # shell prompt
+    
+    # Version control
+    git
+
+    # Home Manager
+    home-manager
+  ];
+}

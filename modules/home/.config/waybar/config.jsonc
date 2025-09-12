@@ -1,0 +1,179 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 30,
+    "spacing": 4,
+    "margin-top": 2,
+    "margin-bottom": 2,
+    "margin-left": 2,
+    "margin-right": 2,
+    "modules-left": ["custom/applications", "hyprland/workspaces", "wlr/taskbar"],
+    // "modules-center": ["hyprland/window"],
+    "modules-right": ["tray", "idle_inhibitor", "keyboard-state", "custom/hyprpicker", "custom/wallpaper", "pulseaudio", "network", "cpu", "memory", "temperature", "backlight", "battery", "clock", "custom/control-center"],
+    "custom/control-center": {
+        "format": "󰒓",
+        "on-click": "swaync-client -t",
+        "tooltip": false
+    },
+
+    "custom/hyprpicker": {
+        "format": "󰈋",
+        "on-click": "hyprpicker -a",
+        "tooltip": true,
+        "tooltip-format": "Color Picker - Click to pick a color"
+    },
+
+    "custom/wallpaper": {
+        "format": "󰸉",
+        "on-click": "change-wallpaper",
+        "on-click-right": "change-wallpaper random",
+        "tooltip": true,
+        "tooltip-format": "Change Wallpaper\nLeft-click: Next (Linear)\nRight-click: Next (Random)"
+    },
+    
+    "hyprland/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": true,
+        "format": "{name}: {icon}",
+        "format-icons": {
+            "1": "Main",
+            "2": "Secondary",
+            "3": "Temporary",
+            "4": "",
+            "5": "",
+            "urgent": "",
+            "focused": "",
+            "default": ""
+        }
+    },
+
+    "wlr/taskbar": {
+        "format": "{icon}",
+        "tooltip": true,
+        "tooltip-format": "{title}",
+        "on-click": "activate",
+        "on-click-middle": "close",
+        "active-first": true
+   	 },
+    
+    "hyprland/window": {
+        "format": "{}",
+        "max-length": 50
+    },
+    
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "format-icons": {
+            "activated": "󰐩",
+            "deactivated": "󰐨"
+        },
+        "tooltip": true,
+        "tooltip-format": "Idle inhibitor is {status}"
+    },
+    
+    "tray": {
+        "spacing": 10
+    },
+    
+    "clock": {
+        "timezone": "Asia/Bangkok",
+        "format": "{:%a %b %d %H:%M}",
+        "format-alt": "{:%a, %d/%m/%y, %H:%M:%S}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "calendar": {
+            "mode": "month",
+            "format": {
+                "months": "<span color='#ff6699'><b>{}</b></span>",
+                "days": "<span color='#cdd6f4'><b>{}</b></span>",
+                "weekdays": "<span color='#7CD37C'><b>{}</b></span>",
+                "today": "<span color='#ffcc66'><b>{}</b></span>"
+            }
+        }
+    },
+    
+    "cpu": {
+        "format": " {usage}% ",
+        "tooltip": false
+    },
+    
+    "memory": {
+        "format": " {percentage}% ",
+        "tooltip": true,
+        "tooltip-format": "RAM: {used:0.1f}GB / {total:0.1f}GB\nSwap: {swapUsed:0.1f}GB / {swapTotal:0.1f}GB"
+    },
+    
+    "temperature": {
+        "critical-threshold": 80,
+        // "hwmon-path-abs": "/sys/devices/platform/coretemp.0/hwmon/hwmon5",
+        "thermal-zone": 2,
+        "hwmon-path": "/sys/class/thermal/thermal_zone2/hwmon0/temp1_input",
+        "input-filename": "temp1_input",
+        "format": " {temperatureC}°C {icon}",
+        "format-icons": ["", "", ""]
+    },
+    
+    "backlight": {
+        "format": "󰃞 {percent}% {icon}",
+        "format-icons": ["", "", "", "", "", "", "", "", ""]
+    },
+    
+    "battery": {
+        "states": {
+            "warning": 20,
+            "critical": 10
+        },
+        "interval": 15,
+        "format": "{icon} {capacity}%",
+        "format-charging": "󰂄 {capacity}%",
+        "format-plugged": "󱉝 {capacity}%",
+        // "format-alt": "{time} {icon}",
+        "format-icons": ["󰂃", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+        "tooltip": true,
+        "tooltip-format": "Battery has {capacity}%, draw {power:0.1f} W, estimate {time} remaining, health {health}"
+    },
+    
+    "network": {
+        "format-wifi": "{essid} ({signalStrength}%) ",
+        "format-ethernet": "{ipaddr}/{cidr} ",
+        "tooltip-format": "{ifname} via {gwaddr} has IP {ipaddr}/{cidr}",
+        "format-linked": "{ifname} (No IP) ",
+        "format-disconnected": "Disconnected ⚠",
+        "format-alt": "<span foreground='#000000'> {bandwidthDownBytes}</span> <span foreground='#000000'> {bandwidthUpBytes}</span>",
+        "interval": 1
+    },
+    
+    "pulseaudio": {
+        "format": "{volume}% {icon} {format_source}",
+        "format-bluetooth": "{volume}% {icon} {format_source}",
+        "format-bluetooth-muted": " {icon} {format_source}",
+        "format-muted": " {format_source}",
+        "format-source": "{volume}% ",
+        "format-source-muted": "",
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["", "", ""]
+        },
+        "on-click": "pavucontrol"
+    },
+    
+    "custom/applications": {
+        "format": " Applications",
+        "tooltip": false,
+        "on-click": "wofi --show drun"
+    },
+    
+    "keyboard-state": {
+        "numlock": true,
+        "capslock": true,
+        "format": "{name} {icon}",
+        "format-icons": {
+            "locked": "",
+            "unlocked": ""
+        }
+    }
+}

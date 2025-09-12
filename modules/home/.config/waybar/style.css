@@ -1,0 +1,394 @@
+* {
+    /* `otf-font-awesome` is required to be installed for icons */
+    font-family: SDK SC Web, FontAwesome, Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    /* Default settings - just margins and padding */
+    margin: 0;
+    padding: 0;
+}
+
+window#waybar {
+    background-color: transparent;
+    border: none;
+    color: #ffffff;
+    transition-property: background-color;
+    transition-duration: .5s;
+    margin: 2px;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+button {
+    /* Use box-shadow instead of border so the text isn't offset */
+    box-shadow: inset 0 -3px transparent;
+    /* Avoid rounded borders under each button name */
+    border: none;
+    border-radius: 999em;
+    padding: 2px 5px;
+    margin: 2px;
+}
+
+/* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
+button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 -3px #ffffff;
+}
+
+#workspaces button {
+    padding: 2px 8px;
+    background-color: rgba(100, 200, 255, 0.1);
+    color: #ffffff;
+    border-radius: 999em;
+    margin: 2px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+#workspaces button:hover {
+    background: rgba(100, 200, 255, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+#workspaces button.active {
+    background: linear-gradient(45deg, #4CAF50 0%, #2196F3 100%);
+    color: #ffffff;
+    border: 2px solid #4CAF50;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+#workspaces button.focused {
+    background: linear-gradient(45deg, #ff6b6b 0%, #feca57 100%);
+    color: #000000;
+    border: 2px solid #ffffff;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+}
+
+#workspaces button.urgent {
+    background: linear-gradient(45deg, #ff3838 0%, #ff0000 100%);
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    animation: urgent-blink 0.5s linear infinite alternate;
+    box-shadow: 0 0 15px rgba(255, 56, 56, 0.8);
+}
+
+@keyframes urgent-blink {
+    from {
+        box-shadow: 0 0 15px rgba(255, 56, 56, 0.8);
+    }
+    to {
+        box-shadow: 0 0 25px rgba(255, 56, 56, 1.0);
+    }
+}
+
+#mode {
+    background-color: #9c27b0;
+    border-radius: 999em;
+    padding: 5px;
+    margin: 2px;
+    color: #ffffff;
+}
+
+#clock,
+#battery,
+#cpu,
+#memory,
+#disk,
+#temperature,
+#backlight,
+#network,
+#pulseaudio,
+#wireplumber,
+#custom-media,
+#tray,
+#mode,
+#idle_inhibitor,
+#scratchpad,
+#mpd {
+    padding: 2px 8px;
+    margin: 2px;
+    border-radius: 999em;
+    color: #ffffff;
+}
+
+/* Taskbar styling for wlr/taskbar */
+#taskbar {
+    margin: 0 4px;
+}
+
+#taskbar button {
+    padding: 2px 8px;
+    background: rgba(0, 0, 0, 0.4);
+    color: #ffffff;
+    border-radius: 999em;
+    margin: 2px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    min-width: 30px;
+}
+
+#taskbar button:hover {
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+#taskbar button.active {
+    background: linear-gradient(45deg, #4CAF50 0%, #2196F3 100%);
+    color: #ffffff;
+    border: 2px solid #4CAF50;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+#window {
+    margin: 0 4px;
+    padding: 2px 8px;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border-radius: 999em;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+#workspaces {
+    margin: 0 4px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 999em;
+    padding: 3px;
+}
+
+#clock {
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    font-weight: bold;
+}
+
+#battery {
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
+}
+
+#battery.charging, #battery.plugged {
+    background: linear-gradient(45deg, #56ab2f 0%, #a8e6cf 100%);
+    color: #ffffff;
+}
+
+@keyframes blink {
+    to {
+        background-color: #ffffff;
+        color: #000000;
+    }
+}
+
+#battery.critical:not(.charging) {
+    background-color: #f53c3c;
+    color: #ffffff;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+label:focus {
+    background-color: #000000;
+}
+
+#cpu {
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
+    font-weight: bold;
+    border-radius: 999em 0 0 999em;
+}
+
+#memory {
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
+    font-weight: bold;
+    border-radius: 0;
+}
+
+#temperature {
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
+    border-radius: 0 999em 999em 0;
+}
+
+#temperature.critical {
+    background: linear-gradient(45deg, #ff416c 0%, #ff4b2b 100%);
+    color: #ffffff;
+    animation: blink 0.5s linear infinite alternate;
+}
+
+#disk {
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
+}
+
+#backlight {
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
+}
+
+#network {
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
+    font-weight: bold;
+}
+
+#network.disconnected {
+    background: linear-gradient(45deg, #ff416c 0%, #ff4b2b 100%);
+    color: #ffffff;
+}
+
+#pulseaudio {
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    color: #ffffff;
+    font-weight: bold;
+}
+
+#pulseaudio.muted {
+    background: linear-gradient(45deg, #636e72 0%, #b2bec3 100%);
+    color: #ffffff;
+}
+
+#wireplumber {
+    background-color: #fff0f5;
+    color: #000000;
+}
+
+#wireplumber.muted {
+    background-color: #f53c3c;
+}
+
+#custom-media {
+    background-color: #66cc99;
+    color: #ffffff;
+    min-width: 100px;
+}
+
+#custom-media.custom-spotify {
+    background-color: #66cc99;
+}
+
+#custom-media.custom-vlc {
+    background-color: #ffa000;
+}
+
+
+
+#tray {
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    padding: 2px 8px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background: linear-gradient(45deg, #ff416c 0%, #ff4b2b 100%);
+}
+
+#idle_inhibitor {
+    background: linear-gradient(45deg, #2d3748 0%, #4a5568 100%);
+}
+
+#idle_inhibitor.activated {
+    background: linear-gradient(45deg, #68d391 0%, #38b2ac 100%);
+    color: #000000;
+}
+
+#mpd {
+    background-color: #66cc99;
+    color: #2a5c45;
+}
+
+#mpd.disconnected {
+    background-color: #f53c3c;
+}
+
+#mpd.stopped {
+    background-color: #90b1b1;
+}
+
+#mpd.paused {
+    background-color: #51a37a;
+}
+
+#language {
+    background: #00b093;
+    color: #740864;
+    padding: 0 5px;
+    margin: 0 5px;
+    min-width: 16px;
+}
+
+#custom-applications {
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    padding: 2px 12px;
+    margin: 2px;
+    border-radius: 999em;
+    font-weight: bold;
+}
+
+#custom-applications:hover {
+    background: linear-gradient(45deg, #5a67d8 0%, #6b46c1 100%);
+    transition: all 0.2s ease;
+}
+
+#custom-control-center {
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    padding: 2px 12px;
+    margin: 2px;
+    border-radius: 999em;
+    font-weight: bold;
+}
+
+#custom-control-center:hover {
+    background: linear-gradient(45deg, #5a67d8 0%, #6b46c1 100%);
+    transition: all 0.2s ease;
+}
+
+#scratchpad {
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+}
+
+#scratchpad.empty {
+	background-color: transparent;
+}
+
+#custom-hyprpicker,
+#custom-wallpaper,
+#keyboard-state {
+    background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
+    /* color: #000000; */
+    padding: 2px 12px;
+    margin: 2px;
+    border-radius: 999em;
+    font-weight: bold;
+}
+
+#keyboard-state {
+    padding: 2px 0;
+    font-weight: normal;
+}
+
+#keyboard-state > label {
+    padding: 0 5px;
+}
+
+#keyboard-state > label.locked {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 999em;
+}
+
+#custom-hyprpicker:hover,
+#custom-wallpaper:hover {
+    background: linear-gradient(45deg, #79e7ef 0%, #5595ee 100%);
+    transition: all 0.2s ease;
+}

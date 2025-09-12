@@ -1,0 +1,55 @@
+{ config, pkgs, systemSettings, ... }:
+
+{
+  # Define your hostname.
+  networking.hostName = systemSettings.hostname;
+  # Enable networking via NetworkManager
+  networking.networkmanager = {
+    enable = true;
+    # Auto-connect to known networks
+    settings = {
+      main = {
+        # Automatically connect to networks
+        no-auto-default = false;
+      };
+      # WiFi settings
+      wifi = {
+        # Scan for networks more frequently
+        scan-rand-mac-address = false;
+        # Enable powersave
+        powersave = 2;
+      };
+    };
+  };
+  # Additional hosts
+  networking.extraHosts = ''
+    172.18.0.4 target
+    172.18.0.2 mailhog
+  '';
+
+  # Enable WiFi support
+  networking.wireless.enable = false; # Disable wpa_supplicant (conflicts with NetworkManager)
+  
+  # Enable wireless support
+  hardware.enableRedistributableFirmware = true;
+  
+  # Additional networking packages
+  environment.systemPackages = with pkgs; [
+    networkmanagerapplet  # GUI for NetworkManager
+    wirelesstools        # iwconfig, iwlist, etc.
+  ];
+  
+  # Disable printing service (CUPS)
+  services.printing.enable = false;
+
+  # Open ports in the firewall.
+  # networking.firewall.allowedTCPPorts = [ ... ];
+  # networking.firewall.allowedUDPPorts = [ ... ];
+  # Or disable the firewall altogether.
+  # networking.firewall.enable = false;
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [ 80 443 ]; # HTTP, HTTPS
+    allowedUDPPorts = [ 53 ]; # DNS
+  };
+}
