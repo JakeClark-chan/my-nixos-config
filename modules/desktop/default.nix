@@ -3,9 +3,6 @@
 
 {
   imports = [
-    # Qtile (modern/tiling)
-    # ./qtile.nix
-
     # Hyprland Window Manager (modern/tiling)
     ./hyprland.nix
   ];

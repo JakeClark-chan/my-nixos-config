@@ -23,8 +23,8 @@
   };
   # Additional hosts
   networking.extraHosts = ''
-    172.18.0.4 target
-    172.18.0.2 mailhog
+    172.19.0.3 target
+    172.19.0.2 server
   '';
 
   # Enable WiFi support

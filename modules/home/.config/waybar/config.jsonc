@@ -7,7 +7,7 @@
     "margin-bottom": 2,
     "margin-left": 2,
     "margin-right": 2,
-    "modules-left": ["custom/applications", "hyprland/workspaces", "wlr/taskbar"],
+    "modules-left": ["custom/applications", "hyprland/workspaces", "wlr/taskbar", "hyprland/submap"],
     // "modules-center": ["hyprland/window"],
     "modules-right": ["tray", "idle_inhibitor", "keyboard-state", "custom/hyprpicker", "custom/wallpaper", "pulseaudio", "network", "cpu", "memory", "temperature", "backlight", "battery", "clock", "custom/control-center"],
     "custom/control-center": {
@@ -29,6 +29,11 @@
         "on-click-right": "change-wallpaper random",
         "tooltip": true,
         "tooltip-format": "Change Wallpaper\nLeft-click: Next (Linear)\nRight-click: Next (Random)"
+    },
+
+    "hyprland/submap": {
+        "format": "✌️ {}",
+        "tooltip": false
     },
     
     "hyprland/workspaces": {

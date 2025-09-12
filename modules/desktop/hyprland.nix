@@ -48,6 +48,9 @@
     glfw            # OpenGL framework for Wayland
     hyprsunset         # Night light for Hyprland (official hypr-ecosystem tool)
     hyprpicker         # Color picker for Hyprland (official hypr-ecosystem tool)
+
+    # Clipboard manager
+    cliphist        # Clipboard history manager
     # hyprshot        # Screenshot tool for Hyprland (commented out, use grim + slurp instead)
     # Terminal emulator
     kitty           # Terminal (you can change this)

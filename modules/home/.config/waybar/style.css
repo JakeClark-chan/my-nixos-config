@@ -364,7 +364,8 @@ label:focus {
 
 #custom-hyprpicker,
 #custom-wallpaper,
-#keyboard-state {
+#keyboard-state,
+#submap {
     background: linear-gradient(45deg, #2AF598 0%, #009EFD 100%);
     /* color: #000000; */
     padding: 2px 12px;
