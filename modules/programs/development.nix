@@ -44,6 +44,11 @@
     loadModels = [ "qwen3:1.7b" ];
   };
 
+  # and Ollama UI
+  services.nextjs-ollama-llm-ui = {
+    enable = true;
+  };
+
   # n8n Service
   # services.n8n = {
   #   enable = true;
