@@ -164,7 +164,7 @@ All scripts follow the `writeShellScriptBin` pattern with full binary paths:
 
 - **Hostname**: JakeClark-Sep21st with Asia/Ho_Chi_Minh timezone
 - **Network Stack**: NetworkManager with WiFi power management and auto-connect
-- **Firewall**: Enabled with custom host entries for development (target: 172.19.0.3, server: 172.19.0.2)
+- **Firewall**: Enabled with custom host entries for development
 - **SSH**: Client-side SSH agent enabled, server disabled for security
 - **Container Networking**: LXD bridge networking with GUI management interface
 - **Development Services**: Ollama (localhost:11434), Next.js LLM UI for AI workflows
@@ -174,14 +174,16 @@ All scripts follow the `writeShellScriptBin` pattern with full binary paths:
 ### **Initial Setup**
 1. **Clone Repository**:
    ```bash
-   git clone https://github.com/JakeClark38a/my-nixos-config.git
-   cd my-nixos-config
+   git clone https://github.com/JakeClark38a/my-nixos-config.git nixos-config
+   cd nixos-config
    ```
 
 2. **Prepare Hardware Configuration**:
-   ```bash
-   sudo cp /etc/nixos/hardware-configuration.nix .
    ```
+   sudo nix-generate-config --root <rootFolder, if in live environment, use /mnt>
+   ```
+
+   Then replace `hardware-configuration.nix` inside `<root-file-above>/etc/nixos/hardware-configuration.nix` with `hardware-configuration.nix` inside this folder.
 
 3. **Test Configuration**:
    ```bash
@@ -191,6 +193,11 @@ All scripts follow the `writeShellScriptBin` pattern with full binary paths:
 4. **Apply Configuration**:
    ```bash
    sudo nixos-rebuild switch --flake .
+   ```
+
+   To apply at next boot:
+   ```bash
+   sudo nixos-rebuild boot --flake .
    ```
 
 ### **Post-Installation**

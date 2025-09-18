@@ -5,7 +5,7 @@ This script runs without virtual environment dependencies
 """
 
 import tkinter as tk
-from tkinter import ttk, messagebox, simpledialog, scrolledtext
+from tkinter import ttk, messagebox, simpledialog, scrolledtext, filedialog
 import subprocess
 import json
 import threading
@@ -1215,6 +1215,67 @@ iface {device_name} inet dhcp
             return 0.0
         except:
             return 0.0
+    
+    def backup_container(self, container_name: str, backup_path: str, compress: bool = True) -> bool:
+        """Export/backup a container to a file"""
+        try:
+            # Validate container exists
+            if not self.container_exists(container_name):
+                raise Exception(f"Container '{container_name}' does not exist")
+            
+            # Build the lxc export command
+            command = ['lxc', 'export', container_name, backup_path]
+            if compress:
+                command.append('--compression=gzip')
+            
+            result = self.run_command(command)
+            if result.returncode == 0:
+                return True
+            else:
+                raise Exception(f"Failed to backup container: {result.stderr}")
+        except Exception as e:
+            raise Exception(f"Backup failed: {str(e)}")
+    
+    def restore_container(self, backup_path: str, new_container_name: str = None) -> bool:
+        """Import/restore a container from a backup file"""
+        try:
+            # Validate backup file exists
+            if not os.path.exists(backup_path):
+                raise Exception(f"Backup file '{backup_path}' does not exist")
+            
+            # Build the lxc import command
+            command = ['lxc', 'import', backup_path]
+            if new_container_name:
+                # Check if the new name would conflict
+                if self.container_exists(new_container_name):
+                    raise Exception(f"Container '{new_container_name}' already exists")
+                command.extend(['--alias', new_container_name])
+            
+            result = self.run_command(command)
+            if result.returncode == 0:
+                return True
+            else:
+                raise Exception(f"Failed to restore container: {result.stderr}")
+        except Exception as e:
+            raise Exception(f"Restore failed: {str(e)}")
+    
+    def get_backup_info(self, backup_path: str) -> dict:
+        """Get information about a backup file"""
+        try:
+            if not os.path.exists(backup_path):
+                return {}
+            
+            stat = os.stat(backup_path)
+            file_size_mb = round(stat.st_size / (1024 * 1024), 2)
+            modification_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(stat.st_mtime))
+            
+            return {
+                'file_size_mb': file_size_mb,
+                'modification_time': modification_time,
+                'file_path': backup_path
+            }
+        except Exception:
+            return {}
 
 
 class LXCGui:
@@ -1285,6 +1346,10 @@ class LXCGui:
                   command=self.disk_management_dialog, width=20).pack(fill=tk.X, pady=2)
         ttk.Button(buttons_frame, text="🗄️ Storage Pools", 
                   command=self.storage_pool_dialog, width=20).pack(fill=tk.X, pady=2)
+        ttk.Button(buttons_frame, text="📦 Backup Container", 
+                  command=self.backup_container_dialog, width=20).pack(fill=tk.X, pady=2)
+        ttk.Button(buttons_frame, text="📥 Restore Container", 
+                  command=self.restore_container_dialog, width=20).pack(fill=tk.X, pady=2)
         
         ttk.Separator(buttons_frame, orient='horizontal').pack(fill=tk.X, pady=10)
         
@@ -1399,14 +1464,15 @@ class LXCGui:
         """Show dialog to create a new container"""
         dialog = tk.Toplevel(self.root)
         dialog.title("Create New Container")
-        dialog.geometry("450x350")
-        dialog.transient(self.root)
-        dialog.grab_set()
+        dialog.minsize(450, 350)
+
+        dialog.resizable(True, True)
+
         
-        # Center the dialog
-        dialog.geometry("+%d+%d" % (self.root.winfo_rootx() + 50, 
-                                   self.root.winfo_rooty() + 50))
-        
+
+        # Don't make it modal or transient - let Hyprland manage it
+
+        # This allows the dialog to be tiled properly in Hyprland
         frame = ttk.Frame(dialog, padding="20")
         frame.pack(fill=tk.BOTH, expand=True)
         
@@ -1547,8 +1613,11 @@ class LXCGui:
             # Create info window
             info_window = tk.Toplevel(self.root)
             info_window.title(f"Container Info - {container_name}")
-            info_window.geometry("700x500")
-            info_window.transient(self.root)
+            info_window.minsize(700, 500)
+            info_window.resizable(True, True)
+            
+            # Don't make it modal or transient - let Hyprland manage it
+            # This allows the window to be tiled properly in Hyprland
             
             frame = ttk.Frame(info_window, padding="10")
             frame.pack(fill=tk.BOTH, expand=True)
@@ -1598,8 +1667,11 @@ class LXCGui:
                 # Show output in a new window
                 output_window = tk.Toplevel(self.root)
                 output_window.title(f"Command Output - {container_name}")
-                output_window.geometry("700x500")
-                output_window.transient(self.root)
+                output_window.minsize(700, 500)
+                output_window.resizable(True, True)
+                
+                # Don't make it modal or transient - let Hyprland manage it
+                # This allows the window to be tiled properly in Hyprland
                 
                 frame = ttk.Frame(output_window, padding="10")
                 frame.pack(fill=tk.BOTH, expand=True)
@@ -1690,10 +1762,15 @@ class LXCGui:
         
         dialog = tk.Toplevel(self.root)
         dialog.title(f"User Management - {container_name}")
-        dialog.geometry("700x600")
-        dialog.transient(self.root)
-        dialog.grab_set()
+        dialog.minsize(700, 600)
+
+        dialog.resizable(True, True)
+
         
+
+        # Don't make it modal or transient - let Hyprland manage it
+
+        # This allows the dialog to be tiled properly in Hyprland
         frame = ttk.Frame(dialog, padding="20")
         frame.pack(fill=tk.BOTH, expand=True)
         
@@ -1869,10 +1946,15 @@ class LXCGui:
         """Show dialog to edit user properties"""
         dialog = tk.Toplevel(self.root)
         dialog.title(f"Edit User - {username}")
-        dialog.geometry("400x300")
-        dialog.transient(self.root)
-        dialog.grab_set()
+        dialog.minsize(400, 300)
+
+        dialog.resizable(True, True)
+
         
+
+        # Don't make it modal or transient - let Hyprland manage it
+
+        # This allows the dialog to be tiled properly in Hyprland
         frame = ttk.Frame(dialog, padding="20")
         frame.pack(fill=tk.BOTH, expand=True)
         
@@ -1965,10 +2047,15 @@ class LXCGui:
         """Show detailed information about a user"""
         dialog = tk.Toplevel(self.root)
         dialog.title(f"User Details - {username}")
-        dialog.geometry("500x400")
-        dialog.transient(self.root)
-        dialog.grab_set()
+        dialog.minsize(500, 400)
+
+        dialog.resizable(True, True)
+
         
+
+        # Don't make it modal or transient - let Hyprland manage it
+
+        # This allows the dialog to be tiled properly in Hyprland
         frame = ttk.Frame(dialog, padding="20")
         frame.pack(fill=tk.BOTH, expand=True)
         
@@ -2013,10 +2100,15 @@ class LXCGui:
         
         dialog = tk.Toplevel(self.root)
         dialog.title(f"Network Configuration - {container_name}")
-        dialog.geometry("500x400")
-        dialog.transient(self.root)
-        dialog.grab_set()
+        dialog.minsize(500, 400)
+
+        dialog.resizable(True, True)
+
         
+
+        # Don't make it modal or transient - let Hyprland manage it
+
+        # This allows the dialog to be tiled properly in Hyprland
         frame = ttk.Frame(dialog, padding="20")
         frame.pack(fill=tk.BOTH, expand=True)
         
@@ -2114,8 +2206,11 @@ class LXCGui:
         """Show network interfaces and their configuration"""
         dialog = tk.Toplevel(self.root)
         dialog.title("Network Interfaces")
-        dialog.geometry("700x500")
-        dialog.transient(self.root)
+        dialog.minsize(700, 500)
+        dialog.resizable(True, True)
+        
+        # Don't make it modal or transient - let Hyprland manage it
+        # This allows the dialog to be tiled properly in Hyprland
         
         frame = ttk.Frame(dialog, padding="20")
         frame.pack(fill=tk.BOTH, expand=True)
@@ -2167,7 +2262,9 @@ class LXCGui:
                     # Show in new window
                     info_window = tk.Toplevel(dialog)
                     info_window.title(f"Network Details - {network_name}")
-                    info_window.geometry("600x400")
+                    info_window.minsize(600, 400)
+
+                    info_window.resizable(True, True)
                     
                     info_frame = ttk.Frame(info_window, padding="10")
                     info_frame.pack(fill=tk.BOTH, expand=True)
@@ -2220,10 +2317,15 @@ class LXCGui:
         # Dialog for user and shell selection
         dialog = tk.Toplevel(self.root)
         dialog.title(f"Terminal Options - {container_name}")
-        dialog.geometry("400x300")
-        dialog.transient(self.root)
-        dialog.grab_set()
+        dialog.minsize(400, 300)
+
+        dialog.resizable(True, True)
+
         
+
+        # Don't make it modal or transient - let Hyprland manage it
+
+        # This allows the dialog to be tiled properly in Hyprland
         frame = ttk.Frame(dialog, padding="20")
         frame.pack(fill=tk.BOTH, expand=True)
         
@@ -2268,10 +2370,15 @@ class LXCGui:
         
         dialog = tk.Toplevel(self.root)
         dialog.title(f"Application Mirroring - {container_name}")
-        dialog.geometry("700x500")
-        dialog.transient(self.root)
-        dialog.grab_set()
+        dialog.minsize(700, 500)
+
+        dialog.resizable(True, True)
+
         
+
+        # Don't make it modal or transient - let Hyprland manage it
+
+        # This allows the dialog to be tiled properly in Hyprland
         frame = ttk.Frame(dialog, padding="20")
         frame.pack(fill=tk.BOTH, expand=True)
         
@@ -2434,10 +2541,15 @@ class LXCGui:
         # Create dialog window
         dialog = tk.Toplevel(self.root)
         dialog.title(f"Disk Management - {container_name}")
-        dialog.geometry("600x700")
-        dialog.transient(self.root)
-        dialog.grab_set()
+        dialog.minsize(600, 700)
+
+        dialog.resizable(True, True)
+
         
+
+        # Don't make it modal or transient - let Hyprland manage it
+
+        # This allows the dialog to be tiled properly in Hyprland
         # Main frame
         main_frame = ttk.Frame(dialog, padding="10")
         main_frame.pack(fill=tk.BOTH, expand=True)
@@ -2692,10 +2804,15 @@ class LXCGui:
         """Show storage pool management dialog"""
         dialog = tk.Toplevel(self.root)
         dialog.title("Storage Pool Management")
-        dialog.geometry("700x600")
-        dialog.transient(self.root)
-        dialog.grab_set()
+        dialog.minsize(700, 600)
+
+        dialog.resizable(True, True)
+
         
+
+        # Don't make it modal or transient - let Hyprland manage it
+
+        # This allows the dialog to be tiled properly in Hyprland
         # Main frame
         main_frame = ttk.Frame(dialog, padding="10")
         main_frame.pack(fill=tk.BOTH, expand=True)
@@ -2920,7 +3037,9 @@ class LXCGui:
                     # Show in new window
                     info_window = tk.Toplevel(dialog)
                     info_window.title(f"Storage Pool Details - {pool_name}")
-                    info_window.geometry("600x400")
+                    info_window.minsize(600, 400)
+
+                    info_window.resizable(True, True)
                     
                     info_frame = ttk.Frame(info_window, padding="10")
                     info_frame.pack(fill=tk.BOTH, expand=True)
@@ -2948,6 +3067,281 @@ class LXCGui:
         ttk.Button(bottom_frame, text="Refresh Pools", command=refresh_pools).pack(side=tk.LEFT)
         ttk.Button(bottom_frame, text="Show Details", command=show_pool_details).pack(side=tk.LEFT, padx=(5, 0))
         ttk.Button(bottom_frame, text="Close", command=dialog.destroy).pack(side=tk.RIGHT)
+    
+    def backup_container_dialog(self):
+        """Dialog for backing up a container"""
+        selected = self.get_selected_container()
+        if not selected:
+            messagebox.showwarning("No Selection", "Please select a container to backup.")
+            return
+        
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Backup Container")
+        dialog.minsize(500, 300)
+        dialog.resizable(True, True)
+        
+        # Don't make it modal or transient - let Hyprland manage it
+        # This allows the dialog to be tiled properly in Hyprland
+        
+        main_frame = ttk.Frame(dialog, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Container info
+        ttk.Label(main_frame, text=f"Backing up container: {selected}", 
+                 font=('Arial', 12, 'bold')).pack(pady=(0, 20))
+        
+        # Backup path selection
+        path_frame = ttk.Frame(main_frame)
+        path_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        ttk.Label(path_frame, text="Backup save path:").pack(anchor=tk.W)
+        
+        path_entry_frame = ttk.Frame(path_frame)
+        path_entry_frame.pack(fill=tk.X, pady=(5, 0))
+        
+        backup_path_var = tk.StringVar()
+        path_entry = ttk.Entry(path_entry_frame, textvariable=backup_path_var)
+        path_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
+        
+        def browse_save_path():
+            initial_filename = f"{selected}_backup_{time.strftime('%Y%m%d_%H%M%S')}.tar.gz"
+            file_path = filedialog.asksaveasfilename(
+                title="Save Container Backup As",
+                defaultextension=".tar.gz",
+                filetypes=[
+                    ("Compressed archives", "*.tar.gz"),
+                    ("All files", "*.*")
+                ],
+                initialname=initial_filename
+            )
+            if file_path:
+                backup_path_var.set(file_path)
+        
+        ttk.Button(path_entry_frame, text="Browse", command=browse_save_path).pack(side=tk.RIGHT)
+        
+        # Compression option
+        compress_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(main_frame, text="Enable compression (recommended)", 
+                       variable=compress_var).pack(anchor=tk.W, pady=(10, 0))
+        
+        # Progress frame
+        progress_frame = ttk.Frame(main_frame)
+        progress_frame.pack(fill=tk.X, pady=(20, 0))
+        
+        progress_var = tk.StringVar(value="Ready to backup")
+        progress_label = ttk.Label(progress_frame, textvariable=progress_var)
+        progress_label.pack(anchor=tk.W)
+        
+        progress_bar = ttk.Progressbar(progress_frame, mode='indeterminate')
+        progress_bar.pack(fill=tk.X, pady=(5, 0))
+        
+        def perform_backup():
+            backup_path = backup_path_var.get().strip()
+            if not backup_path:
+                messagebox.showerror("Error", "Please specify a backup path.")
+                return
+            
+            # Disable buttons during backup
+            backup_btn.config(state='disabled')
+            cancel_btn.config(text="Close", state='disabled')
+            
+            progress_var.set("Backing up container...")
+            progress_bar.start()
+            
+            def backup_thread():
+                try:
+                    success = self.lxc_manager.backup_container(
+                        selected, backup_path, compress_var.get()
+                    )
+                    
+                    if success:
+                        # Get backup info
+                        backup_info = self.lxc_manager.get_backup_info(backup_path)
+                        size_info = f" ({backup_info.get('file_size_mb', 0)} MB)" if backup_info else ""
+                        
+                        dialog.after(0, lambda: progress_var.set(f"Backup completed successfully{size_info}"))
+                        dialog.after(0, lambda: messagebox.showinfo("Success", 
+                                                                   f"Container '{selected}' backed up successfully!\n"
+                                                                   f"Saved to: {backup_path}{size_info}"))
+                    else:
+                        dialog.after(0, lambda: progress_var.set("Backup failed"))
+                        dialog.after(0, lambda: messagebox.showerror("Error", "Backup failed"))
+                        
+                except Exception as e:
+                    dialog.after(0, lambda: progress_var.set("Backup failed"))
+                    dialog.after(0, lambda: messagebox.showerror("Backup Error", str(e)))
+                finally:
+                    dialog.after(0, lambda: progress_bar.stop())
+                    dialog.after(0, lambda: backup_btn.config(state='normal'))
+                    dialog.after(0, lambda: cancel_btn.config(text="Close", state='normal'))
+            
+            threading.Thread(target=backup_thread, daemon=True).start()
+        
+        # Buttons
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(fill=tk.X, pady=(20, 0))
+        
+        backup_btn = ttk.Button(button_frame, text="Start Backup", command=perform_backup)
+        backup_btn.pack(side=tk.LEFT)
+        
+        cancel_btn = ttk.Button(button_frame, text="Cancel", command=dialog.destroy)
+        cancel_btn.pack(side=tk.RIGHT)
+    
+    def restore_container_dialog(self):
+        """Dialog for restoring a container from backup"""
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Restore Container")
+        dialog.minsize(500, 400)
+        dialog.resizable(True, True)
+        
+        # Don't make it modal or transient - let Hyprland manage it
+        # This allows the dialog to be tiled properly in Hyprland
+        
+        main_frame = ttk.Frame(dialog, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        ttk.Label(main_frame, text="Restore Container from Backup", 
+                 font=('Arial', 12, 'bold')).pack(pady=(0, 20))
+        
+        # Backup file selection
+        file_frame = ttk.Frame(main_frame)
+        file_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        ttk.Label(file_frame, text="Backup file:").pack(anchor=tk.W)
+        
+        file_entry_frame = ttk.Frame(file_frame)
+        file_entry_frame.pack(fill=tk.X, pady=(5, 0))
+        
+        backup_file_var = tk.StringVar()
+        file_entry = ttk.Entry(file_entry_frame, textvariable=backup_file_var)
+        file_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
+        
+        def browse_backup_file():
+            file_path = filedialog.askopenfilename(
+                title="Select Container Backup File",
+                filetypes=[
+                    ("Compressed archives", "*.tar.gz"),
+                    ("All files", "*.*")
+                ]
+            )
+            if file_path:
+                backup_file_var.set(file_path)
+                # Auto-generate container name from filename
+                filename = os.path.basename(file_path)
+                base_name = filename.replace('.tar.gz', '').replace('.tar', '')
+                container_name_var.set(f"{base_name}_restored")
+        
+        ttk.Button(file_entry_frame, text="Browse", command=browse_backup_file).pack(side=tk.RIGHT)
+        
+        # New container name
+        name_frame = ttk.Frame(main_frame)
+        name_frame.pack(fill=tk.X, pady=(10, 0))
+        
+        ttk.Label(name_frame, text="New container name (optional):").pack(anchor=tk.W)
+        
+        container_name_var = tk.StringVar()
+        ttk.Entry(name_frame, textvariable=container_name_var).pack(fill=tk.X, pady=(5, 0))
+        
+        ttk.Label(name_frame, text="Leave empty to use original name from backup", 
+                 font=('Arial', 9), foreground='gray').pack(anchor=tk.W, pady=(2, 0))
+        
+        # File info display
+        info_frame = ttk.LabelFrame(main_frame, text="Backup File Information", padding="10")
+        info_frame.pack(fill=tk.X, pady=(10, 0))
+        
+        info_text = scrolledtext.ScrolledText(info_frame, height=4, wrap=tk.WORD)
+        info_text.pack(fill=tk.BOTH, expand=True)
+        
+        def update_file_info():
+            file_path = backup_file_var.get().strip()
+            if file_path and os.path.exists(file_path):
+                backup_info = self.lxc_manager.get_backup_info(file_path)
+                if backup_info:
+                    info_text.delete(1.0, tk.END)
+                    info_text.insert(tk.END, f"File: {os.path.basename(file_path)}\n")
+                    info_text.insert(tk.END, f"Size: {backup_info.get('file_size_mb', 0)} MB\n")
+                    info_text.insert(tk.END, f"Modified: {backup_info.get('modification_time', 'Unknown')}\n")
+                    info_text.insert(tk.END, f"Path: {file_path}")
+                else:
+                    info_text.delete(1.0, tk.END)
+                    info_text.insert(tk.END, "Could not read backup file information.")
+            else:
+                info_text.delete(1.0, tk.END)
+                info_text.insert(tk.END, "No valid backup file selected.")
+        
+        # Update file info when file path changes
+        backup_file_var.trace('w', lambda *args: update_file_info())
+        
+        # Progress frame
+        progress_frame = ttk.Frame(main_frame)
+        progress_frame.pack(fill=tk.X, pady=(10, 0))
+        
+        progress_var = tk.StringVar(value="Ready to restore")
+        progress_label = ttk.Label(progress_frame, textvariable=progress_var)
+        progress_label.pack(anchor=tk.W)
+        
+        progress_bar = ttk.Progressbar(progress_frame, mode='indeterminate')
+        progress_bar.pack(fill=tk.X, pady=(5, 0))
+        
+        def perform_restore():
+            backup_file = backup_file_var.get().strip()
+            if not backup_file:
+                messagebox.showerror("Error", "Please select a backup file.")
+                return
+            
+            if not os.path.exists(backup_file):
+                messagebox.showerror("Error", "Selected backup file does not exist.")
+                return
+            
+            new_name = container_name_var.get().strip() or None
+            
+            # Check if container with new name already exists
+            if new_name and self.lxc_manager.container_exists(new_name):
+                if not messagebox.askyesno("Container Exists", 
+                                          f"Container '{new_name}' already exists. Do you want to continue anyway?"):
+                    return
+            
+            # Disable buttons during restore
+            restore_btn.config(state='disabled')
+            cancel_btn.config(text="Close", state='disabled')
+            
+            progress_var.set("Restoring container...")
+            progress_bar.start()
+            
+            def restore_thread():
+                try:
+                    success = self.lxc_manager.restore_container(backup_file, new_name)
+                    
+                    if success:
+                        final_name = new_name if new_name else "from backup"
+                        dialog.after(0, lambda: progress_var.set("Restore completed successfully"))
+                        dialog.after(0, lambda: messagebox.showinfo("Success", 
+                                                                   f"Container restored successfully as '{final_name}'!\n"
+                                                                   f"Restored from: {os.path.basename(backup_file)}"))
+                        dialog.after(0, lambda: self.refresh_containers())
+                    else:
+                        dialog.after(0, lambda: progress_var.set("Restore failed"))
+                        dialog.after(0, lambda: messagebox.showerror("Error", "Restore failed"))
+                        
+                except Exception as e:
+                    dialog.after(0, lambda: progress_var.set("Restore failed"))
+                    dialog.after(0, lambda: messagebox.showerror("Restore Error", str(e)))
+                finally:
+                    dialog.after(0, lambda: progress_bar.stop())
+                    dialog.after(0, lambda: restore_btn.config(state='normal'))
+                    dialog.after(0, lambda: cancel_btn.config(text="Cancel", state='normal'))
+            
+            threading.Thread(target=restore_thread, daemon=True).start()
+        
+        # Buttons
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(fill=tk.X, pady=(10, 0))
+        
+        restore_btn = ttk.Button(button_frame, text="Start Restore", command=perform_restore)
+        restore_btn.pack(side=tk.LEFT)
+        
+        cancel_btn = ttk.Button(button_frame, text="Cancel", command=dialog.destroy)
+        cancel_btn.pack(side=tk.RIGHT)
     
     def run(self):
         """Start the GUI application"""

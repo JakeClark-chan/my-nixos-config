@@ -4,3 +4,7 @@ result-*
 
 # Ignore automatically generated direnv output
 .direnv
+
+# Ignore Python build artifacts
+**/*.pyc
+__pycache__/
