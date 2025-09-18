@@ -1,131 +1,173 @@
 # My NixOS Configuration
 
-A comprehensive, modular NixOS configu- Hyprlock Lockscreenation with Nix flakes, featuring Hyprland window manager, advanced power management, and automated scripts for a seamless desktop experience.
+A comprehensive, modular NixOS configuration with Nix flakes, featuring Hyprland Wayland compositor, integrated Home Manager, advanced power management with TLP, and custom Nix-based automation scripts for a seamless desktop experience.
 
-## 🏗️ Structure
+## 🏗️ Architecture Overview
+
+This is a modular NixOS flake configuration with integrated Home Manager for user-level packages and dotfiles. The system is designed around Hyprland (Wayland compositor) with custom Nix-based scripts and power management optimizations.
+
+### Core Structure
+- **`flake.nix`**: Main entry point with inputs (nixpkgs-unstable, home-manager, zen-browser, prismlauncher-cracked)
+- **`configuration.nix`**: System-level imports and module organization
+- **`modules/`**: Modular configuration organized by function
+- **Settings pattern**: `modules/settings/{system,desktop,home}-settings.nix` contain shared constants
 
 ```
-├── configuration.nix           # Main configuration file
-├── flake.nix                  # Flake configuration
+├── configuration.nix           # Main system configuration entry point
+├── flake.nix                  # Flake inputs and outputs with Home Manager integration
 ├── hardware-configuration.nix # Hardware-specific settings (auto-generated)
+├── backgrounds/               # Wallpaper collection
 └── modules/
-    ├── core/
-    │   ├── boot.nix           # Bootloader settings (systemd-boot)
-    │   ├── default.nix        # Imports for core modules
-    │   ├── hardware.nix       # Hardware & firmware configs (kernel, firmware, udev rules)
-    │   └── nix.nix            # Nix settings, GC, unfree
-    ├── desktop/
-    │   ├── deepin.nix         # Deepin desktop environment (disabled)
-    │   ├── default.nix        # Imports for desktop modules
-    │   └── hyprland.nix       # Hyprland window manager with Wayland ecosystem
-    ├── fonts/
-    │   └── hsr-zh-cn.ttf      # Custom font
-    ├── home/
-    │   ├── jc.nix             # Home Manager: user packages, programs & dotfiles
-    │   ├── .config/           # Application dotfiles (Hyprland, Waybar, etc.)
-    │   └── scripts/           # Modular Nix scripts (power management, UI, etc.)
-    │       ├── apply-home-manager.nix  # Home Manager apply with notifications
-    │       ├── brightness-control.nix  # Brightness control with notifications
-    │       ├── graceful-shutdown.nix   # Smart shutdown/reboot handler
-    │       ├── lock-screen.nix         # Multi-locker selection menu
-    │       ├── lxc-gui.nix            # LXC container GUI manager
-    │       └── volume-control.nix      # Volume control with notifications
-    ├── programs/
-    │   ├── cli.nix            # Command-line interface tools
-    │   ├── default.nix        # Imports for program modules
-    │   ├── development.nix    # Development tools + TLP power management
-    │   └── fonts.nix          # Font configurations
-    ├── services/
-    │   ├── audio.nix          # PipeWire audio configuration
-    │   ├── channels.nix       # Nix channels configuration
-    │   ├── default.nix        # Imports for service modules
-    │   ├── network.nix        # Hostname, NetworkManager, firewall
-    │   └── virtualization.nix # LXD + nix-ld (FHS compat)
-    ├── settings/
-    │   ├── default.nix        # Imports for settings modules
-    │   ├── journald.nix       # Journald configuration
-    │   ├── locale.nix         # Timezone & localization + Fcitx5
-    │   ├── memory.nix         # Swap & zram
-    │   └── plymouth.nix       # Plymouth boot theme
+    ├── core/                  # Essential system components
+    │   ├── boot.nix           # Systemd-boot configuration
+    │   ├── hardware.nix       # Hardware support & firmware
+    │   └── nix.nix            # Nix daemon settings, flakes, garbage collection
+    ├── desktop/               # Window manager configurations
+    │   ├── general.nix        # Common desktop services (greetd, polkit)
+    │   └── hyprland.nix       # Hyprland Wayland compositor
+    ├── fonts/                 # Custom font files
+    │   └── hsr-zh-cn.ttf      # Chinese font support
+    ├── home/                  # Home Manager user configurations
+    │   ├── jc.nix             # Main user config importing sub-modules
+    │   ├── jc/                # User-specific configurations
+    │   │   ├── packages.nix   # User packages with custom script imports
+    │   │   ├── programs.nix   # Program configs (git, kitty, hyprlock, etc.)
+    │   │   ├── services.nix   # User services (swaync - external config)
+    │   │   ├── files.nix      # Dotfiles and environment variables
+    │   │   ├── launchers.nix  # Desktop entries for custom scripts
+    │   │   └── config/        # Application configuration files
+    │   │       └── swaync/    # SwayNC notification daemon config
+    │   ├── nvim/              # Neovim configuration
+    │   │   └── init.lua       # Lua configuration
+    │   └── scripts/           # Custom Nix-based shell scripts
+    │       ├── apply-home-manager.nix  # HM updates with notifications
+    │       ├── brightness-control.nix  # Display brightness control
+    │       ├── graceful-shutdown.nix   # Smart shutdown/reboot
+    │       ├── lock-screen.nix         # Screen locking utilities
+    │       ├── lxc-gui.nix            # LXC container management GUI
+    │       ├── volume-control.nix      # Audio volume control
+    │       ├── change-wallpaper.nix    # Dynamic wallpaper switching
+    │       ├── hdmi-control.nix        # External display management
+    │       └── hyprland-keybinds.nix   # Keybinding reference
+    ├── programs/              # System-wide programs
+    │   ├── cli.nix            # Command-line tools and utilities
+    │   ├── development.nix    # Dev tools, languages, containers + TLP power mgmt
+    │   ├── fonts.nix          # Font packages and configuration
+    │   └── nvidia-autooffload.nix  # NVIDIA PRIME offloading
+    ├── services/              # System services
+    │   ├── audio.nix          # PipeWire audio stack
+    │   ├── network.nix        # NetworkManager, firewall, host entries
+    │   └── virtualization.nix # Docker, LXD, nix-ld for FHS compatibility
+    ├── settings/              # Shared configuration constants
+    │   ├── system-settings.nix   # User info, hostname, hardware config
+    │   ├── desktop-settings.nix  # Hyprland config, wallpapers, theming
+    │   ├── home-settings.nix     # Shell aliases, git config
+    │   ├── locale.nix            # Timezone, language + Fcitx5 input
+    │   ├── memory.nix            # Swap and zram configuration
+    │   ├── journald.nix          # Systemd journal settings
+    │   └── plymouth.nix          # Boot splash screen
     └── users/
-        └── jc.nix             # User account & groups
+        └── jc.nix             # User account definition and groups
 ```
 
 ## 🚀 Key Features
 
-### **System Architecture**
-- **Modular Design**: Clean separation of concerns with Nix flakes
-- **Home Manager Integration**: User-level packages and configurations
-- **Advanced Power Management**: TLP + thermald replacing auto-cpufreq
-- **Containerization**: LXD with GUI management and application mirroring
+### **Flake-Based Architecture**
+- **Modular Design**: Clean separation with auto-importing `default.nix` files
+- **Reproducible Builds**: Pinned nixpkgs-unstable with flake lock
+- **Home Manager Integration**: Fully integrated user-level configuration management
+- **Settings Pattern**: Shared constants across system/desktop/home configurations
+- **External Package Integration**: Zen Browser, PrismLauncher Cracked via flake inputs
 
 ### **Desktop Environment**
-- **Hyprland**: Modern Wayland compositor with smooth animations
-- **Waybar**: Customizable status bar with gradients and visual feedback
-- **Dual Lock Screens**: Hyprlock (native Hyprland lock screen)
-- **Smart Notifications**: Swaynotificationcenter with fallback support
+- **Hyprland Wayland Compositor**: Modern tiling window manager with smooth animations
+- **Greetd Login Manager**: Lightweight display manager with TTY fallback
+- **SwayNC Notifications**: External JSON config with widget customization
+- **Hyprlock Screen Locking**: Native Hyprland lock screen integration
+- **Custom Scripts**: Nix-based automation with desktop launcher integration
 
-### **Developer Experience**
-- **Lock Screen**: Hyprlock integration for Hyprland
-- **Graceful Shutdown**: Intelligent application closure with user prompts
-- **Custom Scripts**: Modular Nix-based scripts for system management
-- **Home Manager Automation**: One-command configuration updates with notifications
+### **Power Management & Hardware**
+- **TLP Power Management**: Intelligent AC/battery profiles replacing auto-cpufreq
+- **Intel Thermald**: CPU thermal management for laptops
+- **NVIDIA PRIME**: Hybrid graphics with proper bus configuration
+- **Battery Health**: 40-80% charging thresholds for longevity
+- **ZRAM Compression**: 30% memory compression with LZ4 algorithm
 
-## 📦 Included Software
+### **Development Environment**
+- **Multi-Language Support**: Python 3, Node.js, Java (Temurin), with uv for Python environments
+- **Container Ecosystem**: Docker + LXD with custom GUI management (lxc-gui)
+- **Modern Editors**: VS Code, Neovim with Lua configuration
+- **Version Control**: Git with SSH agent and credential management
+- **AI Integration**: Ollama for local LLM, Gemini CLI tools
+
+## 📦 Software Stack
 
 ### **Desktop & Multimedia**
-- **Window Manager**: Hyprland with Waybar status bar
-- **Terminals**: Kitty (primary), with Cascadia Code Nerd Font
-- **File Management**: Thunar with volume management and trash support
-- **Media**: VLC, gThumb image viewer
-- **Screenshots**: Flameshot + grim for versatile capture options
+- **Compositor**: Hyprland with native Wayland support and tiling
+- **Terminal**: Kitty with Cascadia Code Nerd Font and ligature support
+- **File Manager**: Thunar with GVFS integration for network/removable media
+- **Media Players**: VLC (universal), mpv for lightweight playback
+- **Image Viewer**: gThumb with basic editing capabilities
+- **Screenshot Tools**: Flameshot (GUI), grim/slurp (Wayland-native)
+- **Document Reader**: Okular for PDF/EPUB with annotation support
 
-### **Development & Productivity**
-- **Editors**: VS Code, configured for optimal performance
-- **Languages**: Python 3.13, Node.js, Java (OpenJDK)
-- **Version Control**: Git with SSH agent
-- **Package Management**: uv for Python virtual environments
-- **Productivity**: OnlyOffice Desktop Editors
-- **AI Tools**: Gemini CLI, ani-cli for media streaming
+### **Development & Programming**
+- **Code Editors**: VS Code (primary), Neovim with Lua config, GEdit (fallback)
+- **Languages**: Python 3 (with uv package manager), Node.js, Java (Temurin JDK)
+- **Version Control**: Git with credential helper and SSH agent integration
+- **Containers**: Docker with Compose, LXD for system containers
+- **Virtualization**: nix-ld for FHS compatibility, steam-run for legacy apps
+- **Browsers**: Zen Browser (privacy-focused), built from flake input
+- **Gaming**: PrismLauncher Cracked for Minecraft, with Java runtime
 
-### **System & Utilities**
-- **Power Management**: TLP with intelligent AC/battery profiles, thermald for thermal control
-- **Monitoring**: Mission Center, nvtop for NVIDIA GPUs
-- **Virtualization**: LXD with custom GUI manager and desktop app mirroring
-- **Shell**: Zsh with Starship prompt
-- **Input**: Fcitx5 for multi-language input support
+### **System Tools & Utilities**
+- **Shell**: Zsh with Starship prompt and completion
+- **System Monitor**: Mission Center (htop alternative), nvtop for GPU monitoring
+- **Audio System**: PipeWire with ALSA/PulseAudio compatibility
+- **Input Methods**: Fcitx5 for Vietnamese/English with intelligent switching
+- **Power Management**: TLP with thermald, optimized laptop profiles
+- **Package Management**: Nix with flakes, Home Manager for user configs
+- **AI/ML Tools**: Ollama for local LLMs, n8n for workflow automation
 
-## 🔧 Hardware & Performance
+## 🔧 System Configuration
 
-### **System Specifications**
-- **Kernel**: Linux stable with all redistributable firmware
-- **Display**: 1920x1080@144Hz with 1x scaling, optimized for laptops
-- **Audio**: PipeWire with ALSA/PulseAudio compatibility
-- **Graphics**: NVIDIA support with PRIME configuration options
+### **Hardware Support**
+- **Kernel**: Latest stable Linux with all redistributable firmware enabled
+- **Display**: 1920x1080@144Hz primary monitor (eDP-1) with 1.2x scaling
+- **Graphics**: NVIDIA PRIME hybrid graphics (Intel: PCI:0@0:2:0, NVIDIA: PCI:1@0:0:0)
+- **Audio**: PipeWire audio server with ALSA/PulseAudio compatibility layer
+- **Input**: Multi-language support via Fcitx5 with Vietnamese locale integration
 
-### **Power Management**
-- **TLP Configuration**: Optimized for laptop usage
-  - Performance mode on AC power
-  - Power-saving mode on battery (20% max CPU)
-  - Battery health protection (40-80% charging thresholds)
-- **Thermal Management**: thermald for Intel CPU thermal control
-- **Memory**: 4GB swapfile + 30% zram with LZ4 compression
+### **Power & Performance**
+- **TLP Power Management**: Laptop-optimized profiles
+  - AC Power: Performance mode with full CPU utilization
+  - Battery: Power-saving mode with 20% CPU limit
+  - Battery Health: 40-80% charging thresholds for longevity
+- **Thermal Control**: Intel thermald for proactive thermal management
+- **Memory Management**: 
+  - ZRAM: 30% of RAM with LZ4 compression
+  - Swap: Additional swapfile for hibernation support
 
-### **Custom Scripts & Automation**
-- **Volume Control**: WirePlumber integration with visual notifications
-- **Brightness Control**: Step-based adjustment with percentage display
-- **Lock Screen Menu**: Dynamic selection between lock screen options
-- **Graceful Shutdown**: Smart application management before system shutdown
-- **Home Manager Updates**: Automated configuration application with status notifications
+### **Custom Automation Scripts**
+All scripts follow the `writeShellScriptBin` pattern with full binary paths:
+
+- **`apply-home-manager`**: HM configuration updates with swaync notifications
+- **`volume-control`**: WirePlumber integration with visual feedback
+- **`brightness-control`**: Intel backlight control with percentage display
+- **`lock-screen`**: Hyprlock integration with menu selection
+- **`graceful-shutdown`**: Smart application closure before system shutdown
+- **`lxc-gui`**: Python/Tkinter GUI for LXD container management
+- **`change-wallpaper`**: Dynamic wallpaper switching with Hyprland integration
+- **`hdmi-control`**: External display management utilities
 
 ## 🌐 Network & Connectivity
 
-## 🌐 Network & Connectivity
-
-- **Hostname**: JakeClark-Sep21st
-- **Network Management**: NetworkManager with firewall enabled
-- **SSH**: Client-side SSH agent enabled (server disabled by default)
-- **Virtualization**: LXD for container management with GUI interface
+- **Hostname**: JakeClark-Sep21st with Asia/Ho_Chi_Minh timezone
+- **Network Stack**: NetworkManager with WiFi power management and auto-connect
+- **Firewall**: Enabled with custom host entries for development (target: 172.19.0.3, server: 172.19.0.2)
+- **SSH**: Client-side SSH agent enabled, server disabled for security
+- **Container Networking**: LXD bridge networking with GUI management interface
+- **Development Services**: Ollama (localhost:11434), Next.js LLM UI for AI workflows
 
 ## 🛠️ Installation & Usage
 
@@ -195,24 +237,25 @@ sudo nixos-rebuild switch --rollback
 ## 🎯 Customization Guide
 
 ### **Adding Packages**
-- **System-wide**: Edit relevant module in `modules/programs/`
-- **User-specific**: Add to `home.packages` in `modules/home/jc.nix`
-- **Development tools**: Modify `modules/programs/development.nix`
+- **System-wide**: Edit appropriate module in `modules/programs/` (cli.nix, development.nix, fonts.nix)
+- **User-specific**: Add to `home.packages` in `modules/home/jc/packages.nix`
+- **External packages**: Add flake input to `flake.nix` and reference in modules
 
 ### **Custom Scripts**
-- **Create new script**: Add to `modules/home/scripts/script-name.nix`
-- **Import in Home Manager**: Add import to `modules/home/jc.nix` let section
-- **Include in packages**: Add script variable to `home.packages`
+- **Create script**: Add `modules/home/scripts/script-name.nix` using `writeShellScriptBin` pattern
+- **Import script**: Add to `let` section in `modules/home/jc/packages.nix` with `callPackage`
+- **Include in packages**: Add script variable to `home.packages` list
+- **Desktop launcher**: Add entry to `modules/home/jc/launchers.nix` for GUI access
 
-### **Desktop Customization**
-- **Hyprland config**: Edit `modules/home/.config/hypr/hyprland.conf`
-- **Waybar styling**: Modify `modules/home/.config/waybar/style.css`
-- **Lock screens**: Configure via Home Manager in `jc.nix`
+### **Configuration Files**
+- **External configs**: Place in `modules/home/jc/config/` and reference in `files.nix`
+- **Hyprland settings**: Edit via `desktop-settings.nix` for shared constants
+- **Application configs**: Add to `xdg.configFile` in `modules/home/jc/files.nix`
 
-### **Power Management**
-- **TLP settings**: Adjust in `modules/programs/development.nix`
-- **Battery thresholds**: Modify charge limits for battery health
-- **Performance profiles**: Customize AC vs battery behavior
+### **Settings Management**
+- **System constants**: Edit `modules/settings/system-settings.nix` (hostname, user, hardware)
+- **Desktop theming**: Modify `modules/settings/desktop-settings.nix` (Hyprland, fonts, themes)
+- **Home environment**: Update `modules/settings/home-settings.nix` (aliases, tools, git)
 
 ## 🎮 Keybindings & Usage
 
@@ -231,29 +274,41 @@ sudo nixos-rebuild switch --rollback
 - `XF86 Keys`: Volume/brightness with notifications
 
 ### **Custom Commands**
-- `lock-screen [hyprlock|menu]`: Lock screen options
-- `graceful-shutdown [shutdown|reboot]`: Smart system shutdown
-- `volume-control [up|down|mute]`: Audio control with notifications
-- `brightness-control [up|down]`: Display brightness with notifications
-- `apply-home-manager`: Update Home Manager with notifications
-- `lxc-gui`: LXC container management interface
+- `apply-home-manager`: Update Home Manager configuration with swaync notifications
+- `lock-screen`: Activate Hyprlock screen locker
+- `graceful-shutdown [shutdown|reboot]`: Smart system shutdown with application cleanup
+- `volume-control [up|down|mute]`: WirePlumber audio control with visual feedback
+- `brightness-control [up|down]`: Intel backlight control with percentage display
+- `lxc-gui`: Python/Tkinter GUI for LXD container management
+- `change-wallpaper`: Dynamic wallpaper switching utility
+- `hdmi-control`: External display management tools
+- `hyprland-keybinds`: Display Hyprland keybinding reference
 
 ## 📈 Recent Improvements
 
-### **Script Modularization** (Latest)
-- **Separated inline scripts**: Moved all shell scripts to individual `.nix` files
-- **Better maintainability**: Each script in `modules/home/scripts/` for easier editing
-- **Cleaner configuration**: Reduced main `jc.nix` file complexity by 250+ lines
+### **Configuration Externalization** (Latest)
+- **SwayNC Config**: Moved notification settings from inline Nix to external JSON file
+- **Modular Structure**: Separated all configuration files to individual modules
+- **Settings Pattern**: Implemented shared constants via system/desktop/home-settings.nix
+- **Home Manager Integration**: Full flake-based user configuration management
 
-### **Power Management Upgrade**
-- **Replaced auto-cpufreq**: Switched to native TLP + thermald solution
-- **Battery health protection**: Automatic 40-80% charging threshold management
-- **Performance optimization**: Intelligent AC vs battery power profiles
+### **Script Architecture Overhaul**
+- **Nix-based Scripts**: All shell scripts converted to `writeShellScriptBin` pattern
+- **Desktop Integration**: Custom scripts accessible via application launcher
+- **Notification System**: Integrated swaync/notify-send for user feedback
+- **Modular Design**: Each script in separate `.nix` file for maintainability
 
-### **Lock Screen Enhancement**
-- **Lock screen support**: Hyprlock via Home Manager
-- **Interactive selection**: Menu-driven lock screen choice with Wofi integration
-- **Home Manager integration**: Native configuration management for both lockers
+### **Power Management Optimization**
+- **TLP Implementation**: Replaced auto-cpufreq with native TLP + thermald solution
+- **Battery Longevity**: 40-80% charging thresholds for battery health protection
+- **Performance Profiles**: Intelligent AC vs battery power management
+- **Thermal Control**: Intel thermald integration for proactive cooling
+
+### **Development Environment Enhancement**
+- **Container Ecosystem**: Docker + LXD with custom Python GUI management
+- **Multi-Language Support**: Python (uv), Node.js, Java with modern tooling
+- **External Package Integration**: Zen Browser, PrismLauncher via flake inputs
+- **AI Integration**: Ollama + Next.js LLM UI for local AI workflows
 
 ## 📋 Troubleshooting
 
@@ -274,13 +329,16 @@ home-manager switch --flake . --verbose
 journalctl --user -f -u hyprland
 ```
 
-## � System Specifications
+## 🖥️ System Specifications
 
-- **Target NixOS Version**: 25.05 (stable channel)
-- **Package Manager**: Nix with flakes enabled
-- **Window Manager**: Hyprland on Wayland
-- **Theme**: Adwaita with custom Waybar styling
-- **Locale**: Vietnamese with US keyboard layout
+- **NixOS Channel**: nixos-unstable (rolling release via flake inputs)
+- **Package Manager**: Nix 2.x with flakes and unified CLI enabled
+- **Display Protocol**: Wayland with Hyprland compositor
+- **Login Manager**: greetd with TTY1 greeter and Hyprland session
+- **Theme System**: Adwaita base theme with custom font configuration
+- **Localization**: Vietnamese (vi_VN) with English (en_US.UTF-8) system locale
+- **Input Methods**: Fcitx5 with Bamboo engine for Vietnamese typing
+- **Font Stack**: Cascadia Code NF (monospace), SDK_SC_Web (UI), Noto CJK (multilingual)
 
 ---
 
