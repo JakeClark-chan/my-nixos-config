@@ -32,6 +32,9 @@
     # Starship configuration
     "starship.toml".source = ../.config/starship.toml;
     
+    # Swaync configuration
+    "swaync/config.json".source = ../.config/swaync/config.json;
+    
     # Hyprland configuration
     "hypr/hyprland.conf".text = builtins.replaceStrings 
       [ "@backgroundPath@" ] 

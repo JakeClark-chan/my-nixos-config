@@ -167,7 +167,7 @@
     },
     
     "custom/applications": {
-        "format": " Applications",
+        "format": "❄ JakeClark",
         "tooltip": false,
         "on-click": "wofi --show drun"
     },
