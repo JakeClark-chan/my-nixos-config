@@ -1276,6 +1276,407 @@ iface {device_name} inet dhcp
             }
         except Exception:
             return {}
+    
+    def mount_container_folder(self, container_name: str, container_path: str, host_mount_point: str = None) -> bool:
+        """Mount a container folder to the host filesystem using SSHFS"""
+        try:
+            # Validate container exists and is running
+            if not self.container_exists(container_name):
+                raise Exception(f"Container '{container_name}' does not exist")
+            
+            if not self.is_container_running(container_name):
+                raise Exception(f"Container '{container_name}' is not running")
+            
+            # Create default mount point if not specified
+            if host_mount_point is None:
+                base_mount_dir = f"/mnt/lxc/{container_name}"
+                # Extract folder name from container path
+                folder_name = os.path.basename(container_path.rstrip('/')) or 'root'
+                host_mount_point = os.path.join(base_mount_dir, folder_name)
+            
+            # Create mount directory structure
+            try:
+                os.makedirs(host_mount_point, exist_ok=True)
+            except PermissionError:
+                raise Exception(f"Permission denied creating directory {host_mount_point}. You may need to run as root or ensure /mnt/lxc is writable.")
+            
+            # Check if container path exists
+            path_check_cmd = ['lxc', 'exec', container_name, '--', 'test', '-e', container_path]
+            path_result = self.run_command(path_check_cmd)
+            if path_result.returncode != 0:
+                raise Exception(f"Path '{container_path}' does not exist in container '{container_name}'")
+            
+            # Method 1: Try using bindfs via lxc exec (requires bindfs in container)
+            bindfs_check = ['lxc', 'exec', container_name, '--', 'which', 'bindfs']
+            bindfs_result = self.run_command(bindfs_check)
+            
+            if bindfs_result.returncode == 0:
+                # Use bindfs method
+                return self._mount_with_bindfs(container_name, container_path, host_mount_point)
+            else:
+                # Method 2: Try using SSHFS (requires SSH server in container)
+                ssh_check = ['lxc', 'exec', container_name, '--', 'systemctl', 'is-active', 'ssh']
+                ssh_result = self.run_command(ssh_check)
+                
+                if ssh_result.returncode == 0:
+                    return self._mount_with_sshfs(container_name, container_path, host_mount_point)
+                else:
+                    # Method 3: Use direct file copying approach (read-only simulation)
+                    return self._mount_with_file_sync(container_name, container_path, host_mount_point)
+                
+        except Exception as e:
+            raise Exception(f"Mount failed: {str(e)}")
+    
+    def _mount_with_bindfs(self, container_name: str, container_path: str, host_mount_point: str) -> bool:
+        """Mount using bindfs through container"""
+        try:
+            # Create a shared directory using lxc config device
+            device_name = f"mount_{container_name}_{os.path.basename(container_path)}"
+            
+            # Add device to share host directory with container
+            add_device_cmd = [
+                'lxc', 'config', 'device', 'add', container_name, device_name,
+                'disk', f'source={host_mount_point}', f'path=/tmp/host_mount'
+            ]
+            result = self.run_command(add_device_cmd)
+            
+            if result.returncode != 0:
+                raise Exception(f"Failed to add device: {result.stderr}")
+            
+            # Use bindfs to mount container path to shared location
+            bindfs_cmd = [
+                'lxc', 'exec', container_name, '--',
+                'bindfs', container_path, '/tmp/host_mount'
+            ]
+            result = self.run_command(bindfs_cmd)
+            
+            if result.returncode == 0:
+                return True
+            else:
+                # Clean up device on failure
+                self.run_command(['lxc', 'config', 'device', 'remove', container_name, device_name])
+                raise Exception(f"Bindfs mount failed: {result.stderr}")
+                
+        except Exception as e:
+            raise Exception(f"Bindfs mount failed: {str(e)}")
+    
+    def _mount_with_sshfs(self, container_name: str, container_path: str, host_mount_point: str) -> bool:
+        """Mount using SSHFS"""
+        try:
+            # Get container IP
+            ip_cmd = ['lxc', 'list', container_name, '--format', 'json']
+            result = self.run_command(ip_cmd)
+            
+            if result.returncode != 0:
+                raise Exception("Failed to get container information")
+            
+            import json
+            containers = json.loads(result.stdout)
+            if not containers:
+                raise Exception("Container not found")
+            
+            container = containers[0]
+            ip_address = None
+            
+            if 'state' in container and 'network' in container['state']:
+                for interface, details in container['state']['network'].items():
+                    if interface != 'lo' and 'addresses' in details:
+                        for addr in details['addresses']:
+                            if addr['family'] == 'inet':
+                                ip_address = addr['address']
+                                break
+                        if ip_address:
+                            break
+            
+            if not ip_address:
+                raise Exception("Could not determine container IP address")
+            
+            # Mount using SSHFS (requires SSH key setup)
+            sshfs_cmd = [
+                'sshfs', f'root@{ip_address}:{container_path}', host_mount_point,
+                '-o', 'allow_other,default_permissions,StrictHostKeyChecking=no'
+            ]
+            result = self.run_command(sshfs_cmd)
+            
+            if result.returncode == 0:
+                return True
+            else:
+                raise Exception(f"SSHFS mount failed: {result.stderr}")
+                
+        except Exception as e:
+            raise Exception(f"SSHFS mount failed: {str(e)}")
+    
+    def _mount_with_file_sync(self, container_name: str, container_path: str, host_mount_point: str) -> bool:
+        """Create a read-only sync of container files (fallback method)"""
+        try:
+            # Copy files from container to host mount point
+            copy_cmd = ['lxc', 'file', 'pull', '-r', f'{container_name}{container_path}', host_mount_point]
+            result = self.run_command(copy_cmd)
+            
+            if result.returncode == 0:
+                # Create a marker file to indicate this is a file sync mount
+                marker_file = os.path.join(host_mount_point, '.lxc_file_sync')
+                with open(marker_file, 'w') as f:
+                    f.write(f"Container: {container_name}\nPath: {container_path}\nMethod: file_sync\n")
+                return True
+            else:
+                raise Exception(f"File sync failed: {result.stderr}")
+                
+        except Exception as e:
+            raise Exception(f"File sync failed: {str(e)}")
+                
+        except Exception as e:
+            raise Exception(f"Mount failed: {str(e)}")
+    
+    def unmount_container_folder(self, host_mount_point: str) -> bool:
+        """Unmount a container folder from the host filesystem"""
+        try:
+            # Validate mount point exists
+            if not os.path.exists(host_mount_point):
+                raise Exception(f"Mount point '{host_mount_point}' does not exist")
+            
+            # Check if this is a file sync mount (not a real mount point)
+            marker_file = os.path.join(host_mount_point, '.lxc_file_sync')
+            if os.path.exists(marker_file):
+                # This is a file sync mount, just remove the directory
+                import shutil
+                shutil.rmtree(host_mount_point)
+                return True
+            
+            # Check if it's actually mounted
+            if not self.is_mount_point(host_mount_point):
+                # If it's not a mount point but exists, it might be a leftover directory
+                if os.path.isdir(host_mount_point):
+                    try:
+                        os.rmdir(host_mount_point)
+                        return True
+                    except OSError:
+                        raise Exception(f"'{host_mount_point}' is not empty and not a mount point")
+                else:
+                    raise Exception(f"'{host_mount_point}' is not a mount point")
+            
+            # Try to unmount different types of mounts
+            success = False
+            
+            # First try regular umount
+            command = ['umount', host_mount_point]
+            result = self.run_command(command)
+            
+            if result.returncode == 0:
+                success = True
+            else:
+                # Try lazy unmount for stubborn mounts
+                lazy_command = ['umount', '-l', host_mount_point]
+                lazy_result = self.run_command(lazy_command)
+                
+                if lazy_result.returncode == 0:
+                    success = True
+                else:
+                    # Try force unmount as last resort
+                    force_command = ['umount', '-f', host_mount_point]
+                    force_result = self.run_command(force_command)
+                    
+                    if force_result.returncode == 0:
+                        success = True
+            
+            if success:
+                # Clean up any related LXC devices
+                self._cleanup_mount_devices(host_mount_point)
+                
+                # Try to remove the empty directory
+                try:
+                    os.rmdir(host_mount_point)
+                except OSError:
+                    pass  # Directory not empty or permission issue, ignore
+                return True
+            else:
+                raise Exception(f"Failed to unmount: {result.stderr}")
+                
+        except Exception as e:
+            raise Exception(f"Unmount failed: {str(e)}")
+    
+    def _cleanup_mount_devices(self, host_mount_point: str):
+        """Clean up any LXC devices created for mounting"""
+        try:
+            # Extract container name from mount point path
+            if "/mnt/lxc/" in host_mount_point:
+                path_parts = host_mount_point.replace("/mnt/lxc/", "").split("/")
+                if len(path_parts) >= 2:
+                    container_name = path_parts[0]
+                    folder_name = path_parts[1]
+                    device_name = f"mount_{container_name}_{folder_name}"
+                    
+                    # Try to remove the device (ignore errors)
+                    remove_cmd = ['lxc', 'config', 'device', 'remove', container_name, device_name]
+                    self.run_command(remove_cmd)
+        except Exception:
+            pass  # Ignore cleanup errors
+    
+    def is_mount_point(self, path: str) -> bool:
+        """Check if a path is a mount point or file sync mount"""
+        try:
+            # Check for file sync marker
+            marker_file = os.path.join(path, '.lxc_file_sync')
+            if os.path.exists(marker_file):
+                return True
+            
+            # Check for real mount point
+            result = self.run_command(['mountpoint', '-q', path])
+            return result.returncode == 0
+        except Exception:
+            return False
+    
+    def list_mount_points(self, container_name: str = None) -> List[Dict]:
+        """List all LXC container mount points"""
+        try:
+            mount_points = []
+            
+            # Get all mount points from /proc/mounts
+            result = self.run_command(['cat', '/proc/mounts'])
+            if result.returncode != 0:
+                return mount_points
+            
+            lxc_mount_prefix = "/mnt/lxc/"
+            
+            for line in result.stdout.strip().split('\n'):
+                if not line.strip():
+                    continue
+                
+                parts = line.split()
+                if len(parts) >= 2:
+                    source = parts[0]
+                    mount_point = parts[1]
+                    
+                    # Filter for LXC mounts
+                    if mount_point.startswith(lxc_mount_prefix):
+                        # Extract container name from mount path
+                        relative_path = mount_point[len(lxc_mount_prefix):]
+                        path_parts = relative_path.split('/', 1)
+                        
+                        if len(path_parts) >= 1:
+                            mount_container = path_parts[0]
+                            
+                            # Filter by container name if specified
+                            if container_name is None or mount_container == container_name:
+                                mount_info = {
+                                    'container_name': mount_container,
+                                    'mount_point': mount_point,
+                                    'source': source,
+                                    'mounted_folder': path_parts[1] if len(path_parts) > 1 else 'root'
+                                }
+                                mount_points.append(mount_info)
+            
+            return mount_points
+        except Exception:
+            return []
+    
+    def get_mount_info(self, mount_point: str) -> Dict:
+        """Get detailed information about a specific mount point"""
+        try:
+            # Check if mount point exists and is mounted
+            if not os.path.exists(mount_point):
+                return {'error': 'Mount point does not exist'}
+            
+            if not self.is_mount_point(mount_point):
+                return {'error': 'Path is not a mount point'}
+            
+            # Get mount information from /proc/mounts
+            result = self.run_command(['cat', '/proc/mounts'])
+            if result.returncode != 0:
+                return {'error': 'Could not read mount information'}
+            
+            for line in result.stdout.strip().split('\n'):
+                parts = line.split()
+                if len(parts) >= 6 and parts[1] == mount_point:
+                    # Get disk usage
+                    du_result = self.run_command(['df', '-h', mount_point])
+                    disk_usage = "Unknown"
+                    if du_result.returncode == 0:
+                        du_lines = du_result.stdout.strip().split('\n')
+                        if len(du_lines) >= 2:
+                            du_parts = du_lines[1].split()
+                            if len(du_parts) >= 4:
+                                disk_usage = f"{du_parts[2]} / {du_parts[1]} ({du_parts[4]})"
+                    
+                    return {
+                        'source': parts[0],
+                        'mount_point': parts[1],
+                        'filesystem': parts[2],
+                        'options': parts[3],
+                        'disk_usage': disk_usage,
+                        'is_mounted': True
+                    }
+            
+            return {'error': 'Mount information not found'}
+        except Exception as e:
+            return {'error': str(e)}
+    
+    def open_mount_in_file_manager(self, mount_point: str) -> bool:
+        """Open mount point in file manager (Thunar)"""
+        try:
+            if not os.path.exists(mount_point):
+                raise Exception(f"Mount point '{mount_point}' does not exist")
+            
+            # Open in Thunar
+            command = ['thunar', mount_point]
+            result = self.run_command(command, capture_output=False)
+            return True
+        except Exception:
+            return False
+    
+    def get_available_mount_methods(self, container_name: str) -> Dict[str, bool]:
+        """Check which mounting methods are available for a container"""
+        methods = {
+            'bindfs': False,
+            'sshfs': False,
+            'file_sync': True  # Always available as fallback
+        }
+        
+        try:
+            if not self.container_exists(container_name) or not self.is_container_running(container_name):
+                return methods
+            
+            # Check for bindfs
+            bindfs_check = ['lxc', 'exec', container_name, '--', 'which', 'bindfs']
+            if self.run_command(bindfs_check).returncode == 0:
+                methods['bindfs'] = True
+            
+            # Check for SSH server
+            ssh_check = ['lxc', 'exec', container_name, '--', 'systemctl', 'is-active', 'ssh']
+            if self.run_command(ssh_check).returncode == 0:
+                methods['sshfs'] = True
+            
+            # Check if sshfs is available on host
+            host_sshfs_check = ['which', 'sshfs']
+            if self.run_command(host_sshfs_check).returncode != 0:
+                methods['sshfs'] = False
+                
+        except Exception:
+            pass
+        
+        return methods
+    
+    def get_mount_method_info(self) -> str:
+        """Get information about different mounting methods"""
+        info = """Available mounting methods:
+
+1. BINDFS (Recommended):
+   - Requires: bindfs installed in container
+   - Features: Full read/write access, real-time sync
+   - Install: apt install bindfs (Ubuntu/Debian)
+
+2. SSHFS:
+   - Requires: SSH server in container + sshfs on host
+   - Features: Full read/write access, network-based
+   - Setup: Enable SSH in container, ensure key-based auth
+
+3. FILE SYNC (Fallback):
+   - Requirements: None (always available)
+   - Features: Read-only snapshot, manual sync
+   - Note: Creates a copy, not live mount
+
+The application will automatically choose the best available method."""
+        return info
 
 
 class LXCGui:
@@ -1350,6 +1751,8 @@ class LXCGui:
                   command=self.backup_container_dialog, width=20).pack(fill=tk.X, pady=2)
         ttk.Button(buttons_frame, text="📥 Restore Container", 
                   command=self.restore_container_dialog, width=20).pack(fill=tk.X, pady=2)
+        ttk.Button(buttons_frame, text="📁 Folder Mounting", 
+                  command=self.folder_mounting_dialog, width=20).pack(fill=tk.X, pady=2)
         
         ttk.Separator(buttons_frame, orient='horizontal').pack(fill=tk.X, pady=10)
         
@@ -3342,6 +3745,297 @@ class LXCGui:
         
         cancel_btn = ttk.Button(button_frame, text="Cancel", command=dialog.destroy)
         cancel_btn.pack(side=tk.RIGHT)
+    
+    def folder_mounting_dialog(self):
+        """Dialog for mounting and managing container folders"""
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Container Folder Mounting")
+        dialog.minsize(700, 600)
+        dialog.resizable(True, True)
+        
+        # Don't make it modal or transient - let Hyprland manage it
+        # This allows the dialog to be tiled properly in Hyprland
+        
+        main_frame = ttk.Frame(dialog, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        ttk.Label(main_frame, text="Container Folder Mounting Manager", 
+                 font=('Arial', 14, 'bold')).pack(pady=(0, 20))
+        
+        # Create notebook for different tabs
+        notebook = ttk.Notebook(main_frame)
+        notebook.pack(fill=tk.BOTH, expand=True)
+        
+        # Tab 1: Mount New Folder
+        mount_frame = ttk.Frame(notebook, padding="10")
+        notebook.add(mount_frame, text="Mount Folder")
+        
+        # Container selection
+        container_frame = ttk.LabelFrame(mount_frame, text="Select Container", padding="10")
+        container_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        container_var = tk.StringVar()
+        container_combo = ttk.Combobox(container_frame, textvariable=container_var, state="readonly")
+        container_combo.pack(fill=tk.X, pady=(5, 0))
+        
+        def refresh_running_containers():
+            try:
+                containers = self.lxc_manager.list_containers()
+                running_containers = [c['name'] for c in containers if c['status'] == 'Running']
+                container_combo['values'] = running_containers
+                if running_containers:
+                    container_combo.set(running_containers[0])
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to get containers: {e}")
+        
+        refresh_running_containers()
+        
+        ttk.Button(container_frame, text="Refresh Containers", 
+                  command=refresh_running_containers).pack(pady=(5, 0))
+        
+        # Container path input
+        path_frame = ttk.LabelFrame(mount_frame, text="Container Folder Path", padding="10")
+        path_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        ttk.Label(path_frame, text="Path in container (e.g., /home/user, /var/log):").pack(anchor=tk.W)
+        container_path_var = tk.StringVar(value="/home")
+        ttk.Entry(path_frame, textvariable=container_path_var).pack(fill=tk.X, pady=(5, 0))
+        
+        # Mount point customization
+        mount_point_frame = ttk.LabelFrame(mount_frame, text="Mount Point (Optional)", padding="10")
+        mount_point_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        ttk.Label(mount_point_frame, text="Custom host mount point (leave empty for auto):").pack(anchor=tk.W)
+        mount_point_var = tk.StringVar()
+        mount_point_entry = ttk.Entry(mount_point_frame, textvariable=mount_point_var)
+        mount_point_entry.pack(fill=tk.X, pady=(5, 0))
+        
+        def browse_mount_point():
+            directory = filedialog.askdirectory(
+                title="Select Mount Point Directory",
+                mustexist=False
+            )
+            if directory:
+                mount_point_var.set(directory)
+        
+        ttk.Button(mount_point_frame, text="Browse", command=browse_mount_point).pack(pady=(5, 0))
+        
+        # Mount button
+        def perform_mount():
+            container = container_var.get()
+            container_path = container_path_var.get().strip()
+            custom_mount_point = mount_point_var.get().strip() or None
+            
+            if not container:
+                messagebox.showerror("Error", "Please select a container.")
+                return
+            
+            if not container_path:
+                messagebox.showerror("Error", "Please specify a container path.")
+                return
+            
+            # Show available methods for the selected container
+            methods = self.lxc_manager.get_available_mount_methods(container)
+            available_methods = [method for method, available in methods.items() if available]
+            
+            if len(available_methods) == 1 and available_methods[0] == 'file_sync':
+                if not messagebox.askyesno("File Sync Mount", 
+                                          "Only file sync (read-only snapshot) is available.\n"
+                                          "This will create a copy of the container folder.\n\n"
+                                          "For live mounting, consider installing bindfs in the container "
+                                          "or enabling SSH.\n\nProceed with file sync?"):
+                    return
+            
+            try:
+                success = self.lxc_manager.mount_container_folder(
+                    container, container_path, custom_mount_point
+                )
+                if success:
+                    # Determine actual mount point
+                    if custom_mount_point:
+                        actual_mount = custom_mount_point
+                    else:
+                        folder_name = os.path.basename(container_path.rstrip('/')) or 'root'
+                        actual_mount = f"/mnt/lxc/{container}/{folder_name}"
+                    
+                    # Determine which method was used
+                    used_method = "file_sync"  # Default fallback
+                    if methods.get('bindfs'):
+                        used_method = "bindfs"
+                    elif methods.get('sshfs'):
+                        used_method = "sshfs"
+                    
+                    method_info = {
+                        'bindfs': 'Live mount with full read/write access',
+                        'sshfs': 'Network mount with full read/write access', 
+                        'file_sync': 'Read-only snapshot (not live)'
+                    }
+                    
+                    messagebox.showinfo("Success", 
+                                      f"Successfully mounted {container}:{container_path}\n"
+                                      f"to {actual_mount}\n\n"
+                                      f"Method: {used_method}\n"
+                                      f"Type: {method_info.get(used_method, 'Unknown')}")
+                    refresh_mount_list()
+                else:
+                    messagebox.showerror("Error", "Mount operation failed.")
+            except Exception as e:
+                error_msg = str(e)
+                if "file sync failed" in error_msg.lower():
+                    error_msg += "\n\nTip: Ensure the container path exists and you have permission to create /mnt/lxc/"
+                messagebox.showerror("Mount Error", error_msg)
+        
+        # Mount buttons
+        mount_buttons_frame = ttk.Frame(mount_frame)
+        mount_buttons_frame.pack(pady=20)
+        
+        def show_methods_info():
+            container = container_var.get()
+            if container:
+                methods = self.lxc_manager.get_available_mount_methods(container)
+                available = [f"✓ {method}" for method, avail in methods.items() if avail]
+                unavailable = [f"✗ {method}" for method, avail in methods.items() if not avail]
+                
+                info = f"Available methods for '{container}':\n\n"
+                info += "\n".join(available)
+                if unavailable:
+                    info += "\n\nUnavailable methods:\n"
+                    info += "\n".join(unavailable)
+                info += "\n\n" + self.lxc_manager.get_mount_method_info()
+            else:
+                info = self.lxc_manager.get_mount_method_info()
+            
+            messagebox.showinfo("Mounting Methods Information", info)
+        
+        ttk.Button(mount_buttons_frame, text="Mount Folder", command=perform_mount).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Button(mount_buttons_frame, text="Show Methods Info", command=show_methods_info).pack(side=tk.LEFT)
+        
+        # Tab 2: Manage Existing Mounts
+        manage_frame = ttk.Frame(notebook, padding="10")
+        notebook.add(manage_frame, text="Manage Mounts")
+        
+        # Mount list
+        list_frame = ttk.LabelFrame(manage_frame, text="Active Mount Points", padding="10")
+        list_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Treeview for mount points
+        columns = ('Container', 'Source Path', 'Mount Point', 'Status')
+        mount_tree = ttk.Treeview(list_frame, columns=columns, show='headings', height=10)
+        
+        for col in columns:
+            mount_tree.heading(col, text=col)
+            mount_tree.column(col, width=150)
+        
+        mount_tree.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+        
+        # Scrollbar for treeview
+        scrollbar = ttk.Scrollbar(list_frame, orient=tk.VERTICAL, command=mount_tree.yview)
+        mount_tree.configure(yscroll=scrollbar.set)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        def refresh_mount_list():
+            # Clear existing items
+            for item in mount_tree.get_children():
+                mount_tree.delete(item)
+            
+            try:
+                mount_points = self.lxc_manager.list_mount_points()
+                for mount in mount_points:
+                    status = "Mounted" if self.lxc_manager.is_mount_point(mount['mount_point']) else "Error"
+                    mount_tree.insert('', 'end', values=(
+                        mount['container_name'],
+                        mount['mounted_folder'],
+                        mount['mount_point'],
+                        status
+                    ))
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to refresh mount list: {e}")
+        
+        # Mount management buttons
+        button_frame = ttk.Frame(manage_frame)
+        button_frame.pack(fill=tk.X, pady=(10, 0))
+        
+        def open_in_file_manager():
+            selection = mount_tree.selection()
+            if not selection:
+                messagebox.showwarning("No Selection", "Please select a mount point.")
+                return
+            
+            item = mount_tree.item(selection[0])
+            mount_point = item['values'][2]  # Mount Point column
+            
+            try:
+                success = self.lxc_manager.open_mount_in_file_manager(mount_point)
+                if not success:
+                    messagebox.showerror("Error", "Failed to open file manager.")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to open file manager: {e}")
+        
+        def unmount_folder():
+            selection = mount_tree.selection()
+            if not selection:
+                messagebox.showwarning("No Selection", "Please select a mount point to unmount.")
+                return
+            
+            item = mount_tree.item(selection[0])
+            mount_point = item['values'][2]  # Mount Point column
+            container_name = item['values'][0]  # Container column
+            
+            if messagebox.askyesno("Confirm Unmount", 
+                                  f"Are you sure you want to unmount:\n{mount_point}?"):
+                try:
+                    success = self.lxc_manager.unmount_container_folder(mount_point)
+                    if success:
+                        messagebox.showinfo("Success", f"Successfully unmounted {mount_point}")
+                        refresh_mount_list()
+                    else:
+                        messagebox.showerror("Error", "Unmount operation failed.")
+                except Exception as e:
+                    messagebox.showerror("Unmount Error", str(e))
+        
+        def show_mount_info():
+            selection = mount_tree.selection()
+            if not selection:
+                messagebox.showwarning("No Selection", "Please select a mount point.")
+                return
+            
+            item = mount_tree.item(selection[0])
+            mount_point = item['values'][2]  # Mount Point column
+            
+            try:
+                info = self.lxc_manager.get_mount_info(mount_point)
+                if 'error' in info:
+                    messagebox.showerror("Error", info['error'])
+                else:
+                    info_text = f"Mount Point: {info['mount_point']}\n"
+                    info_text += f"Source: {info['source']}\n"
+                    info_text += f"Filesystem: {info['filesystem']}\n"
+                    info_text += f"Options: {info['options']}\n"
+                    info_text += f"Disk Usage: {info['disk_usage']}\n"
+                    info_text += f"Status: {'Mounted' if info['is_mounted'] else 'Not Mounted'}"
+                    
+                    messagebox.showinfo("Mount Information", info_text)
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to get mount info: {e}")
+        
+        ttk.Button(button_frame, text="Open in File Manager", 
+                  command=open_in_file_manager).pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Button(button_frame, text="Unmount", 
+                  command=unmount_folder).pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Button(button_frame, text="Show Info", 
+                  command=show_mount_info).pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Button(button_frame, text="Refresh List", 
+                  command=refresh_mount_list).pack(side=tk.LEFT, padx=(0, 5))
+        
+        # Initial refresh
+        refresh_mount_list()
+        
+        # Close button
+        close_button_frame = ttk.Frame(main_frame)
+        close_button_frame.pack(fill=tk.X, pady=(20, 0))
+        
+        ttk.Button(close_button_frame, text="Close", 
+                  command=dialog.destroy).pack(side=tk.RIGHT)
     
     def run(self):
         """Start the GUI application"""

@@ -3,6 +3,10 @@
 {
   # Define your hostname.
   networking.hostName = systemSettings.hostname;
+  
+  # Enable nftables (required for Incus on NixOS)
+  networking.nftables.enable = true;
+  
   # Enable networking via NetworkManager
   networking.networkmanager = {
     enable = true;

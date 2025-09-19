@@ -14,9 +14,11 @@
     };
   };
 
-  virtualisation.lxd = {
+  virtualisation.incus = {
     enable = true;
-    # Configure LXD to use custom data directory
+    ui.enable = true;
+
+    # Configure Incus to use custom data directory
     # Look at https://documentation.ubuntu.com/lxd/latest/reference/preseed_yaml_fields/#preseed-yaml-file-fields
     preseed = {
       networks = [
@@ -53,7 +55,7 @@
           name = "default";
           driver = "dir";
           config = {
-            source = "/home/jc/lxd/storage-pools/default";
+            source = "/home/jc/incus/storage-pools/default";
           };
         }
       ];
@@ -62,10 +64,10 @@
 
   # Create directories with proper ownership
   systemd.tmpfiles.rules = [
-    "d /home/jc/lxd 0755 root root -"
-    "d /home/jc/lxd/storage-pools 0755 root root -"
-    "d /home/jc/lxd/storage-pools/default 0755 root root -"
-    "d /home/jc/lxc 0755 root root -"
+    "d /home/jc/incus 0755 root root -"
+    "d /home/jc/incus/storage-pools 0755 root root -"
+    "d /home/jc/incus/storage-pools/default 0755 root root -"
+    "d /home/jc/incus 0755 root root -"
     "d /home/jc/docker 0755 jc jc -"
   ];
 
