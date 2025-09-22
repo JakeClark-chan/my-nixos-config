@@ -23,7 +23,7 @@
     preseed = {
       networks = [
         {
-          name = "lxdbr0";
+          name = "lxdbr0"; # Because configuration examples use lxdbr0 by default
           type = "bridge";
           config = {
             "ipv4.address" = "10.0.0.1/24";

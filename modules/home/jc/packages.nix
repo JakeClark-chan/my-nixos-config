@@ -51,5 +51,8 @@ in
     vscode
     cargo
     gcc
+
+    # Browser
+    tor-browser
   ];
 }

@@ -204,6 +204,9 @@ All scripts follow the `writeShellScriptBin` pattern with full binary paths:
 - **Home Manager Setup**: Automatically configured via flake integration
 - **Custom Scripts**: Available immediately in PATH (lock-screen, volume-control, etc.)
 - **LXC Containers**: Access via `lxc-gui` command or application menu
+- **Waydroid (Android)**: 
+   * edit inside
+   * init with `sudo waydroid init -f -s GAPPS -v https://ota.waydro.id/vendor -c https://ota.waydro.id/system` then `sudo waydroid start`
 
 ## 🔄 Maintenance & Updates
 

@@ -6,7 +6,7 @@
     # LXC GUI launcher
     lxc-gui = {
       name = "LXC GUI Standalone";
-      comment = "Manage LXD containers";
+      comment = "Manage LXC/Incus containers";
       exec = "lxc-gui";
       terminal = false;
       categories = [ "Utility" "System" ];

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Standalone LXC GUI Application Demo
+Standalone LXC/Incus GUI Application Demo
 This script runs without virtual environment dependencies
 """
 
@@ -21,7 +21,7 @@ from typing import List, Dict, Optional
 
 
 class LXCManager:
-    """Manages LXC container operations"""
+    """Manages LXC/Incus container operations"""
     
     def __init__(self):
         self.default_image = "ubuntu:noble"
@@ -40,7 +40,7 @@ class LXCManager:
             raise Exception(f"Failed to run command {' '.join(command)}: {str(e)}")
     
     def list_containers(self) -> List[Dict]:
-        """List all LXC containers"""
+        """List all LXC/Incus containers"""
         try:
             result = self.run_command(['lxc', 'list', '--format', 'json'])
             if result.returncode == 0:
@@ -52,7 +52,7 @@ class LXCManager:
             raise Exception("Failed to parse container list")
     
     def create_container(self, name: str, image: str = None, enable_nesting: bool = True) -> bool:
-        """Create a new LXC container"""
+        """Create a new LXC/Incus container"""
         if not name or not re.match(r'^[a-zA-Z0-9][a-zA-Z0-9-]*$', name):
             raise Exception("Invalid container name. Use alphanumeric characters and hyphens only.")
         
@@ -335,7 +335,7 @@ class LXCManager:
         except Exception as e:
             return f"Error retrieving user details: {str(e)}"
     
-    def attach_network_interface(self, container_name: str, network_name: str = "lxdbr0", 
+    def attach_network_interface(self, container_name: str, network_name: str = "incusbr0", 
                                 device_name: str = "eth0") -> bool:
         """Attach network interface to container"""
         try:
@@ -540,7 +540,7 @@ iface {device_name} inet dhcp
             return False
     
     def list_networks(self) -> List[Dict]:
-        """List available LXC networks"""
+        """List available LXC/Incus networks"""
         try:
             result = self.run_command(['lxc', 'network', 'list', '--format', 'json'])
             if result.returncode == 0:
@@ -599,11 +599,11 @@ iface {device_name} inet dhcp
             return False
     
     def open_external_terminal(self, container_name: str, username: str = "root", shell: str = "/bin/bash") -> bool:
-        """Open external terminal with LXC exec"""
+        """Open external terminal with LXC/Incus exec"""
         try:
             terminal = self.get_default_terminal()
             
-            # Build the LXC exec command
+            # Build the LXC/Incus exec command
             if username == "root":
                 lxc_cmd = f"lxc exec {container_name} -- {shell}"
             else:
@@ -1330,7 +1330,7 @@ iface {device_name} inet dhcp
     def _mount_with_bindfs(self, container_name: str, container_path: str, host_mount_point: str) -> bool:
         """Mount using bindfs through container"""
         try:
-            # Create a shared directory using lxc config device
+            # Create a shared directory using lxc/incus config device
             device_name = f"mount_{container_name}_{os.path.basename(container_path)}"
             
             # Add device to share host directory with container
@@ -1496,7 +1496,7 @@ iface {device_name} inet dhcp
             raise Exception(f"Unmount failed: {str(e)}")
     
     def _cleanup_mount_devices(self, host_mount_point: str):
-        """Clean up any LXC devices created for mounting"""
+        """Clean up any LXC/Incus devices created for mounting"""
         try:
             # Extract container name from mount point path
             if "/mnt/lxc/" in host_mount_point:
@@ -1527,7 +1527,7 @@ iface {device_name} inet dhcp
             return False
     
     def list_mount_points(self, container_name: str = None) -> List[Dict]:
-        """List all LXC container mount points"""
+        """List all LXC/Incus container mount points"""
         try:
             mount_points = []
             
@@ -1680,7 +1680,7 @@ The application will automatically choose the best available method."""
 
 
 class LXCGui:
-    """Main GUI application for LXC management"""
+    """Main GUI application for LXC/Incus management"""
     
     def __init__(self):
         self.lxc_manager = LXCManager()
@@ -1690,7 +1690,7 @@ class LXCGui:
     
     def setup_ui(self):
         """Setup the user interface"""
-        self.root.title("LXC Container Manager")
+        self.root.title("LXC/Incus Container Manager")
         self.root.geometry("900x700")
         
         # Create main frame
@@ -1704,7 +1704,7 @@ class LXCGui:
         main_frame.rowconfigure(1, weight=1)
         
         # Title
-        title_label = ttk.Label(main_frame, text="LXC Container Manager", 
+        title_label = ttk.Label(main_frame, text="LXC/Incus Container Manager", 
                                font=("Arial", 16, "bold"))
         title_label.grid(row=0, column=0, columnspan=3, pady=(0, 20))
         
@@ -2226,7 +2226,7 @@ class LXCGui:
                 return
             
             # Prevent deletion of system users
-            if username in ['root', 'ubuntu', 'daemon', 'bin', 'sys', 'sync', 'games', 'man', 'lp', 'mail', 'news', 'uucp', 'proxy', 'www-data', 'backup', 'list', 'irc', 'gnats', 'nobody', 'systemd-network', 'systemd-resolve', 'syslog', 'messagebus', 'systemd-timesync', 'uuidd', 'tcpdump', 'sshd', 'landscape', 'pollinate', 'ec2-instance-connect', 'systemd-coredump', 'lxd']:
+            if username in ['root', 'ubuntu', 'daemon', 'bin', 'sys', 'sync', 'games', 'man', 'lp', 'mail', 'news', 'uucp', 'proxy', 'www-data', 'backup', 'list', 'irc', 'gnats', 'nobody', 'systemd-network', 'systemd-resolve', 'syslog', 'messagebus', 'systemd-timesync', 'uuidd', 'tcpdump', 'sshd', 'landscape', 'pollinate', 'ec2-instance-connect', 'systemd-coredump', 'incus']:
                 messagebox.showerror("Error", f"Cannot delete system user '{username}'")
                 return
             
@@ -3105,7 +3105,7 @@ class LXCGui:
                 try:
                     size_num = float(size)
                     if size_num != int(size_num):
-                        messagebox.showerror("Error", "Size must be a whole number (no decimals).\nLXD storage pools don't support decimal sizes.")
+                        messagebox.showerror("Error", "Size must be a whole number (no decimals).\nIncus storage pools don't support decimal sizes.")
                         return
                     if size_num <= 0:
                         messagebox.showerror("Error", "Size must be greater than 0.")
@@ -3364,7 +3364,7 @@ class LXCGui:
             try:
                 size_num = float(size)
                 if size_num != int(size_num):
-                    messagebox.showerror("Error", "Size must be a whole number (no decimals).\nLXD storage pools don't support decimal sizes.")
+                    messagebox.showerror("Error", "Size must be a whole number (no decimals).\nIncus storage pools don't support decimal sizes.")
                     return
                 if size_num <= 0:
                     messagebox.showerror("Error", "Size must be greater than 0.")
@@ -4040,13 +4040,13 @@ class LXCGui:
     def run(self):
         """Start the GUI application"""
         try:
-            # Check LXD availability on startup
+            # Check LXC/Incus availability on startup
             result = self.lxc_manager.run_command(['lxc', 'version'])
             if result.returncode != 0:
-                messagebox.showerror("LXD Error", "LXD is not available. Please ensure LXD is installed and configured.")
+                messagebox.showerror("LXC/Incus Error", "LXC/Incus is not available. Please ensure Incus is installed and configured.")
                 return
             
-            self.status_var.set("LXC GUI Ready - Select a container and use the buttons")
+            self.status_var.set("LXC/Incus GUI Ready - Select a container and use the buttons")
             self.root.mainloop()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to start application: {str(e)}")
@@ -4054,7 +4054,7 @@ class LXCGui:
 
 def main():
     """Main entry point"""
-    print("Starting LXC GUI Manager...")
+    print("Starting LXC/Incus GUI Manager...")
     app = LXCGui()
     app.run()
 

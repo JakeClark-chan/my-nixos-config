@@ -3,8 +3,8 @@
 lxc init
 ```
 
-## Getting Started with LXD
-Assuming you have LXD installed, you can start using it to manage containers. Container name is `pristine` and the image is `ubuntu:noble`.
+## Getting Started with LXC/Incus
+Assuming you have Incus installed, you can start using it to manage containers. Container name is `pristine` and the image is `ubuntu:noble`.
 ### Create a Container
 ```bash
 lxc launch ubuntu:noble pristine -c security.nesting=true
@@ -49,18 +49,18 @@ tmux is a terminal multiplexer that allows you to create and manage multiple ter
 
 ## Attach Ethernet Interface
 ```bash
-lxc network attach lxdbr0 pristine eth0 eth0
+lxc network attach incusbr0 pristine eth0 eth0
 ```
 ### List Network Interfaces
 ```bash
 lxc network list
-lxc network show lxdbr0
+lxc network show incusbr0
 ```
 ### Configure Network Interface
 ```bash
-lxc network set lxdbr0 ipv4.address 10.0.0.1/24
-lxc network set lxdbr0 ipv4.dhcp true
-lxc network set lxdbr0 ipv4.nat true
+lxc network set incusbr0 ipv4.address 10.0.0.1/24
+lxc network set incusbr0 ipv4.dhcp true
+lxc network set incusbr0 ipv4.nat true
 ```
 ### Bonus: Set static IP for the Host
 ```bash
@@ -96,7 +96,7 @@ netplan apply
 ```
 
 ## Resize storage pool
-https://documentation.ubuntu.com/lxd/latest/howto/storage_pools/
+https://linuxcontainers.org/incus/docs/main/storage/
 ### View Storage Pools
 ```bash
 lxc storage list
