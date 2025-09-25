@@ -34,11 +34,5 @@
     
     # Swaync configuration
     "swaync/config.json".source = ../.config/swaync/config.json;
-    
-    # Hyprland configuration
-    "hypr/hyprland.conf".text = builtins.replaceStrings 
-      [ "@backgroundPath@" ] 
-      [ desktopSettings.hyprland.backgroundPath ] 
-      (builtins.readFile ../.config/hypr/hyprland.conf);
   };
 }

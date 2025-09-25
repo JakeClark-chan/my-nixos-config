@@ -28,6 +28,12 @@
 
   # Load Realtek USB Wi-Fi driver
   boot.kernelModules = [ "rtl8xxxu" ];
+  
+  # WiFi driver options (equivalent to /etc/modprobe.d/wifi.conf)
+  boot.extraModprobeConfig = ''
+    options mt7921e disable_aspm=1
+  '';
+  
   # Use a stable kernel version
   # Default stable kernel (for current LTS version)
   boot.kernelPackages = pkgs.linuxPackages;

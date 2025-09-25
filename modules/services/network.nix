@@ -27,8 +27,7 @@
   };
   # Additional hosts
   networking.extraHosts = ''
-    172.19.0.3 target
-    172.19.0.2 server
+    10.0.0.100 target
   '';
 
   # Enable WiFi support

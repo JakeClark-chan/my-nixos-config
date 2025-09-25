@@ -54,5 +54,6 @@ in
 
     # Browser
     tor-browser
+    brave
   ];
 }
