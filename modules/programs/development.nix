@@ -23,7 +23,7 @@
     docker-compose
 
     # Zen Browser
-    inputs.zen-browser.packages."${pkgs.system}".default
+    # inputs.zen-browser.packages."${pkgs.system}".default
     
     # PrismLauncher Cracked
     inputs.prismlauncher-cracked.packages."${pkgs.system}".default

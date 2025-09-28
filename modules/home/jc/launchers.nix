@@ -13,13 +13,13 @@
     };
 
     # Zen Browser with PRIME
-    zen = {
-      name = "Zen Browser (with Prime)";
-      comment = "Web browser";
-      exec = "prime-run zen";
-      terminal = false;
-      categories = [ "Utility" "System" ];
-    };
+    # zen = {
+    #   name = "Zen Browser (with Prime)";
+    #   comment = "Web browser";
+    #   exec = "prime-run zen";
+    #   terminal = false;
+    #   categories = [ "Utility" "System" ];
+    # };
 
     # PrismLauncher with Steam runtime
     prismlauncher = {
