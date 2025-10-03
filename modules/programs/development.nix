@@ -40,7 +40,7 @@
   services.ollama = {
     enable = true;
     # models = "/home/jc/.local/share/ollama/models";
-    acceleration = "cuda";
+    # acceleration = "cuda";
     loadModels = [ "qwen3:1.7b" ];
   };
 

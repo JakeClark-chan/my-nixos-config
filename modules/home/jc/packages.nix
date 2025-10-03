@@ -27,7 +27,7 @@ in
     flameshot # for screenshot
     grim
     mission-center
-    nvtopPackages.nvidia
+    #nvtopPackages.nvidia
     
     # Entertainment
     ani-cli # for anime streaming
