@@ -1,4 +1,4 @@
-Window.SetBackgroundTopColor(0.13, 0.17, 0.44);
+Window.SetBackgroundTopColor(0.13, 0.17, 0.44); // (33, 43, 112)
 Window.SetBackgroundBottomColor(0.13, 0.17, 0.44);
 
 logo_image = Image("Leo-need-Logo-Vector.png");
@@ -7,7 +7,7 @@ screen_width = Window.GetWidth();
 image_width = logo_image.GetWidth();
 image_height = logo_image.GetHeight();
 
-new_width = screen_width * 0.3;
+new_width = screen_width * 0.3; // 563x252
 aspect_ratio = image_height / image_width;
 new_height = new_width * aspect_ratio;
 
