@@ -3,14 +3,6 @@
 {
   # Desktop launchers and entries
   xdg.desktopEntries = {
-    # LXC GUI launcher
-    lxc-gui = {
-      name = "LXC GUI Standalone";
-      comment = "Manage LXC/Incus containers";
-      exec = "lxc-gui";
-      terminal = false;
-      categories = [ "Utility" "System" ];
-    };
 
     # Zen Browser with PRIME
     # zen = {

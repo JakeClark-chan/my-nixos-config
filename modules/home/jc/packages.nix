@@ -1,6 +1,6 @@
 { config, pkgs, systemSettings, desktopSettings, homeSettings, ... }:
 let
-  lxcGui = pkgs.callPackage ../scripts/lxc-gui.nix {};
+
   shutdownScript = pkgs.callPackage ../scripts/graceful-shutdown.nix {};
   volumeScript = pkgs.callPackage ../scripts/volume-control.nix {};
   brightnessScript = pkgs.callPackage ../scripts/brightness-control.nix {};
@@ -34,7 +34,7 @@ in
     python3Packages.yt-dlp
     
     # Custom scripts
-    lxcGui
+
     volumeScript
     brightnessScript
     lockScreenScript
