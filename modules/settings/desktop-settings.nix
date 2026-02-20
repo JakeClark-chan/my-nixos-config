@@ -25,13 +25,10 @@
   cursorTheme = "Adwaita";
   cursorSize = 24;
 
-  # Hyprland settings
-  hyprland = {
-    terminal = "kitty";
-    fileManager = "thunar";
+  # Window manager settings
+  wm = {
+    terminal = "cosmic-term";
+    fileManager = "cosmic-files";
     menu = "wofi --show drun";
-    monitor = "eDP-1,1920x1080@144,0x0,1";
-    backgroundPath = "/home/jc/nixos-config/backgrounds/shiho.jpg";
   };
-
 }

@@ -10,9 +10,9 @@ pkgs.writeShellScriptBin "graceful-shutdown" ''
       exit 1
   fi
   
-  # Function to get running applications with windows
+  # Function to get running applications with windows (using niri msg)
   get_running_apps() {
-      ${pkgs.hyprland}/bin/hyprctl clients -j | ${pkgs.jq}/bin/jq -r '.[] | select(.workspace.id != -99) | .class' | sort -u
+      ${pkgs.niri}/bin/niri msg windows 2>/dev/null | ${pkgs.gnugrep}/bin/grep -oP 'app_id: "\K[^"]+' | sort -u
   }
   
   # Function to show blocking apps dialog
@@ -46,24 +46,23 @@ pkgs.writeShellScriptBin "graceful-shutdown" ''
   force_close_apps() {
       echo "Force closing all applications..."
       
-      # Close all Hyprland clients gracefully first
-      ${pkgs.hyprland}/bin/hyprctl clients -j | ${pkgs.jq}/bin/jq -r '.[] | select(.workspace.id != -99) | .address' | while read addr; do
-          ${pkgs.hyprland}/bin/hyprctl dispatch closewindow address:$addr
-      done
+      # Close all windows via niri
+      ${pkgs.niri}/bin/niri msg action close-window 2>/dev/null || true
       
       sleep 2
       
       # Force kill any remaining processes if needed
-      pkill -f "firefox|code|vlc|kitty" 2>/dev/null || true
+      pkill -f "firefox|code|vlc|kitty|cosmic-term" 2>/dev/null || true
   }
   
   # Function to gracefully close applications
   graceful_close_apps() {
       echo "Attempting graceful shutdown of applications..."
       
-      # Send close signals to all windows
-      ${pkgs.hyprland}/bin/hyprctl clients -j | ${pkgs.jq}/bin/jq -r '.[] | select(.workspace.id != -99) | .address' | while read addr; do
-          ${pkgs.hyprland}/bin/hyprctl dispatch closewindow address:$addr
+      # Send close signals via niri - close focused window repeatedly
+      for i in $(seq 1 20); do
+          ${pkgs.niri}/bin/niri msg action close-window 2>/dev/null || break
+          sleep 0.3
       done
   }
   

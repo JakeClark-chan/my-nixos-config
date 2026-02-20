@@ -51,8 +51,8 @@
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
   networking.firewall = {
-    enable = true;
-    allowedTCPPorts = [ 80 443 ]; # HTTP, HTTPS
-    allowedUDPPorts = [ 53 ]; # DNS
+    enable = false;
+    # allowedTCPPorts = [ 80 443 ]; # HTTP, HTTPS
+    # allowedUDPPorts = [ 53 ]; # DNS
   };
 }

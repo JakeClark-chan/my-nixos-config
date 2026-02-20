@@ -3,7 +3,7 @@
 
 {
   imports = [
-    # Hyprland Window Manager (modern/tiling)
-    ./hyprland.nix
+    # Niri Compositor (tiling Wayland compositor)
+    ./niri.nix
   ];
 }

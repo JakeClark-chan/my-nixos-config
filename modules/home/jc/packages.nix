@@ -7,8 +7,8 @@ let
   lockScreenScript = pkgs.callPackage ../scripts/lock-screen.nix {};
   homeManagerScript = import ../scripts/apply-home-manager.nix { inherit pkgs config; };
   wallpaperScript = pkgs.callPackage ../scripts/change-wallpaper.nix {};
-  hdmiControlScript = pkgs.callPackage ../scripts/hdmi-control.nix {};
-  keybindsScript = pkgs.callPackage ../scripts/hyprland-keybinds.nix {};
+  # hdmiControlScript = pkgs.callPackage ../scripts/hdmi-control.nix {};  # Hyprland-specific
+  # keybindsScript = pkgs.callPackage ../scripts/hyprland-keybinds.nix {};  # Hyprland-specific
 in
 {
   home.packages = with pkgs; [
@@ -41,14 +41,14 @@ in
     shutdownScript
     homeManagerScript
     wallpaperScript
-    hdmiControlScript
-    keybindsScript
+    # hdmiControlScript  # Hyprland-specific
+    # keybindsScript  # Hyprland-specific
 
     # AI CLI tools
     gemini-cli
 
     # IDE
-    vscode
+    # vscode  # Commented out for niri migration
     cargo
     gcc
 

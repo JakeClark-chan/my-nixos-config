@@ -36,20 +36,18 @@
   # programs.firefox.enable = true;
   # Zen Browser configuration (Firefox-based browser)
 
-  # Ollama Services
-  services.ollama = {
-    enable = true;
-    # models = "/home/jc/.local/share/ollama/models";
-    # acceleration = "cuda";
-    loadModels = [ "qwen3:1.7b" ];
-  };
+  # Ollama Services (removed)
+  # services.ollama = {
+  #   enable = true;
+  #   loadModels = [ "qwen3:1.7b" ];
+  # };
 
-  # and Ollama UI
-  services.nextjs-ollama-llm-ui = {
-    enable = true;
-  };
+  # Ollama UI (removed)
+  # services.nextjs-ollama-llm-ui = {
+  #   enable = true;
+  # };
 
-  # n8n Service
+  # n8n Service (removed)
   # services.n8n = {
   #   enable = true;
   # };
