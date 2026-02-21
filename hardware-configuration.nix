@@ -31,6 +31,11 @@
       options = [ "fmask=0077" "dmask=0077" ];
     };
 
+  # Create the subvolume
+  # mount /dev/sdX /mnt
+  # btrfs subvolume create /mnt/@swap
+  # umount /mnt
+  
   fileSystems."/swap" =
     { device = "/dev/disk/by-uuid/REPLACE-WITH-YOUR-BTRFS-UUID";
       fsType = "btrfs";

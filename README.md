@@ -454,3 +454,19 @@ This configuration serves as a comprehensive example of modern NixOS setup. Feel
 ## 📄 License
 
 This configuration is provided as-is for educational and personal use. Individual software components retain their respective licenses.
+
+---
+
+## 📚 Niri Migration
+
+```bash
+# 1. On your NixOS machine, switch to the niri branch
+git checkout niri
+git pull
+# 2. First, just test that it evaluates correctly
+sudo nixos-rebuild dry-build --flake .
+# 3. If that's clean, apply with "test" (doesn't persist across reboot)
+sudo nixos-rebuild test --flake .
+# 4. If niri works well, make it permanent
+sudo nixos-rebuild switch --flake .
+```
