@@ -26,7 +26,7 @@
     # inputs.zen-browser.packages."${pkgs.system}".default
     
     # PrismLauncher Cracked
-    inputs.prismlauncher-cracked.packages."${pkgs.system}".default
+    # inputs.prismlauncher-cracked.packages."${pkgs.system}".default
     # Steam run for prism-launcher
     steam-run
   ];
