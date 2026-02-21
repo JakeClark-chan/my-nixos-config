@@ -47,6 +47,7 @@ in
 
     # IDE
     # vscode  # Commented out for niri migration
+    antigravity-fhs
     cargo
     gcc
 

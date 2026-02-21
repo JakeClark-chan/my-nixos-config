@@ -18,10 +18,9 @@
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # Niri compositor flake
+    # Niri compositor flake (don't follow nixpkgs — use niri's pinned version for cache hits)
     niri = {
       url = "github:sodiboo/niri-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     # Awww wallpaper daemon (successor to swww)
     awww = {
