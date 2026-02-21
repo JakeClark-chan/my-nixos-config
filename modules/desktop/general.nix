@@ -10,6 +10,9 @@
     ];
   };
 
+  # Disable GNOME's GCR SSH agent (conflicts with programs.ssh.startAgent in development.nix)
+  services.gnome.gcr-ssh-agent.enable = false;
+
   # Enable GVFS for file manager trash and mount functionality
   services.gvfs.enable = true;
   
