@@ -33,7 +33,8 @@
   environment.systemPackages = with pkgs; [
     # Wayland utilities
     waybar          # Status bar
-    wofi            # Application launcher
+    wofi            # Application launcher (dmenu-style)
+    fuzzel          # Application launcher (recommended by niri)
     wl-clipboard    # Clipboard utilities
     grim            # Screenshot utility
     slurp           # Screen area selection

@@ -30,8 +30,7 @@
     10.0.0.100 target
   '';
 
-  # Enable WiFi support
-  networking.wireless.enable = false; # Disable wpa_supplicant (conflicts with NetworkManager)
+  # Wireless firmware support
   
   # Enable wireless support
   hardware.enableRedistributableFirmware = true;
