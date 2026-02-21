@@ -17,7 +17,7 @@
     glib               # For JavaFX GTK backend
     
     # AI/ML Tools
-    n8n
+    # n8n  # Commented out - OOM on low-RAM VMs, use Docker instead
     
     # Container tools (commented - enable as needed)
     docker-compose

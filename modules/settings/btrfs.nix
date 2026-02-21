@@ -1,7 +1,10 @@
 { config, pkgs, ... }:
 
 {
-  # Btrfs maintenance services
+  # Btrfs maintenance services and tools
+  environment.systemPackages = with pkgs; [
+    compsize  # Check btrfs compression ratio: sudo compsize /
+  ];
 
   # Weekly scrub to detect and fix data corruption
   services.btrfs.autoScrub = {
