@@ -21,6 +21,9 @@
   # Optimize storage
   nix.settings.auto-optimise-store = true;
   nix.optimise.automatic = true;
+
+  # Increase download buffer size to avoid slow cache downloads (default: 64 MiB)
+  nix.settings.download-buffer-size = 268435456; # 256 MiB
   
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;

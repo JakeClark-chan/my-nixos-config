@@ -457,16 +457,69 @@ This configuration is provided as-is for educational and personal use. Individua
 
 ---
 
-## 📚 Niri Migration
+## 📚 How to Install
+
+### Step 1 — Partition Your Disk
+
+Create **2 partitions** using your preferred tool (e.g. `cfdisk`):
+
+| Partition | Type | Size |
+|-----------|------|------|
+| `/dev/sdaX` | EFI System | 1 GB |
+| `/dev/sdaY` | Linux filesystem (Btrfs) | Remaining space |
+
+> [!TIP]
+> **Fixing an incorrect EFI partition type**
+> If the Calamares installer complains about your EFI partition, it likely has the wrong partition type. Fix it:
+> 1. Check disk label: `sudo fdisk -l /dev/sda` — look for `Disklabel type`. If it says `dos`, you need to recreate it as GPT first.
+> 2. Open the partition editor: `sudo cfdisk /dev/sda`
+> 3. Delete the faulty EFI partition and recreate it (512 MB – 1 GB).
+> 4. Set its **Type** to **EFI System** (not "Linux filesystem" or "Microsoft basic data").
+> 5. Write the changes and exit, then format it: `sudo mkfs.fat -F 32 /dev/sdaX`
+
+---
+
+### Step 2 — Install via Calamares
+
+Run the NixOS graphical installer with these options:
+
+- **Desktop Environment**: None (No DE)
+- **Unfree packages**: ✅ Allow unfree
+- **Partitioning**: Use **Manual** mode — ensure the Btrfs partition is empty and mount points are correct
+- Proceed with the normal install and reboot when done.
+
+---
+
+### Step 3 — Create the Btrfs Swap Subvolume
+
+After rebooting into the CLI, create the `@swap` subvolume before applying the NixOS config (it won't be created automatically):
 
 ```bash
-# 1. On your NixOS machine, switch to the niri branch
+# Mount the raw Btrfs partition (replace /dev/sdaY with your partition)
+sudo mount /dev/sdaY /mnt
+sudo btrfs subvolume create /mnt/@swap
+sudo umount /mnt
+```
+
+---
+
+### Step 4 — Apply This Configuration
+
+```bash
+# Get git, then clone this repo
+nix-shell -p git
+git clone https://github.com/JakeClark-chan/my-nixos-config nixos-config
+cd nixos-config
+
+# Switch to the niri branch
 git checkout niri
-git pull
-# 2. First, just test that it evaluates correctly
-sudo nixos-rebuild dry-build --flake .
-# 3. If that's clean, apply with "test" (doesn't persist across reboot)
-sudo nixos-rebuild test --flake .
-# 4. If niri works well, make it permanent
-sudo nixos-rebuild switch --flake .
+
+# Dry-run first to catch evaluation errors
+sudo nixos-rebuild dry-build --flake .#JakeClark-Sep21st
+
+# Test without persisting across reboot
+sudo nixos-rebuild test --flake .#JakeClark-Sep21st
+
+# If everything works, make it permanent
+sudo nixos-rebuild switch --flake .#JakeClark-Sep21st
 ```
