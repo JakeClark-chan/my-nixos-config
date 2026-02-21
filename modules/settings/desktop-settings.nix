@@ -16,7 +16,7 @@
   fontPackages = with pkgs; [
     cascadia-code
     noto-fonts-cjk-sans
-    noto-fonts-emoji
+    noto-fonts-color-emoji
     font-awesome
   ];
 
