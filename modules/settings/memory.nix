@@ -3,7 +3,7 @@
 {
   # Swap configuration
   swapDevices = [{
-  device = "/swapfile";   # Path where swapfile will be created
+  device = "/swap/swapfile";  # On @swap subvolume (nodatacow, no compression)
   size = 6 * 1024; # Size in MiB (6GB)
   priority = 10;   # Priority of the swap device
   }];

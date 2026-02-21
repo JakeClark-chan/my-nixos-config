@@ -23,9 +23,7 @@ in
     #distrobox # for sandboxing applications - open when docker or podman is installed
     python3Packages.uv # for virtual environments
     
-    # Screenshots and system monitoring
-    flameshot # for screenshot
-    grim
+    # Screenshots (niri has built-in screenshot, grim+slurp as backup)
     mission-center
     #nvtopPackages.nvidia
     

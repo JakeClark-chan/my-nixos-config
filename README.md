@@ -44,7 +44,6 @@ This is a modular NixOS flake configuration with integrated Home Manager for use
     │   │   ├── files.nix      # Dotfiles, XDG config, environment variables
     │   │   └── launchers.nix  # Desktop entries for custom scripts
     │   ├── .config/           # External application configuration files
-    │   │   ├── flameshot/     # Flameshot screenshot tool config
     │   │   ├── niri/          # Niri compositor config (config.kdl)
     │   │   ├── kitty/         # Kitty terminal config
     │   │   ├── starship.toml  # Starship prompt configuration
@@ -136,7 +135,7 @@ This is a modular NixOS flake configuration with integrated Home Manager for use
 - **Status Bar**: Waybar with custom config and CSS styling
 - **Media Players**: VLC (universal), playerctl for media key integration
 - **Image Viewer**: gThumb with basic editing capabilities
-- **Screenshot Tools**: Niri built-in screenshots, Flameshot (GUI), grim/slurp (Wayland-native)
+- **Screenshot Tools**: Niri built-in screenshots, grim/slurp (Wayland-native)
 - **Document Reader**: Okular for PDF/EPUB with annotation support
 - **Office Suite**: OnlyOffice Desktop Editors
 - **Color Picker**: wl-color-picker (Wayland native)
@@ -382,7 +381,7 @@ sudo nixos-rebuild switch --rollback
 - **Script Updates**: All scripts updated to use `niri msg`, `loginctl`, and `awww`
 
 ### **External Configuration Files**
-- **Config Directory**: `modules/home/.config/` with Niri, Flameshot, Waybar, Starship, SwayNC configs
+- **Config Directory**: `modules/home/.config/` with Niri, Waybar, Starship, SwayNC configs
 - **XDG Integration**: Managed via `xdg.configFile` in `files.nix`
 - **Starship Prompt**: Custom configuration with rich prompt styling
 

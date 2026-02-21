@@ -14,8 +14,15 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/e11481fb-3bf5-4fa0-9e76-c2523a169028";
-      fsType = "ext4";
+    { device = "/dev/disk/by-uuid/REPLACE-WITH-YOUR-BTRFS-UUID";
+      fsType = "btrfs";
+      options = [ "subvol=@root" "compress=zstd" "noatime" "space_cache=v2" ];
+    };
+
+  fileSystems."/home" =
+    { device = "/dev/disk/by-uuid/REPLACE-WITH-YOUR-BTRFS-UUID";
+      fsType = "btrfs";
+      options = [ "subvol=@home" "compress=zstd" "noatime" "space_cache=v2" ];
     };
 
   fileSystems."/boot" =
@@ -24,9 +31,10 @@
       options = [ "fmask=0077" "dmask=0077" ];
     };
 
-  fileSystems."/home" =
-    { device = "/dev/disk/by-uuid/7ede628c-9126-4ce0-ba26-3ee0b13099f3";
-      fsType = "ext4";
+  fileSystems."/swap" =
+    { device = "/dev/disk/by-uuid/REPLACE-WITH-YOUR-BTRFS-UUID";
+      fsType = "btrfs";
+      options = [ "subvol=@swap" "nodatacow" "compress=no" "noatime" "space_cache=v2" ];
     };
 
   swapDevices = [ ];

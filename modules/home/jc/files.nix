@@ -22,9 +22,6 @@
 
   # XDG configuration files
   xdg.configFile = {
-    # Flameshot configuration
-    "flameshot/flameshot.ini".source = ../.config/flameshot/flameshot.ini;
-
     # Waybar configuration
     "waybar/config.jsonc".source = ../.config/waybar/config.jsonc;
     "waybar/style.css".source = ../.config/waybar/style.css;
