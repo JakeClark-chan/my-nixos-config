@@ -48,7 +48,7 @@ in
     # IDE
     # vscode  # Commented out for niri migration
     antigravity-fhs
-    cargo
+    rustup  # Pre-built Rust toolchains (run `rustup default stable` to install)
     gcc
 
     # Browser

@@ -2,7 +2,6 @@
 
 {
   # Niri compositor configuration
-  # The config.kdl is managed in modules/home/.config/niri/config.kdl
-  # and loaded as a raw KDL string via niri-flake's programs.niri.config
-  programs.niri.config = builtins.readFile ../../.config/niri/config.kdl;
+  # The config.kdl is loaded via xdg.configFile from modules/home/.config/niri/config.kdl
+  xdg.configFile."niri/config.kdl".source = ../../.config/niri/config.kdl;
 }

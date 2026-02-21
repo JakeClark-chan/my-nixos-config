@@ -6,8 +6,8 @@
   description = "A simple NixOS flake";
 
   inputs = {
-    # NixOS official package source, using the 25.11 stable branch
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    # NixOS official package source, using the unstable branch (for niri cache compatibility)
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     # Auto-cpufreq for CPU frequency scaling (commented out - replaced with TLP)
     # auto-cpufreq = {
     #     url = "github:AdnanHodzic/auto-cpufreq";
@@ -15,12 +15,8 @@
     # };
     # Home Manager for user configuration
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.11";
+      url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-    # Niri compositor flake (don't follow nixpkgs — use niri's pinned version for cache hits)
-    niri = {
-      url = "github:sodiboo/niri-flake";
     };
     # Awww wallpaper daemon (successor to swww)
     awww = {
@@ -38,7 +34,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, zen-browser, prismlauncher-cracked, niri, awww, ... }@inputs: 
+  outputs = { self, nixpkgs, home-manager, zen-browser, prismlauncher-cracked, awww, ... }@inputs: 
   let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
@@ -53,8 +49,6 @@
       system = system;
       modules = [
         ./configuration.nix
-        # Niri compositor module
-        niri.nixosModules.niri
         # Home Manager module for user configuration
         home-manager.nixosModules.home-manager
         {

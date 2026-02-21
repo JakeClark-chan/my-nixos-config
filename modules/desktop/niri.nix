@@ -6,7 +6,7 @@
     ./general.nix
   ];
 
-  # Enable Niri (provided by niri-flake nixosModule)
+  # Enable Niri compositor (native nixpkgs)
   programs.niri.enable = true;
 
   # Enable display manager for Niri with autologin
