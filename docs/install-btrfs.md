@@ -4,7 +4,7 @@ Manual installation from NixOS live USB, applying the flake directly. Targeting 
 
 ## 1. Boot NixOS Live USB
 
-Boot the NixOS minimal ISO in VirtualBox. Open a terminal — you'll be root.
+Boot the NixOS minimal ISO in VirtualBox. Open a terminal — you'll be root. If not, run `sudo -i`.
 
 ```bash
 # Enable networking (should be auto)
@@ -102,6 +102,7 @@ git checkout niri
 ## 8. Update UUIDs in hardware-configuration.nix
 
 ```bash
+cp /mnt/etc/nixos/hardware-configuration.nix .
 # Edit hardware-configuration.nix with the correct UUIDs from step 6
 nano hardware-configuration.nix
 ```
