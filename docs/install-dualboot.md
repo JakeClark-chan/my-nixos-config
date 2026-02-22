@@ -29,6 +29,18 @@ Manual installation from NixOS live USB on an NVMe SSD with Windows already inst
 
 Boot the NixOS minimal ISO. Open a terminal — you'll be root. If not, run `sudo -i`.
 
+For tmux:
+
+```bash
+# Install tmux
+nix-env -iA nixpkgs.tmux
+
+# Start tmux
+tmux
+```
+
+For detailed instructions, see [install-btrfs.md](install-btrfs.md).
+
 ```bash
 # Enable networking
 systemctl start NetworkManager
