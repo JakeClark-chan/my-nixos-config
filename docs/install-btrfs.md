@@ -4,7 +4,43 @@ Manual installation from NixOS live USB, applying the flake directly. Targeting 
 
 ## 1. Boot NixOS Live USB
 
-Boot the NixOS minimal ISO in VirtualBox. Open a terminal — you'll be root. If not, run `sudo -i`.
+Boot the NixOS **minimal** ISO. Open a terminal — you'll be root. If not, run `sudo -i`.
+
+### Using tmux for split-pane workflow
+
+Use tmux to view this guide on the left while running commands on the right:
+
+```bash
+# Install tmux
+nix-env -iA nixpkgs.tmux
+
+# Start tmux
+tmux
+
+# Split into left/right panes
+# Press: Ctrl+B then %
+
+# LEFT PANE — view this guide
+cat /mnt/home/jc/nixos-config/docs/install-btrfs.md | less -N
+
+# Switch to RIGHT PANE: Ctrl+B then →
+# Run your install commands here
+
+# Switch back to LEFT PANE: Ctrl+B then ←
+```
+
+**Tmux key bindings** (all start with `Ctrl+B`):
+
+| Action | Keys |
+|--------|------|
+| Split left/right | `Ctrl+B` then `%` |
+| Split top/bottom | `Ctrl+B` then `"` |
+| Switch pane | `Ctrl+B` then `←` or `→` |
+| Enter scroll mode | `Ctrl+B` then `[` |
+| Scroll up/down | Arrow keys or `PgUp`/`PgDn` (in scroll mode) |
+| Exit scroll mode | `q` |
+| Resize pane | `Ctrl+B` hold `Ctrl+←` or `Ctrl+→` |
+| Close pane | `exit` or `Ctrl+D` |
 
 ```bash
 # Enable networking (should be auto)
