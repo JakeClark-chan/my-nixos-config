@@ -21,9 +21,9 @@ lsblk
 # Wipe and partition
 wipefs -a /dev/nvme0n1
 parted /dev/nvme0n1 -- mklabel gpt
-parted /dev/nvme0n1 -- mkpart ESP fat32 1MiB 512MiB
+parted /dev/nvme0n1 -- mkpart ESP fat32 1MiB 1024MiB
 parted /dev/nvme0n1 -- set 1 esp on
-parted /dev/nvme0n1 -- mkpart primary 512MiB 100%
+parted /dev/nvme0n1 -- mkpart primary 1024MiB 100%
 ```
 
 ## 3. Format Partitions
@@ -92,7 +92,7 @@ blkid /dev/nvme0n1p1
 nix-env -iA nixos.git
 
 # Clone your config
-git clone https://github.com/JakeClark38a/my-nixos-config.git /mnt/home/jc/nixos-config
+git clone https://github.com/JakeClark-chan/my-nixos-config.git /mnt/home/jc/nixos-config
 cd /mnt/home/jc/nixos-config
 
 # Switch to niri branch
