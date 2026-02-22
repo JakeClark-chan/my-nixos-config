@@ -1,6 +1,6 @@
-# NixOS Clean Install with Btrfs (VirtualBox)
+# NixOS Clean Install with Btrfs
 
-Manual installation from NixOS live USB, applying the flake directly.
+Manual installation from NixOS live USB, applying the flake directly. Targeting NVMe SSD.
 
 ## 1. Boot NixOS Live USB
 
@@ -15,32 +15,32 @@ nmcli device wifi connect "YourWiFi" password "YourPass"  # if needed
 ## 2. Partition the Disk
 
 ```bash
-# Identify your disk (usually /dev/sda in VirtualBox)
+# Identify your disk
 lsblk
 
 # Wipe and partition
-wipefs -a /dev/sda
-parted /dev/sda -- mklabel gpt
-parted /dev/sda -- mkpart ESP fat32 1MiB 512MiB
-parted /dev/sda -- set 1 esp on
-parted /dev/sda -- mkpart primary 512MiB 100%
+wipefs -a /dev/nvme0n1
+parted /dev/nvme0n1 -- mklabel gpt
+parted /dev/nvme0n1 -- mkpart ESP fat32 1MiB 512MiB
+parted /dev/nvme0n1 -- set 1 esp on
+parted /dev/nvme0n1 -- mkpart primary 512MiB 100%
 ```
 
 ## 3. Format Partitions
 
 ```bash
 # EFI partition
-mkfs.fat -F 32 -n BOOT /dev/sda1
+mkfs.fat -F 32 -n BOOT /dev/nvme0n1p1
 
 # Btrfs root partition
-mkfs.btrfs -f -L nixos /dev/sda2
+mkfs.btrfs -f -L nixos /dev/nvme0n1p2
 ```
 
 ## 4. Create Btrfs Subvolumes
 
 ```bash
 # Mount the btrfs partition temporarily
-mount /dev/sda2 /mnt
+mount /dev/nvme0n1p2 /mnt
 
 # Create subvolumes
 btrfs subvolume create /mnt/@root
@@ -55,19 +55,19 @@ umount /mnt
 
 ```bash
 # Mount @root subvolume
-mount -o subvol=@root,compress=zstd,noatime,space_cache=v2 /dev/sda2 /mnt
+mount -o subvol=@root,compress=zstd,noatime,space_cache=v2 /dev/nvme0n1p2 /mnt
 
 # Create mount points
 mkdir -p /mnt/{boot,home,swap}
 
 # Mount @home subvolume
-mount -o subvol=@home,compress=zstd,noatime,space_cache=v2 /dev/sda2 /mnt/home
+mount -o subvol=@home,compress=zstd,noatime,space_cache=v2 /dev/nvme0n1p2 /mnt/home
 
 # Mount @swap subvolume (no compression, no CoW)
-mount -o subvol=@swap,nodatacow,compress=no,noatime,space_cache=v2 /dev/sda2 /mnt/swap
+mount -o subvol=@swap,nodatacow,compress=no,noatime,space_cache=v2 /dev/nvme0n1p2 /mnt/swap
 
 # Mount EFI partition
-mount /dev/sda1 /mnt/boot
+mount /dev/nvme0n1p1 /mnt/boot
 ```
 
 ## 6. Generate Hardware Config & Get UUIDs
@@ -77,11 +77,11 @@ mount /dev/sda1 /mnt/boot
 nixos-generate-config --root /mnt
 
 # Note down the btrfs UUID (same for all subvolumes)
-blkid /dev/sda2
+blkid /dev/nvme0n1p2
 # Example: UUID="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
 # Note down the EFI UUID
-blkid /dev/sda1
+blkid /dev/nvme0n1p1
 # Example: UUID="XXXX-XXXX"
 ```
 
@@ -133,8 +133,8 @@ reboot
 ### GRUB not found after reboot
 ```bash
 # From live USB, mount and chroot
-mount -o subvol=@root,compress=zstd /dev/sda2 /mnt
-mount /dev/sda1 /mnt/boot
+mount -o subvol=@root,compress=zstd /dev/nvme0n1p2 /mnt
+mount /dev/nvme0n1p1 /mnt/boot
 nixos-enter --root /mnt
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=NixOS
 ```
