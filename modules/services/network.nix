@@ -3,6 +3,10 @@
 {
   # Define your hostname.
   networking.hostName = systemSettings.hostname;
+  
+  # Enable nftables (required for Incus on NixOS)
+  networking.nftables.enable = true;
+  
   # Enable networking via NetworkManager
   networking.networkmanager = {
     enable = true;
@@ -23,12 +27,10 @@
   };
   # Additional hosts
   networking.extraHosts = ''
-    172.18.0.4 target
-    172.18.0.2 mailhog
+    10.0.0.100 target
   '';
 
-  # Enable WiFi support
-  networking.wireless.enable = false; # Disable wpa_supplicant (conflicts with NetworkManager)
+  # Wireless firmware support
   
   # Enable wireless support
   hardware.enableRedistributableFirmware = true;
@@ -48,8 +50,8 @@
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
   networking.firewall = {
-    enable = true;
-    allowedTCPPorts = [ 80 443 ]; # HTTP, HTTPS
-    allowedUDPPorts = [ 53 ]; # DNS
+    enable = false;
+    # allowedTCPPorts = [ 80 443 ]; # HTTP, HTTPS
+    # allowedUDPPorts = [ 53 ]; # DNS
   };
 }

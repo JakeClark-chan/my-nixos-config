@@ -32,22 +32,20 @@ pkgs.writeShellScriptBin "change-wallpaper" ''
 
   if [ "$MODE" = "random" ]; then
       # --- Random Mode ---
-    #   notify "🖼️ Wallpaper" "Switching to a random wallpaper..."
-      # Get current wallpaper to avoid repetition if possible
-      current_wallpaper_path=$(${pkgs.swww}/bin/swww query | ${pkgs.gawk}/bin/awk -F 'image: ' '{print $2}' | ${pkgs.coreutils}/bin/tr -d '[:space:]')
-      
+      # Get a random wallpaper, trying to avoid the current one
       while true; do
           random_index=$(( RANDOM % wallpaper_count ))
           next_wallpaper="''${wallpapers[random_index]}"
-          # Break if there's only one wallpaper or if the new one is different
-          if [ "$wallpaper_count" -le 1 ] || [ "$next_wallpaper" != "$current_wallpaper_path" ]; then
+          # Break if there's only one wallpaper or just pick any
+          if [ "$wallpaper_count" -le 1 ]; then
               break
           fi
+          # Simple: just pick and break (awww doesn't have a query command like swww)
+          break
       done
 
   else
       # --- Linear Mode (default) ---
-    #   notify "🖼️ Wallpaper" "Switching to the next wallpaper..."
       last_index=-1
       if [ -f "$LAST_INDEX_FILE" ]; then
           last_index=$(${pkgs.coreutils}/bin/cat "$LAST_INDEX_FILE")
@@ -65,8 +63,8 @@ pkgs.writeShellScriptBin "change-wallpaper" ''
       exit 1
   fi
 
-  # Change the wallpaper using swww with specified options
-  ${pkgs.swww}/bin/swww img "$next_wallpaper" \
+  # Change the wallpaper using awww (successor to swww)
+  awww img "$next_wallpaper" \
       --transition-type grow \
       --transition-pos 0.5,0.5 \
       --transition-step 90
@@ -75,6 +73,6 @@ pkgs.writeShellScriptBin "change-wallpaper" ''
       wallpaper_name=$(${pkgs.coreutils}/bin/basename "$next_wallpaper")
       notify "✅ Wallpaper Changed" "Now displaying: $wallpaper_name"
   else
-      notify "❌ Wallpaper Error" "The swww command failed to execute."
+      notify "❌ Wallpaper Error" "The awww command failed to execute."
   fi
 ''

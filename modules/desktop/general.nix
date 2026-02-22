@@ -10,6 +10,9 @@
     ];
   };
 
+  # Disable GNOME's GCR SSH agent (conflicts with programs.ssh.startAgent in development.nix)
+  services.gnome.gcr-ssh-agent.enable = false;
+
   # Enable GVFS for file manager trash and mount functionality
   services.gvfs.enable = true;
   
@@ -66,8 +69,8 @@
     playerctl          # Media player control
 
     # File manager and utilities
-    xfce.thunar        # File manager
-    xfce.thunar-volman # Volume management for Thunar
+    xfce.thunar             # File manager (moved to top-level in newer nixpkgs)
+    xfce.thunar-volman      # Volume management for Thunar
     gvfs               # Virtual file system (required for trash)
     gnome-settings-daemon  # Settings daemon for proper file operations
     lxqt.lxqt-policykit # Lightweight polkit authentication agent

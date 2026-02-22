@@ -6,7 +6,7 @@
   description = "A simple NixOS flake";
 
   inputs = {
-    # NixOS official package source, using the unstable branch
+    # NixOS official package source, using the unstable branch (for niri cache compatibility)
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     # Auto-cpufreq for CPU frequency scaling (commented out - replaced with TLP)
     # auto-cpufreq = {
@@ -15,8 +15,12 @@
     # };
     # Home Manager for user configuration
     home-manager = {
-      url = "github:nix-community/home-manager/master";
+      url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # Awww wallpaper daemon (successor to swww)
+    awww = {
+      url = "git+https://codeberg.org/LGFae/awww";
     };
     # Zen Browser flake
     zen-browser = {
@@ -30,7 +34,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, zen-browser, prismlauncher-cracked, ... }@inputs: 
+  outputs = { self, nixpkgs, home-manager, zen-browser, prismlauncher-cracked, awww, ... }@inputs: 
   let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
@@ -45,7 +49,6 @@
       system = system;
       modules = [
         ./configuration.nix
-        # auto-cpufreq.nixosModules.default  # Commented out - replaced with TLP
         # Home Manager module for user configuration
         home-manager.nixosModules.home-manager
         {

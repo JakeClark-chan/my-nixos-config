@@ -22,9 +22,6 @@
 
   # XDG configuration files
   xdg.configFile = {
-    # Flameshot configuration
-    "flameshot/flameshot.ini".source = ../.config/flameshot/flameshot.ini;
-
     # Waybar configuration
     "waybar/config.jsonc".source = ../.config/waybar/config.jsonc;
     "waybar/style.css".source = ../.config/waybar/style.css;
@@ -32,10 +29,7 @@
     # Starship configuration
     "starship.toml".source = ../.config/starship.toml;
     
-    # Hyprland configuration
-    "hypr/hyprland.conf".text = builtins.replaceStrings 
-      [ "@backgroundPath@" ] 
-      [ desktopSettings.hyprland.backgroundPath ] 
-      (builtins.readFile ../.config/hypr/hyprland.conf);
+    # Swaync configuration
+    "swaync/config.json".source = ../.config/swaync/config.json;
   };
 }

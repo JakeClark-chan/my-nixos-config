@@ -5,7 +5,7 @@
     isNormalUser = true;
     description = systemSettings.userFullName;
     # Add common groups: network, sudo, docker
-    extraGroups = [ "networkmanager" "wheel" "docker" "lxd" "input" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "incus-admin" "input" ];
     shell = pkgs.zsh;
     # Set empty password for auto-login
     hashedPassword = "";

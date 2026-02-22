@@ -4,3 +4,13 @@ result-*
 
 # Ignore automatically generated direnv output
 .direnv
+
+# Ignore Python build artifacts
+**/*.pyc
+__pycache__/
+
+# Ignore hardware-configuration.nix
+hardware-configuration.nix
+
+# Ignore flake.lock — always generate fresh from flake.nix
+flake.lock

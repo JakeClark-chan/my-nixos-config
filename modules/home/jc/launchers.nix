@@ -3,23 +3,15 @@
 {
   # Desktop launchers and entries
   xdg.desktopEntries = {
-    # LXC GUI launcher
-    lxc-gui = {
-      name = "LXC GUI Standalone";
-      comment = "Manage LXD containers";
-      exec = "lxc-gui";
-      terminal = false;
-      categories = [ "Utility" "System" ];
-    };
 
     # Zen Browser with PRIME
-    zen = {
-      name = "Zen Browser (with Prime)";
-      comment = "Web browser";
-      exec = "prime-run zen";
-      terminal = false;
-      categories = [ "Utility" "System" ];
-    };
+    # zen = {
+    #   name = "Zen Browser (with Prime)";
+    #   comment = "Web browser";
+    #   exec = "prime-run zen";
+    #   terminal = false;
+    #   categories = [ "Utility" "System" ];
+    # };
 
     # PrismLauncher with Steam runtime
     prismlauncher = {

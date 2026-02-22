@@ -2,7 +2,7 @@
 
 pkgs.writeShellScriptBin "lock-screen" ''
   #!/bin/bash
-  # Lock screen script using hyprlock only
+  # Lock screen script using loginctl (compatible with Niri)
 
   # Function to show confirmation (optional)
   show_menu() {
@@ -15,7 +15,7 @@ pkgs.writeShellScriptBin "lock-screen" ''
       
       case "$choice" in
           "Lock Screen")
-              ${pkgs.hyprlock}/bin/hyprlock
+              loginctl lock-session
               ;;
           "Cancel"|"")
               exit 0
@@ -25,15 +25,15 @@ pkgs.writeShellScriptBin "lock-screen" ''
 
   # If argument provided, use directly
   case "$1" in
-      "hyprlock"|"")
-          ${pkgs.hyprlock}/bin/hyprlock
+      "lock"|"")
+          loginctl lock-session
           ;;
       "menu")
           show_menu
           ;;
       *)
-          # Default to hyprlock
-          ${pkgs.hyprlock}/bin/hyprlock
+          # Default to loginctl lock
+          loginctl lock-session
           ;;
   esac
 ''
