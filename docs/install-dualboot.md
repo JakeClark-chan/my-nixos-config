@@ -33,7 +33,7 @@ For tmux:
 
 ```bash
 # Install tmux
-nix-env -iA nixpkgs.tmux
+nix-env -iA nixos.tmux
 
 # Start tmux
 tmux
@@ -42,7 +42,7 @@ tmux
 For detailed instructions, see [install-btrfs.md](install-btrfs.md).
 
 ```bash
-# Enable networking
+# Enable networking if 
 systemctl start NetworkManager
 nmcli device wifi connect "YourWiFi" password "YourPass"  # if needed
 ```

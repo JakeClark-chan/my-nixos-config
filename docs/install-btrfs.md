@@ -12,7 +12,7 @@ Use tmux to view this guide on the left while running commands on the right:
 
 ```bash
 # Install tmux
-nix-env -iA nixpkgs.tmux
+nix-env -iA nixos.tmux nixos.git
 
 # Start tmux
 tmux
@@ -43,7 +43,7 @@ cat /mnt/home/jc/nixos-config/docs/install-btrfs.md | less -N
 | Close pane | `exit` or `Ctrl+D` |
 
 ```bash
-# Enable networking (should be auto)
+# Enable networking if you are using Wi-Fi
 systemctl start NetworkManager
 nmcli device wifi connect "YourWiFi" password "YourPass"  # if needed
 ```
@@ -124,9 +124,6 @@ blkid /dev/nvme0n1p1
 ## 7. Clone Your Flake
 
 ```bash
-# Install git in the live environment
-nix-env -iA nixos.git
-
 # Clone your config
 git clone https://github.com/JakeClark-chan/my-nixos-config.git /mnt/home/jc/nixos-config
 cd /mnt/home/jc/nixos-config
