@@ -99,15 +99,28 @@ cd /mnt/home/jc/nixos-config
 git checkout niri
 ```
 
-## 8. Update UUIDs in hardware-configuration.nix
+## 8. Update hardware-configuration.nix
+
+Use the pre-configured btrfs template (has correct mount options + @swap subvolume) instead of the auto-generated one:
 
 ```bash
-cp /mnt/etc/nixos/hardware-configuration.nix .
-# Edit hardware-configuration.nix with the correct UUIDs from step 6
-nano hardware-configuration.nix
+# Use the btrfs template (already has correct subvol options, nodatacow for swap, etc.)
+cp hardware-configuration-btrfs.nix hardware-configuration.nix
+
+# Get your UUIDs
+BTRFS_UUID=$(blkid -s UUID -o value /dev/nvme0n1p2)
+EFI_UUID=$(blkid -s UUID -o value /dev/nvme0n1p1)
+
+# Replace placeholder UUIDs
+sed -i "s/REPLACE-WITH-YOUR-BTRFS-UUID/$BTRFS_UUID/g" hardware-configuration.nix
+sed -i "s/DD75-BF81/$EFI_UUID/g" hardware-configuration.nix
+
+# Verify it looks correct
+cat hardware-configuration.nix
 ```
 
-Replace all `REPLACE-WITH-YOUR-BTRFS-UUID` with your actual btrfs UUID, and update the EFI UUID.
+> [!NOTE]
+> The auto-generated `nixos-generate-config` may miss `space_cache=v2`, the `@swap` subvolume, and `nodatacow`. That's why we use the pre-configured template.
 
 ## 9. Install NixOS with Your Flake
 
