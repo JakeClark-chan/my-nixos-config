@@ -117,6 +117,9 @@ sed -i "s/DD75-BF81/$EFI_UUID/g" hardware-configuration.nix
 
 # Verify it looks correct
 cat hardware-configuration.nix
+
+# IMPORTANT: Nix flakes only see Git-tracked files!
+git add hardware-configuration.nix
 ```
 
 > [!NOTE]

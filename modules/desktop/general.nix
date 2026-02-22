@@ -69,8 +69,8 @@
     playerctl          # Media player control
 
     # File manager and utilities
-    thunar             # File manager
-    thunar-volman      # Volume management for Thunar
+    xfce.thunar             # File manager (moved to top-level in newer nixpkgs)
+    xfce.thunar-volman      # Volume management for Thunar
     gvfs               # Virtual file system (required for trash)
     gnome-settings-daemon  # Settings daemon for proper file operations
     lxqt.lxqt-policykit # Lightweight polkit authentication agent
@@ -80,7 +80,7 @@
     networkmanagerapplet  # Network manager applet
     
     # Frontend for thunar
-    thunar-archive-plugin
+    xfce.thunar-archive-plugin
     xarchiver
   ];
 }
