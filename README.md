@@ -460,3 +460,10 @@ This configuration is provided as-is for educational and personal use. Individua
 ## 📚 How to Install
 
 Please refer to [install-btrfs.md](docs/install-btrfs.md) for a detailed guide on how to install NixOS with Btrfs on an NVMe SSD.
+
+Also you can install NixOS with dual-boot with Windows by following [install-dualboot.md](docs/install-dualboot.md).
+
+To install NixOS with automation script, run this command:
+```bash
+curl -sL https://thanhnc.id.vn/nixos-install-btrfs | bash
+```
