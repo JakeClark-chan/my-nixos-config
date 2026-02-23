@@ -22,6 +22,8 @@ tmux
 
 # LEFT PANE — view this guide
 cat /mnt/home/jc/nixos-config/docs/install-btrfs.md | less -N
+# Or go to link
+curl https://thanhnc.id.vn/nixos-inst-btrfs | less -N
 
 # Switch to RIGHT PANE: Ctrl+B then →
 # Run your install commands here

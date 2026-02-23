@@ -50,8 +50,8 @@
     cosmic-files     # File manager
     cosmic-launcher  # Application launcher
 
-    # Wallpaper daemon (awww from Codeberg flake)
-    inputs.awww.packages.${pkgs.system}.default
+    # Wallpaper daemon (swaybg from nixpkgs — cached, no compilation)
+    swaybg
 
     # Clipboard manager
     cliphist        # Clipboard history manager

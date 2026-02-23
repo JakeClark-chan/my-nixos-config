@@ -32,17 +32,8 @@ pkgs.writeShellScriptBin "change-wallpaper" ''
 
   if [ "$MODE" = "random" ]; then
       # --- Random Mode ---
-      # Get a random wallpaper, trying to avoid the current one
-      while true; do
-          random_index=$(( RANDOM % wallpaper_count ))
-          next_wallpaper="''${wallpapers[random_index]}"
-          # Break if there's only one wallpaper or just pick any
-          if [ "$wallpaper_count" -le 1 ]; then
-              break
-          fi
-          # Simple: just pick and break (awww doesn't have a query command like swww)
-          break
-      done
+      random_index=$(( RANDOM % wallpaper_count ))
+      next_wallpaper="''${wallpapers[random_index]}"
 
   else
       # --- Linear Mode (default) ---
@@ -63,16 +54,12 @@ pkgs.writeShellScriptBin "change-wallpaper" ''
       exit 1
   fi
 
-  # Change the wallpaper using awww (successor to swww)
-  awww img "$next_wallpaper" \
-      --transition-type grow \
-      --transition-pos 0.5,0.5 \
-      --transition-step 90
+  # Change the wallpaper using swaybg
+  # Kill any existing swaybg instance, then start a new one
+  ${pkgs.procps}/bin/pkill swaybg 2>/dev/null || true
+  ${pkgs.swaybg}/bin/swaybg -i "$next_wallpaper" -m fill &
+  disown
 
-  if [ $? -eq 0 ]; then
-      wallpaper_name=$(${pkgs.coreutils}/bin/basename "$next_wallpaper")
-      notify "✅ Wallpaper Changed" "Now displaying: $wallpaper_name"
-  else
-      notify "❌ Wallpaper Error" "The awww command failed to execute."
-  fi
+  wallpaper_name=$(${pkgs.coreutils}/bin/basename "$next_wallpaper")
+  notify "✅ Wallpaper Changed" "Now displaying: $wallpaper_name"
 ''

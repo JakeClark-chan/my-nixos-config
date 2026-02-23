@@ -18,10 +18,6 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # Awww wallpaper daemon (successor to swww)
-    awww = {
-      url = "git+https://codeberg.org/LGFae/awww";
-    };
     # Zen Browser flake
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake";
@@ -34,7 +30,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, zen-browser, prismlauncher-cracked, awww, ... }@inputs: 
+  outputs = { self, nixpkgs, home-manager, zen-browser, prismlauncher-cracked, ... }@inputs: 
   let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
