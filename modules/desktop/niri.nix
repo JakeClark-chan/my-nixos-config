@@ -14,7 +14,7 @@
     enable = true;
     settings = {
       default_session = {
-        command = "niri-session";
+        command = "niri --session";  # native nixpkgs niri (not niri-session from niri-flake)
         user = systemSettings.username;
       };
     };
