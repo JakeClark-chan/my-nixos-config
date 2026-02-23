@@ -399,11 +399,50 @@ sed -i "s/DD75-BF81/$EFI_UUID/g" hardware-configuration.nix
 
 success "UUIDs replaced in hardware-configuration.nix"
 echo ""
-info "Opening hardware-configuration.nix in nano for review..."
-info "Make any changes you need, then save (Ctrl+O) and exit (Ctrl+X)."
+info "Opening split-pane view for hardware configuration review..."
+info "  TOP pane:    Auto-generated config (READ-ONLY reference)"
+info "  BOTTOM pane: Your config (EDITABLE — make changes here)"
+echo ""
+info "When done editing: save (Ctrl+O), exit nano (Ctrl+X)."
+info "The top pane will close automatically."
 pause
 
-nano hardware-configuration.nix
+# Save the auto-generated config for reference
+GENERATED_CONFIG="/mnt/etc/nixos/hardware-configuration.nix"
+
+if command -v tmux &>/dev/null && [ -f "$GENERATED_CONFIG" ]; then
+    # Create a tmux session with split panes
+    TMUX_SESSION="hw-config-review"
+    tmux kill-session -t "$TMUX_SESSION" 2>/dev/null || true
+
+    # Start tmux with top pane showing generated config (read-only)
+    tmux new-session -d -s "$TMUX_SESSION" \
+        "echo -e '${YELLOW}═══ AUTO-GENERATED CONFIG (READ-ONLY — for reference only) ═══${NC}'; less -N $GENERATED_CONFIG"
+
+    # Split horizontally, bottom pane opens our config in nano
+    tmux split-window -v -t "$TMUX_SESSION" \
+        "echo -e '${GREEN}═══ YOUR CONFIG (EDITABLE — make changes here, Ctrl+O to save, Ctrl+X to exit) ═══${NC}'; sleep 1; nano ${INSTALL_DIR}/hardware-configuration.nix"
+
+    # Make bottom pane (editable) larger — 65% of height
+    tmux resize-pane -t "$TMUX_SESSION":0.1 -y "65%"
+
+    # Attach to the session — script blocks here until user exits nano
+    tmux attach -t "$TMUX_SESSION"
+
+    # Cleanup tmux session
+    tmux kill-session -t "$TMUX_SESSION" 2>/dev/null || true
+else
+    # Fallback: no tmux or no generated config — show side-by-side with cat then nano
+    if [ -f "$GENERATED_CONFIG" ]; then
+        warn "tmux not available. Showing auto-generated config first (read-only):"
+        echo "─────────────────────────────────────"
+        cat "$GENERATED_CONFIG"
+        echo "─────────────────────────────────────"
+        pause
+    fi
+    info "Now opening your config for editing..."
+    nano hardware-configuration.nix
+fi
 
 echo ""
 info "Final hardware-configuration.nix:"
